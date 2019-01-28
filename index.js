@@ -4,5 +4,5 @@
 
 'use strict';
 
-// Exports
-module.exports = {};
+// Re-export lib
+module.exports = require('./lib/');

@@ -1,7 +1,7 @@
 language: node_js
 
 script:
-  - "npm run travis"
+  - "npm run ci"
 
 node_js:
   - "10"
