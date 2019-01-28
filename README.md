@@ -174,7 +174,7 @@ The advantages of this change are:
 * No need for data dependencies to be "hoisted" to the page's root component
 * Therefore, components are less tightly coupled (the React way!)
 
-In the example above, the `<Pokemon>` component is completely independent. You can drop it in to any app, anywhere in the component tree, and it'll be able to load the data it needs, without any complex "wiring" up.
+In the example above, the `<Pokemon>` component is completely independent. You can drop it in to any app, anywhere in the component tree, and it'll be able to load the data it needs, without any complex "wiring up".
 
 However, some mechanism is required to gather the data loaded on the server in order to send it to the client for hydration.
 
