@@ -63,13 +63,25 @@ function itRendersWithSyncCompare(testName, fn, describe) {
 				// eslint-disable-next-line jest/expect-expect
 				it('renders expected HTML', () => {
 					// eslint-disable-next-line jest/no-test-return-statement
-					return fn({render: method, Suspense: React.Suspense, openTag, isStatic});
+					return fn({
+						render: method,
+						Suspense: React.Suspense,
+						lazy,
+						openTag,
+						isStatic
+					});
 				});
 
 				// eslint-disable-next-line jest/expect-expect
 				it(`renders same HTML as ReactDOM.${methodNameSync}`, () => {
 					// eslint-disable-next-line jest/no-test-return-statement
-					return fn({render: methodSync, Suspense: Passthrough, openTag, isStatic});
+					return fn({
+						render: methodSync,
+						Suspense: Passthrough,
+						lazy: lazySync,
+						openTag,
+						isStatic
+					});
 				});
 			});
 		});
@@ -140,6 +152,12 @@ function lazy(component, options) {
 			throw promise;
 		}
 
+		return React.createElement(component, props);
+	};
+}
+
+function lazySync(component) {
+	return function Lazy(props) {
 		return React.createElement(component, props);
 	};
 }
