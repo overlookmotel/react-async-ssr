@@ -20,13 +20,14 @@
     "react": "^16.7.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.2.3",
     "@babel/core": "^7.2.2",
     "@babel/preset-env": "^7.2.3",
     "@babel/preset-react": "^7.0.0",
     "@overlookmotel/eslint-config": "^1.1.0",
     "@overlookmotel/eslint-config-react": "^1.0.0",
     "@overlookmotel/eslint-config-tests": "^1.0.2",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-jest": "^23.6.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "coveralls": "^3.0.2",
@@ -35,13 +36,11 @@
     "eslint-plugin-chai-friendly": "^0.4.1",
     "eslint-plugin-eslint-comments": "^3.0.1",
     "eslint-plugin-react": "^7.12.4",
-    "istanbul": "^0.4.5",
-    "mocha": "^5.2.0",
+    "jest": "^23.6.0",
     "prop-types": "^15.6.2",
     "react": "^16.7.0",
     "sinon": "^7.2.3",
-    "sinon-chai": "^3.3.0",
-    "source-map-support": "^0.5.10"
+    "sinon-chai": "^3.3.0"
   },
   "keywords": [
     "react",
@@ -53,18 +52,15 @@
     "async"
   ],
   "scripts": {
-    "build": "rm -rf test/* && npm run build-only",
-    "build-only": "babel src --out-dir .",
     "test": "npm run lint && npm run test-main",
-    "lint": "eslint *.js .*.js lib/** src/** --ext .js",
-    "lint-fix": "eslint *.js .*.js lib/** src/** --ext .js --fix",
-    "test-main": "npm run build && npm run test-only && npm run test-only-prod",
-    "test-only": "cross-env NODE_ENV=development mocha --require source-map-support/register --check-leaks --colors -t 1000 -R spec 'test/**/*.test.js'",
-    "test-only-prod": "cross-env NODE_ENV=production mocha --require source-map-support/register --check-leaks --colors -t 1000 -R spec 'test/**/*.test.js'",
+    "lint": "eslint *.js .*.js lib/** test/** --ext .js",
+    "lint-fix": "eslint *.js .*.js lib/** test/** --ext .js --fix",
+    "test-main": "npm run test-only && npm run test-only-prod",
+    "test-only": "cross-env NODE_ENV=development jest",
+    "test-only-prod": "cross-env NODE_ENV=production jest",
     "cover": "npm run cover-main && rm -rf coverage",
     "coveralls": "npm run cover-main && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",
-    "cover-main": "npm run build && npm run cover-only",
-    "cover-only": "cross-env COVERAGE=true istanbul cover _mocha --report lcovonly -- -t 1000 -R spec 'test/**/*.test.js'",
+    "cover-main": "cross-env COVERAGE=true NODE_ENV=development jest --coverage",
     "ci": "if [ $COVERAGE ]; then npm run coveralls; else npm test; fi"
   },
   "engines": {
