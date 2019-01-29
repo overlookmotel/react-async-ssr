@@ -418,7 +418,7 @@ describe('Multiple lazy components', () => {
 				`));
 			});
 
-			itRenders.skip('prevents later elements being rendered', async ({render, openTag}) => {
+			itRenders('prevents later elements being rendered', async ({render, openTag}) => {
 				const Lazy1 = spy(lazy(() => <div>Lazy inner 1</div>));
 				const Lazy2 = spy(lazy(() => <div>Lazy inner 2</div>, {noSsr: true}));
 				const Lazy3 = spy(lazy(() => <div>Lazy inner 3</div>));
@@ -486,7 +486,7 @@ describe('Multiple lazy components', () => {
 
 				expect(promises[0].abort).to.be.calledOnce;
 				expect(promises[1].abort).to.be.calledOnce;
-				expect(promises[2].abort).to.be.calledOnce;
+				expect(promises[2]).to.be.undefined;
 				expect(promises[3].abort).not.to.be.called;
 
 				const h = await p;
@@ -515,7 +515,7 @@ describe('Multiple lazy components', () => {
 				expect(err).to.equal(promise);
 			});
 
-			itRenders.skip('prevents later elements being rendered', async ({render}) => {
+			itRenders('prevents later elements being rendered', async ({render}) => {
 				const Lazy1 = spy(lazy(() => <div>Lazy inner 1</div>));
 				const promise = Object.assign(new Promise(resolve => resolve()), {noSsr: true});
 				const Lazy2 = spy(() => {throw promise;});
@@ -572,7 +572,7 @@ describe('Multiple lazy components', () => {
 
 				expect(promises[0].abort).to.be.calledOnce;
 				expect(promises[1].abort).to.be.calledOnce;
-				expect(promises[2].abort).to.be.calledOnce;
+				expect(promises[2]).to.be.undefined;
 
 				await expect(p).to.be.rejected;
 				const {err} = await getPromiseState(p);
