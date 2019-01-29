@@ -387,79 +387,197 @@ describe('Multiple lazy components', () => {
 	});
 
 	describe('any one throwing promise aborts render and', () => {
-		itRenders('renders fallback if inside suspense', async ({render, openTag}) => {
-			const Lazy1 = lazy(() => <div>Lazy inner 1</div>);
-			const promise = Object.assign(new Promise(resolve => resolve()), {noSsr: true});
-			const Lazy2 = () => {throw promise;};
-			const Lazy3 = lazy(() => <div>Lazy inner 3</div>);
+		describe('inside suspense', () => {
+			itRenders('renders fallback', async ({render, openTag}) => {
+				const Lazy1 = lazy(() => <div>Lazy inner 1</div>);
+				const promise = Object.assign(new Promise(resolve => resolve()), {noSsr: true});
+				const Lazy2 = () => {throw promise;};
+				const Lazy3 = lazy(() => <div>Lazy inner 3</div>);
 
-			const e = (
-				<div>
-					<div>Before Suspense</div>
-					<Suspense fallback={<span>Fallback</span>}>
-						<div>Before Lazy</div>
+				const e = (
+					<div>
+						<div>Before Suspense</div>
+						<Suspense fallback={<span>Fallback</span>}>
+							<div>Before Lazy</div>
+							<Lazy1/>
+							<Lazy2/>
+							<Lazy3/>
+							<div>After Lazy</div>
+						</Suspense>
+						<div>After Suspense</div>
+					</div>
+				);
+
+				const h = await render(e);
+				expect(h).to.equal(removeSpacing(`
+					<div${openTag}>
+						<div>Before Suspense</div>
+						<span>Fallback</span>
+						<div>After Suspense</div>
+					</div>
+				`));
+			});
+
+			itRenders.skip('prevents later elements being rendered', async ({render, openTag}) => {
+				const Lazy1 = spy(lazy(() => <div>Lazy inner 1</div>));
+				const Lazy2 = spy(lazy(() => <div>Lazy inner 2</div>, {noSsr: true}));
+				const Lazy3 = spy(lazy(() => <div>Lazy inner 3</div>));
+				const Lazy4 = spy(lazy(() => <div>Lazy inner 4</div>));
+
+				const e = (
+					<div>
+						<Suspense fallback={<span>Fallback</span>}>
+							<Lazy1/>
+							<Lazy2/>
+							<Lazy3/>
+						</Suspense>
+						<Lazy4/>
+					</div>
+				);
+
+				const h = await render(e);
+
+				expect(Lazy1).to.be.called;
+				expect(Lazy2).to.be.called;
+				expect(Lazy3).not.to.be.called;
+				expect(Lazy4).to.be.called;
+
+				expect(h).to.equal(removeSpacing(`
+					<div${openTag}>
+						<span>Fallback</span>
+						<div>Lazy inner 4</div>
+					</div>
+				`));
+			});
+
+			itRenders('calls `.abort()` on all promises inside suspense', async ({render, openTag}) => {
+				const promises = [];
+				function makeLazy(num, noSsr) {
+					let loaded = false, promise;
+					return function LazyComponent() {
+						if (loaded) return <div>{`Lazy inner ${num}`}</div>;
+						if (!promise) {
+							promise = new Promise(resolve => resolve()).then(() => loaded = true);
+							if (noSsr) promise.noSsr = true;
+							promise.abort = spy();
+							promises[num - 1] = promise;
+						}
+						throw promise;
+					};
+				}
+
+				const Lazy1 = makeLazy(1);
+				const Lazy2 = makeLazy(2, true);
+				const Lazy3 = makeLazy(3);
+				const Lazy4 = makeLazy(4);
+
+				const e = (
+					<div>
+						<Suspense fallback={<span>Fallback</span>}>
+							<Lazy1/>
+							<Lazy2/>
+							<Lazy3/>
+						</Suspense>
+						<Lazy4/>
+					</div>
+				);
+
+				const p = render(e);
+
+				expect(promises[0].abort).to.be.calledOnce;
+				expect(promises[1].abort).to.be.calledOnce;
+				expect(promises[2].abort).to.be.calledOnce;
+				expect(promises[3].abort).not.to.be.called;
+
+				const h = await p;
+				expect(h).to.equal(`<div${openTag}><span>Fallback</span><div>Lazy inner 4</div></div>`);
+			});
+		});
+
+		describe('outside suspense', () => {
+			itRenders('rejects promise', async ({render}) => {
+				const Lazy1 = lazy(() => <div>Lazy inner 1</div>);
+				const promise = Object.assign(new Promise(resolve => resolve()), {noSsr: true});
+				const Lazy2 = () => {throw promise;};
+				const Lazy3 = lazy(() => <div>Lazy inner 3</div>);
+
+				const e = (
+					<div>
 						<Lazy1/>
 						<Lazy2/>
 						<Lazy3/>
-						<div>After Lazy</div>
-					</Suspense>
-					<div>After Suspense</div>
-				</div>
-			);
+					</div>
+				);
 
-			const h = await render(e);
-			expect(h).to.equal(removeSpacing(`
-				<div${openTag}>
-					<div>Before Suspense</div>
-					<span>Fallback</span>
-					<div>After Suspense</div>
-				</div>
-			`));
-		});
+				const p = render(e);
+				await expect(p).to.be.rejected;
+				const {err} = await getPromiseState(p);
+				expect(err).to.equal(promise);
+			});
 
-		itRenders('rejects promise if outside suspense', async ({render}) => {
-			const Lazy1 = lazy(() => <div>Lazy inner 1</div>);
-			const promise = Object.assign(new Promise(resolve => resolve()), {noSsr: true});
-			const Lazy2 = () => {throw promise;};
-			const Lazy3 = lazy(() => <div>Lazy inner 3</div>);
+			itRenders.skip('prevents later elements being rendered', async ({render}) => {
+				const Lazy1 = spy(lazy(() => <div>Lazy inner 1</div>));
+				const promise = Object.assign(new Promise(resolve => resolve()), {noSsr: true});
+				const Lazy2 = spy(() => {throw promise;});
+				const Lazy3 = spy(lazy(() => <div>Lazy inner 3</div>));
 
-			const e = (
-				<div>
-					<Lazy1/>
-					<Lazy2/>
-					<Lazy3/>
-				</div>
-			);
+				const e = (
+					<div>
+						<Lazy1/>
+						<Lazy2/>
+						<Lazy3/>
+					</div>
+				);
 
-			const p = render(e);
-			await expect(p).to.be.rejected;
-			const {err} = await getPromiseState(p);
-			expect(err).to.equal(promise);
-		});
+				const p = render(e);
 
-		// Test skipped for now as the behavior of aborting rest of render is not implemented yet
-		// TODO Enable this test when it's implemented
-		itRenders.skip('prevents later elements being rendered', async ({render}) => {
-			const Lazy1 = spy(lazy(() => <div>Lazy inner 1</div>));
-			const promise = Object.assign(new Promise(resolve => resolve()), {noSsr: true});
-			const Lazy2 = spy(() => {throw promise;});
-			const Lazy3 = spy(lazy(() => <div>Lazy inner 3</div>));
+				expect(Lazy1).to.be.called;
+				expect(Lazy2).to.be.called;
+				expect(Lazy3).not.to.be.called;
 
-			const e = (
-				<div>
-					<Lazy1/>
-					<Lazy2/>
-					<Lazy3/>
-				</div>
-			);
+				await expect(p).to.be.rejected;
+				const {err} = await getPromiseState(p);
+				expect(err).to.equal(promise);
+			});
 
-			const p = render(e);
-			const {err} = await getPromiseState(p);
-			expect(err).to.equal(promise);
+			itRenders('calls `.abort()` on all promises', async ({render}) => {
+				const promises = [];
+				function makeLazy(num, noSsr) {
+					let loaded = false, promise;
+					return function LazyComponent() {
+						if (loaded) return <div>{`Lazy inner ${num}`}</div>;
+						if (!promise) {
+							promise = new Promise(resolve => resolve()).then(() => loaded = true);
+							if (noSsr) promise.noSsr = true;
+							promise.abort = spy();
+							promises[num - 1] = promise;
+						}
+						throw promise;
+					};
+				}
 
-			expect(Lazy1).to.be.called;
-			expect(Lazy2).to.be.called;
-			expect(Lazy3).not.to.be.called;
+				const Lazy1 = makeLazy(1);
+				const Lazy2 = makeLazy(2, true);
+				const Lazy3 = makeLazy(3);
+
+				const e = (
+					<div>
+						<Lazy1/>
+						<Lazy2/>
+						<Lazy3/>
+					</div>
+				);
+
+				const p = render(e);
+
+				expect(promises[0].abort).to.be.calledOnce;
+				expect(promises[1].abort).to.be.calledOnce;
+				expect(promises[2].abort).to.be.calledOnce;
+
+				await expect(p).to.be.rejected;
+				const {err} = await getPromiseState(p);
+				expect(err).to.equal(promises[1]);
+			});
 		});
 	});
 });

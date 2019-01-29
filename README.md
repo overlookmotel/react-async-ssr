@@ -180,6 +180,12 @@ However, some mechanism is required to gather the data loaded on the server in o
 
 There are many solutions, for example using a [Redux](https://redux.js.org/) store, or a [Context](https://reactjs.org/docs/context.html) Provider at the root of the app. This package does not make any assumptions about how the user wants to handle this, and no doubt solutions will emerge from the community. All that this package requires is that components follow React's convention that components wishing to do async loading throw promises.
 
+#### Aborting unnecessary loading
+
+It's possible for a lazy component to begin loading, but then it's result not to be required, because an enclosing Suspense boundary's fallback gets triggered, and so the original content will not be displayed.
+
+In these cases, if the promise has an `.abort()` method, it will be called.
+
 ### Additional notes
 
 #### Stream rendering
