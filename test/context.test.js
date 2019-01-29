@@ -8,15 +8,14 @@
 // Modules
 const React = require('react'),
 	{Suspense} = React,
-	PropTypes = require('prop-types'),
-	{expect} = require('chai');
+	PropTypes = require('prop-types');
 
 // Imports
 const {itRenders, lazy, removeSpacing} = require('./utils');
 
 // Tests
 
-describe('Context propogates with', () => {
+describe('context propogates with', () => {
 	describe('new Context API', () => {
 		tests(() => React.createContext('default'));
 	});
@@ -81,7 +80,7 @@ function tests(makeContext) {
 				);
 
 				const h = await render(e);
-				expect(h).to.equal('val');
+				expect(h).toBe('val');
 			});
 
 			itRenders('multiple boundaries', async ({render}) => {
@@ -98,7 +97,7 @@ function tests(makeContext) {
 				);
 
 				const h = await render(e);
-				expect(h).to.equal('val');
+				expect(h).toBe('val');
 			});
 		});
 
@@ -128,7 +127,7 @@ function tests(makeContext) {
 				);
 
 				const h = await render(e);
-				expect(h).to.equal(removeSpacing(`
+				expect(h).toBe(removeSpacing(`
 					<div${openTag}>
 						<div>val</div>
 						<div>val2</div>
@@ -159,7 +158,7 @@ function tests(makeContext) {
 				);
 
 				const h = await render(e);
-				expect(h).to.equal(removeSpacing(`
+				expect(h).toBe(removeSpacing(`
 					<div${openTag}>
 						<div>val</div>
 						<div>val2</div>
@@ -187,7 +186,7 @@ function tests(makeContext) {
 				);
 
 				const h = await render(e);
-				expect(h).to.equal('val');
+				expect(h).toBe('val');
 			});
 
 			itRenders('multiple lazy components', async ({render}) => {
@@ -198,7 +197,7 @@ function tests(makeContext) {
 				);
 
 				const h = await render(e);
-				expect(h).to.equal('val');
+				expect(h).toBe('val');
 			});
 		});
 
@@ -235,7 +234,7 @@ function tests(makeContext) {
 				);
 
 				const h = await render(e);
-				expect(h).to.equal(removeSpacing(`
+				expect(h).toBe(removeSpacing(`
 					<div${openTag}>
 						<div>
 							<div>val</div>
@@ -260,7 +259,7 @@ function tests(makeContext) {
 				);
 
 				const h = await render(e);
-				expect(h).to.equal(removeSpacing(`
+				expect(h).toBe(removeSpacing(`
 					<div${openTag}>
 						<div>
 							<div>val</div>
@@ -295,7 +294,7 @@ function tests(makeContext) {
 				);
 
 				const h = await render(e);
-				expect(h).to.equal('val');
+				expect(h).toBe('val');
 			});
 
 			itRenders('in Suspense\'s scope', async ({render}) => {
@@ -310,7 +309,7 @@ function tests(makeContext) {
 				);
 
 				const h = await render(e);
-				expect(h).to.equal('val');
+				expect(h).toBe('val');
 			});
 		});
 
@@ -347,7 +346,7 @@ function tests(makeContext) {
 				);
 
 				const h = await render(e);
-				expect(h).to.equal(removeSpacing(`
+				expect(h).toBe(removeSpacing(`
 					<div${openTag}>
 						<div>
 							<div>val</div>
@@ -380,7 +379,7 @@ function tests(makeContext) {
 				);
 
 				const h = await render(e);
-				expect(h).to.equal(removeSpacing(`
+				expect(h).toBe(removeSpacing(`
 					<div${openTag}>
 						<div>
 							<div>val</div>

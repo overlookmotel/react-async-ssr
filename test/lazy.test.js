@@ -7,16 +7,17 @@
 
 // Modules
 const React = require('react'),
-	{Suspense} = React,
-	{expect} = require('chai'),
-	{spy} = require('sinon');
+	{Suspense} = React;
 
 // Imports
-const {itRenders, lazy, getPromiseState, removeSpacing} = require('./utils');
+const {itRenders, lazy, removeSpacing} = require('./utils');
+
+// Globals
+const spy = jest.fn;
 
 // Tests
 
-describe('Lazy component', () => {
+describe('lazy component', () => {
 	describe('inside Suspense', () => {
 		itRenders('renders lazily', async ({render, openTag}) => {
 			const Lazy = lazy(() => <div>Lazy inner</div>);
@@ -33,7 +34,7 @@ describe('Lazy component', () => {
 			);
 
 			const h = await render(e);
-			expect(h).to.equal(removeSpacing(`
+			expect(h).toBe(removeSpacing(`
 				<div${openTag}>
 					<div>Before Suspense</div>
 					<div>Before Lazy</div>
@@ -59,7 +60,7 @@ describe('Lazy component', () => {
 			);
 
 			const h = await render(e);
-			expect(h).to.equal(removeSpacing(`
+			expect(h).toBe(removeSpacing(`
 				<div${openTag}>
 					<div>Before Suspense</div>
 					<span>Fallback</span>
@@ -91,7 +92,7 @@ describe('Lazy component', () => {
 			);
 
 			const h = await render(e);
-			expect(h).to.equal(removeSpacing(`
+			expect(h).toBe(removeSpacing(`
 				<div${openTag}>
 					<div>Before Suspense</div>
 					<div>
@@ -122,9 +123,7 @@ describe('Lazy component', () => {
 			);
 
 			const p = render(e);
-			await expect(p).to.be.rejected;
-			const {err} = await getPromiseState(p);
-			expect(err).to.equal(promise);
+			await expect(p).rejects.toBe(promise);
 		});
 	});
 
@@ -148,7 +147,7 @@ describe('Lazy component', () => {
 			);
 
 			const h = await render(e);
-			expect(h).to.equal(removeSpacing(`
+			expect(h).toBe(removeSpacing(`
 				<div${openTag}>
 					<div>Before outer Suspense</div>
 					<div>Before inner Suspense</div>
@@ -180,7 +179,7 @@ describe('Lazy component', () => {
 			);
 
 			const h = await render(e);
-			expect(h).to.equal(removeSpacing(`
+			expect(h).toBe(removeSpacing(`
 				<div${openTag}>
 					<div>Before outer Suspense</div>
 					<div>Before inner Suspense</div>
@@ -211,7 +210,7 @@ describe('Lazy component', () => {
 			);
 
 			const h = await render(e);
-			expect(h).to.equal(removeSpacing(`
+			expect(h).toBe(removeSpacing(`
 				<div${openTag}>
 					<div>Before outer Suspense</div>
 					<span>Fallback outer</span>
@@ -243,9 +242,7 @@ describe('Lazy component', () => {
 			);
 
 			const p = render(e);
-			await expect(p).to.be.rejected;
-			const {err} = await getPromiseState(p);
-			expect(err).to.equal(promise);
+			await expect(p).rejects.toBe(promise);
 		});
 	});
 
@@ -259,7 +256,7 @@ describe('Lazy component', () => {
 			);
 
 			const h = await render(e);
-			expect(h).to.equal(removeSpacing(`
+			expect(h).toBe(removeSpacing(`
 				<div${openTag}>
 					<div>Lazy inner</div>
 				</div>
@@ -272,14 +269,12 @@ describe('Lazy component', () => {
 			const e = <div><Lazy/></div>;
 
 			const p = render(e);
-			await expect(p).to.be.rejected;
-			const {err} = await getPromiseState(p);
-			expect(err).to.equal(promise);
+			await expect(p).rejects.toBe(promise);
 		});
 	});
 });
 
-describe('Multiple lazy components', () => {
+describe('multiple lazy components', () => {
 	describe('renders all lazily', () => {
 		itRenders('with no Suspense', async ({render, openTag}) => {
 			const Lazy1 = lazy(() => <div>Lazy inner 1</div>);
@@ -294,7 +289,7 @@ describe('Multiple lazy components', () => {
 			);
 
 			const h = await render(e);
-			expect(h).to.equal(removeSpacing(`
+			expect(h).toBe(removeSpacing(`
 				<div${openTag}>
 					<div>Lazy inner 1</div>
 					<div>Lazy inner 2</div>
@@ -318,7 +313,7 @@ describe('Multiple lazy components', () => {
 			);
 
 			const h = await render(e);
-			expect(h).to.equal(removeSpacing(`
+			expect(h).toBe(removeSpacing(`
 				<div${openTag}>
 					<div>Lazy inner 1</div>
 					<div>Lazy inner 2</div>
@@ -342,12 +337,12 @@ describe('Multiple lazy components', () => {
 			);
 
 			const p = render(e);
-			expect(Lazy1).to.have.been.called;
-			expect(Lazy2).to.have.been.called;
-			expect(Lazy3).to.have.been.called;
+			expect(Lazy1).toHaveBeenCalled();
+			expect(Lazy2).toHaveBeenCalled();
+			expect(Lazy3).toHaveBeenCalled();
 
 			const h = await p;
-			expect(h).to.equal(removeSpacing(`
+			expect(h).toBe(removeSpacing(`
 				<div${openTag}>
 					<div>Lazy inner 1</div>
 					<div>Lazy inner 2</div>
@@ -371,12 +366,12 @@ describe('Multiple lazy components', () => {
 			);
 
 			const p = render(e);
-			expect(Lazy1).to.have.been.called;
-			expect(Lazy2).to.have.been.called;
-			expect(Lazy3).to.have.been.called;
+			expect(Lazy1).toHaveBeenCalled();
+			expect(Lazy2).toHaveBeenCalled();
+			expect(Lazy3).toHaveBeenCalled();
 
 			const h = await p;
-			expect(h).to.equal(removeSpacing(`
+			expect(h).toBe(removeSpacing(`
 				<div${openTag}>
 					<div>Lazy inner 1</div>
 					<div>Lazy inner 2</div>
@@ -409,7 +404,7 @@ describe('Multiple lazy components', () => {
 				);
 
 				const h = await render(e);
-				expect(h).to.equal(removeSpacing(`
+				expect(h).toBe(removeSpacing(`
 					<div${openTag}>
 						<div>Before Suspense</div>
 						<span>Fallback</span>
@@ -437,12 +432,12 @@ describe('Multiple lazy components', () => {
 
 				const h = await render(e);
 
-				expect(Lazy1).to.be.called;
-				expect(Lazy2).to.be.called;
-				expect(Lazy3).not.to.be.called;
-				expect(Lazy4).to.be.called;
+				expect(Lazy1).toHaveBeenCalled();
+				expect(Lazy2).toHaveBeenCalled();
+				expect(Lazy3).not.toHaveBeenCalled();
+				expect(Lazy4).toHaveBeenCalled();
 
-				expect(h).to.equal(removeSpacing(`
+				expect(h).toBe(removeSpacing(`
 					<div${openTag}>
 						<span>Fallback</span>
 						<div>Lazy inner 4</div>
@@ -484,13 +479,13 @@ describe('Multiple lazy components', () => {
 
 				const p = render(e);
 
-				expect(promises[0].abort).to.be.calledOnce;
-				expect(promises[1].abort).to.be.calledOnce;
-				expect(promises[2]).to.be.undefined;
-				expect(promises[3].abort).not.to.be.called;
+				expect(promises[0].abort).toHaveBeenCalledTimes(1);
+				expect(promises[1].abort).toHaveBeenCalledTimes(1);
+				expect(promises[2]).toBeUndefined();
+				expect(promises[3].abort).not.toHaveBeenCalled();
 
 				const h = await p;
-				expect(h).to.equal(`<div${openTag}><span>Fallback</span><div>Lazy inner 4</div></div>`);
+				expect(h).toBe(`<div${openTag}><span>Fallback</span><div>Lazy inner 4</div></div>`);
 			});
 		});
 
@@ -510,9 +505,7 @@ describe('Multiple lazy components', () => {
 				);
 
 				const p = render(e);
-				await expect(p).to.be.rejected;
-				const {err} = await getPromiseState(p);
-				expect(err).to.equal(promise);
+				await expect(p).rejects.toBe(promise);
 			});
 
 			itRenders('prevents later elements being rendered', async ({render}) => {
@@ -531,13 +524,11 @@ describe('Multiple lazy components', () => {
 
 				const p = render(e);
 
-				expect(Lazy1).to.be.called;
-				expect(Lazy2).to.be.called;
-				expect(Lazy3).not.to.be.called;
+				expect(Lazy1).toHaveBeenCalled();
+				expect(Lazy2).toHaveBeenCalled();
+				expect(Lazy3).not.toHaveBeenCalled();
 
-				await expect(p).to.be.rejected;
-				const {err} = await getPromiseState(p);
-				expect(err).to.equal(promise);
+				await expect(p).rejects.toBe(promise);
 			});
 
 			itRenders('calls `.abort()` on all promises', async ({render}) => {
@@ -570,19 +561,17 @@ describe('Multiple lazy components', () => {
 
 				const p = render(e);
 
-				expect(promises[0].abort).to.be.calledOnce;
-				expect(promises[1].abort).to.be.calledOnce;
-				expect(promises[2]).to.be.undefined;
+				expect(promises[0].abort).toHaveBeenCalledTimes(1);
+				expect(promises[1].abort).toHaveBeenCalledTimes(1);
+				expect(promises[2]).toBeUndefined();
 
-				await expect(p).to.be.rejected;
-				const {err} = await getPromiseState(p);
-				expect(err).to.equal(promises[1]);
+				await expect(p).rejects.toBe(promises[1]);
 			});
 		});
 	});
 });
 
-describe('Nested lazy components', () => {
+describe('nested lazy components', () => {
 	itRenders('renders lazily', async ({render, openTag}) => {
 		const Lazy3 = lazy(() => <div>Lazy inner</div>);
 		const Lazy2 = lazy(() => <div>Before Lazy Layer 2<Lazy3/>After Lazy Layer 2</div>);
@@ -600,7 +589,7 @@ describe('Nested lazy components', () => {
 		);
 
 		const h = await render(e);
-		expect(h).to.equal(removeSpacing(`
+		expect(h).toBe(removeSpacing(`
 			<div${openTag}>
 				<div>Before Suspense</div>
 				<div>Before Lazy</div>
@@ -633,9 +622,7 @@ describe('Nested lazy components', () => {
 			);
 
 			const p = render(e);
-			await expect(p).to.be.rejected;
-			const {err} = await getPromiseState(p);
-			expect(err).to.equal(promise);
+			await expect(p).rejects.toBe(promise);
 		});
 
 		itRenders('when nested 2 deep', async ({render}) => {
@@ -652,9 +639,7 @@ describe('Nested lazy components', () => {
 			);
 
 			const p = render(e);
-			await expect(p).to.be.rejected;
-			const {err} = await getPromiseState(p);
-			expect(err).to.equal(promise);
+			await expect(p).rejects.toBe(promise);
 		});
 	});
 
@@ -676,7 +661,7 @@ describe('Nested lazy components', () => {
 			);
 
 			const h = await render(e);
-			expect(h).to.equal(removeSpacing(`
+			expect(h).toBe(removeSpacing(`
 				<div${openTag}>
 					<div>Before Suspense</div>
 					<span>Fallback</span>
@@ -703,7 +688,7 @@ describe('Nested lazy components', () => {
 			);
 
 			const h = await render(e);
-			expect(h).to.equal(removeSpacing(`
+			expect(h).toBe(removeSpacing(`
 				<div${openTag}>
 					<div>Before Suspense</div>
 					<span>Fallback</span>

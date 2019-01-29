@@ -10,15 +10,6 @@ const React = require('react'),
 	ReactDOM = require('react-dom/server'),
 	ssr = require('../index');
 
-// Add chai-as-promised + sinon-chai extensions to chai
-const chai = require('chai'),
-	chaiAsPromised = require('chai-as-promised'),
-	sinonChai = require('sinon-chai');
-
-chai.config.includeStack = true;
-chai.use(chaiAsPromised);
-chai.use(sinonChai);
-
 // Throw any unhandled promise rejections
 process.on('unhandledRejection', err => {
 	throw err;
@@ -29,7 +20,6 @@ module.exports = {
 	itRenders: wrapMethod(itRenders),
 	itRendersWithSyncCompare: wrapMethod(itRendersWithSyncCompare),
 	lazy,
-	getPromiseState,
 	removeSpacing
 };
 
@@ -42,9 +32,12 @@ module.exports = {
  *  - `isStatic`: `true` if method is `renderToStaticMarkupAsync`
  */
 function itRenders(testName, fn, describe) {
+	// eslint-disable-next-line jest/valid-describe
 	describe(testName, () => {
 		runGroups(({testName, method, openTag, isStatic}) => {
+			// eslint-disable-next-line jest/expect-expect
 			it(testName, () => {
+				// eslint-disable-next-line jest/no-test-return-statement
 				return fn({render: method, openTag, isStatic});
 			});
 		});
@@ -62,14 +55,20 @@ function itRenders(testName, fn, describe) {
  */
 
 function itRendersWithSyncCompare(testName, fn, describe) {
+	// eslint-disable-next-line jest/valid-describe
 	describe(testName, () => {
 		runGroups(({testName, method, methodSync, methodNameSync, openTag, isStatic}) => {
+			// eslint-disable-next-line jest/valid-describe
 			describe(testName, () => {
+				// eslint-disable-next-line jest/expect-expect
 				it('renders expected HTML', () => {
+					// eslint-disable-next-line jest/no-test-return-statement
 					return fn({render: method, Suspense: React.Suspense, openTag, isStatic});
 				});
 
+				// eslint-disable-next-line jest/expect-expect
 				it(`renders same HTML as ReactDOM.${methodNameSync}`, () => {
+					// eslint-disable-next-line jest/no-test-return-statement
 					return fn({render: methodSync, Suspense: Passthrough, openTag, isStatic});
 				});
 			});
@@ -148,13 +147,6 @@ function lazy(component, options) {
 /*
  * Utility functions used in individual tests
  */
-function getPromiseState(promise) {
-	return Promise.resolve(promise).then(
-		value => ({resolved: true, rejected: false, value}),
-		err => ({resolved: false, rejected: true, err})
-	);
-}
-
 function removeSpacing(text) {
 	return text.replace(/\s*(?:\r?\n|^|$)\s*/g, '');
 }

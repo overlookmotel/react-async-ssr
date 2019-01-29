@@ -6,32 +6,31 @@
 'use strict';
 
 // Modules
-const React = require('react'),
-	{expect} = require('chai');
+const React = require('react');
 
 // Imports
 const {itRendersWithSyncCompare} = require('./utils');
 
 // Tests
 
-describe('Without Suspense', function() {
+describe('without Suspense', function() {
 	describe('plain', function() {
 		itRendersWithSyncCompare('string', async ({render}) => {
 			const e = 'text';
 			const h = await render(e);
-			expect(h).to.equal('text');
+			expect(h).toBe('text');
 		});
 
 		itRendersWithSyncCompare('div', async ({render, openTag}) => {
 			const e = <div>text</div>;
 			const h = await render(e);
-			expect(h).to.equal(`<div${openTag}>text</div>`);
+			expect(h).toBe(`<div${openTag}>text</div>`);
 		});
 
 		itRendersWithSyncCompare('nested divs', async ({render, openTag}) => {
 			const e = <div><div>text</div></div>;
 			const h = await render(e);
-			expect(h).to.equal(`<div${openTag}><div>text</div></div>`);
+			expect(h).toBe(`<div${openTag}><div>text</div></div>`);
 		});
 	});
 
@@ -40,21 +39,21 @@ describe('Without Suspense', function() {
 			const Comp = () => 'text';
 			const e = <Comp/>;
 			const h = await render(e);
-			expect(h).to.equal('text');
+			expect(h).toBe('text');
 		});
 
 		itRendersWithSyncCompare('div', async ({render, openTag}) => {
 			const Comp = () => <div>text</div>;
 			const e = <Comp/>;
 			const h = await render(e);
-			expect(h).to.equal(`<div${openTag}>text</div>`);
+			expect(h).toBe(`<div${openTag}>text</div>`);
 		});
 
 		itRendersWithSyncCompare('nested divs', async ({render, openTag}) => {
 			const Comp = () => <div><div>text</div></div>;
 			const e = <Comp/>;
 			const h = await render(e);
-			expect(h).to.equal(`<div${openTag}><div>text</div></div>`);
+			expect(h).toBe(`<div${openTag}><div>text</div></div>`);
 		});
 	});
 
@@ -67,7 +66,7 @@ describe('Without Suspense', function() {
 			}
 			const e = <Comp/>;
 			const h = await render(e);
-			expect(h).to.equal('text');
+			expect(h).toBe('text');
 		});
 
 		itRendersWithSyncCompare('div', async ({render, openTag}) => {
@@ -78,7 +77,7 @@ describe('Without Suspense', function() {
 			}
 			const e = <Comp/>;
 			const h = await render(e);
-			expect(h).to.equal(`<div${openTag}>text</div>`);
+			expect(h).toBe(`<div${openTag}>text</div>`);
 		});
 
 		itRendersWithSyncCompare('nested divs', async ({render, openTag}) => {
@@ -89,7 +88,7 @@ describe('Without Suspense', function() {
 			}
 			const e = <Comp/>;
 			const h = await render(e);
-			expect(h).to.equal(`<div${openTag}><div>text</div></div>`);
+			expect(h).toBe(`<div${openTag}><div>text</div></div>`);
 		});
 	});
 });
