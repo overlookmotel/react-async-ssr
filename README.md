@@ -26,10 +26,10 @@ npm install react-async-ssr
 Before:
 
 ```js
-const ReactDOM = require('react-dom/server');
+const ReactDOMServer = require('react-dom/server');
 
 function render() {
-  const html = ReactDOM.renderToString(<App />);
+  const html = ReactDOMServer.renderToString(<App />);
   return html;
 }
 ```
@@ -37,10 +37,10 @@ function render() {
 After:
 
 ```js
-const ReactDOM = require('react-async-ssr');
+const ReactDOMServer = require('react-async-ssr');
 
 async function render() {
-  const html = await ReactDOM.renderToStringAsync(<App />);
+  const html = await ReactDOMServer.renderToStringAsync(<App />);
   return html;
 }
 ```
