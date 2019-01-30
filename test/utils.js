@@ -7,7 +7,7 @@
 
 // Modules
 const React = require('react'),
-	ReactDOM = require('react-dom/server'),
+	ReactDOMServer = require('react-dom/server'),
 	ssr = require('../index');
 
 // Throw any unhandled promise rejections
@@ -97,7 +97,7 @@ function runGroups(fn) {
 		testName: 'with renderToStringAsync',
 		methodNameSync: 'renderToString',
 		method: ssr.renderToStringAsync,
-		methodSync: e => Promise.resolve(ReactDOM.renderToString(e)),
+		methodSync: e => Promise.resolve(ReactDOMServer.renderToString(e)),
 		openTag: ' data-reactroot=""',
 		isStatic: false
 	});
@@ -106,7 +106,7 @@ function runGroups(fn) {
 		testName: 'with renderToStaticMarkupAsync',
 		methodNameSync: 'renderToStaticMarkup',
 		method: ssr.renderToStaticMarkupAsync,
-		methodSync: e => Promise.resolve(ReactDOM.renderToStaticMarkup(e)),
+		methodSync: e => Promise.resolve(ReactDOMServer.renderToStaticMarkup(e)),
 		openTag: '',
 		isStatic: true
 	});
