@@ -123,37 +123,56 @@ function wrapMethod(method) {
 	return methodWrapped;
 }
 
-/*
+/**
  * Function to simulate lazy components.
  * Returns a component which throws a promise when first rendered,
  * and if re-rendered after promise has resolved, returns an element made from
  * the provided component.
  * If `.noSsr` option set, throws a promise with `.noSsr` property.
+ *
+ * @param {Function} component - Component to render
+ * @param {Object} [options] - Options object
+ * @param {boolean} [options.noSsr=false] - If `true`, throws promise with `.noSsr` property
+ * @param {boolean} [options.noResolve=false] - If `true`, throws promise that never resolves
+ * @param {number} [options.delay=undefined] - If provided, throws promise that delays
+ *   provided number of ms before resolving
+ * @returns {Function} - React component
  */
 function lazy(component, options) {
 	if (!options) options = {};
-	const noSsr = !!options.noSsr;
 
 	let loaded = false, promise;
-	return function Lazy(props) {
-		if (!loaded) {
-			if (!promise) {
-				if (noSsr) {
-					promise = new Promise(() => {});
-					promise.noSsr = true;
-				} else {
-					promise = new Promise(resolve => setTimeout(() => {
+	const Lazy = function Lazy(props) {
+		if (loaded) return React.createElement(component, props);
+
+		if (!promise) {
+			if (options.noSsr) {
+				promise = new Promise(() => {});
+				promise.noSsr = true;
+			} else if (options.noResolve) {
+				promise = new Promise(() => {});
+			} else if (options.delay != null) {
+				promise = new Promise(resolve => {
+					setTimeout(() => {
 						loaded = true;
 						resolve();
-					}));
-				}
+					}, options.delay);
+				});
+			} else {
+				promise = new Promise(resolve => {
+					loaded = true;
+					resolve();
+				});
 			}
 
-			throw promise;
+			promise.abort = jest.fn(); // Spy
+			Lazy.promise = promise;
 		}
 
-		return React.createElement(component, props);
+		throw promise;
 	};
+
+	return Lazy;
 }
 
 function lazySync(component) {

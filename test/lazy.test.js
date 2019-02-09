@@ -21,6 +21,7 @@ describe('lazy component', () => {
 	describe('inside Suspense', () => {
 		itRenders('renders lazily', async ({render, openTag}) => {
 			const Lazy = lazy(() => <div>Lazy inner</div>);
+
 			const e = (
 				<div>
 					<div>Before Suspense</div>
@@ -47,6 +48,7 @@ describe('lazy component', () => {
 
 		itRenders('renders fallback when marked no SSR', async ({render, openTag}) => {
 			const Lazy = lazy(() => <div>Lazy inner</div>, {noSsr: true});
+
 			const e = (
 				<div>
 					<div>Before Suspense</div>
@@ -79,6 +81,7 @@ describe('lazy component', () => {
 					<div>After Fallback</div>
 				</div>
 			);
+
 			const e = (
 				<div>
 					<div>Before Suspense</div>
@@ -107,8 +110,7 @@ describe('lazy component', () => {
 
 		itRenders('rejects when promise marked no SSR and fallback throws promise marked no SSR', async ({render}) => {
 			const Lazy = lazy(() => <div>Lazy inner</div>, {noSsr: true});
-			const promise = Object.assign(new Promise(resolve => resolve()), {noSsr: true});
-			const LazyFallback = () => {throw promise;};
+			const LazyFallback = lazy(() => <div>Fallback</div>, {noSsr: true});
 
 			const e = (
 				<div>
@@ -123,13 +125,14 @@ describe('lazy component', () => {
 			);
 
 			const p = render(e);
-			await expect(p).rejects.toBe(promise);
+			await expect(p).rejects.toBe(LazyFallback.promise);
 		});
 	});
 
 	describe('inside nested Suspenses', () => {
 		itRenders('renders lazily', async ({render, openTag}) => {
 			const Lazy = lazy(() => <div>Lazy inner</div>);
+
 			const e = (
 				<div>
 					<div>Before outer Suspense</div>
@@ -162,6 +165,7 @@ describe('lazy component', () => {
 
 		itRenders('renders fallback of inner Suspense when marked no SSR', async ({render, openTag}) => {
 			const Lazy = lazy(() => <div>Lazy inner</div>, {noSsr: true});
+
 			const e = (
 				<div>
 					<div>Before outer Suspense</div>
@@ -193,6 +197,7 @@ describe('lazy component', () => {
 		itRenders('renders fallback of outer Suspense when marked no SSR and inner fallback throws promise marked no SSR', async ({render, openTag}) => {
 			const Lazy = lazy(() => <div>Lazy inner</div>, {noSsr: true});
 			const LazyFallback = lazy(() => <div>Lazy fallback</div>, {noSsr: true});
+
 			const e = (
 				<div>
 					<div>Before outer Suspense</div>
@@ -221,9 +226,8 @@ describe('lazy component', () => {
 
 		itRenders('rejects when promise marked no SSR and both fallbacks throw promises marked no SSR', async ({render}) => {
 			const Lazy = lazy(() => <div>Lazy inner</div>, {noSsr: true});
-			const LazyFallbackInner = lazy(() => <div>Lazy fallback</div>, {noSsr: true});
-			const promise = Object.assign(new Promise(resolve => resolve()), {noSsr: true});
-			const LazyFallbackOuter = () => {throw promise;};
+			const LazyFallbackInner = lazy(() => <div>Fallback inner</div>, {noSsr: true});
+			const LazyFallbackOuter = lazy(() => <div>Fallback outer</div>, {noSsr: true});
 
 			const e = (
 				<div>
@@ -242,13 +246,14 @@ describe('lazy component', () => {
 			);
 
 			const p = render(e);
-			await expect(p).rejects.toBe(promise);
+			await expect(p).rejects.toBe(LazyFallbackOuter.promise);
 		});
 	});
 
 	describe('not inside Suspense', () => {
 		itRenders('renders lazily', async ({render, openTag}) => {
 			const Lazy = lazy(() => <div>Lazy inner</div>);
+
 			const e = (
 				<div>
 					<Lazy/>
@@ -264,12 +269,12 @@ describe('lazy component', () => {
 		});
 
 		itRenders('rejects when promise marked no SSR', async ({render}) => {
-			const promise = Object.assign(new Promise(resolve => resolve()), {noSsr: true});
-			const Lazy = () => {throw promise;};
+			const Lazy = lazy(() => <div>Lazy inner</div>, {noSsr: true});
+
 			const e = <div><Lazy/></div>;
 
 			const p = render(e);
-			await expect(p).rejects.toBe(promise);
+			await expect(p).rejects.toBe(Lazy.promise);
 		});
 	});
 });
@@ -280,6 +285,7 @@ describe('multiple lazy components', () => {
 			const Lazy1 = lazy(() => <div>Lazy inner 1</div>);
 			const Lazy2 = lazy(() => <div>Lazy inner 2</div>);
 			const Lazy3 = lazy(() => <div>Lazy inner 3</div>);
+
 			const e = (
 				<div>
 					<Lazy1/>
@@ -302,6 +308,7 @@ describe('multiple lazy components', () => {
 			const Lazy1 = lazy(() => <div>Lazy inner 1</div>);
 			const Lazy2 = lazy(() => <div>Lazy inner 2</div>);
 			const Lazy3 = lazy(() => <div>Lazy inner 3</div>);
+
 			const e = (
 				<div>
 					<Suspense fallback={<span>Fallback</span>}>
@@ -328,6 +335,7 @@ describe('multiple lazy components', () => {
 			const Lazy1 = spy(lazy(() => <div>Lazy inner 1</div>));
 			const Lazy2 = spy(lazy(() => <div>Lazy inner 2</div>));
 			const Lazy3 = spy(lazy(() => <div>Lazy inner 3</div>));
+
 			const e = (
 				<div>
 					<Lazy1/>
@@ -355,6 +363,7 @@ describe('multiple lazy components', () => {
 			const Lazy1 = spy(lazy(() => <div>Lazy inner 1</div>));
 			const Lazy2 = spy(lazy(() => <div>Lazy inner 2</div>));
 			const Lazy3 = spy(lazy(() => <div>Lazy inner 3</div>));
+
 			const e = (
 				<div>
 					<Suspense fallback={<span>Fallback</span>}>
@@ -385,8 +394,7 @@ describe('multiple lazy components', () => {
 		describe('inside suspense', () => {
 			itRenders('renders fallback', async ({render, openTag}) => {
 				const Lazy1 = lazy(() => <div>Lazy inner 1</div>);
-				const promise = Object.assign(new Promise(resolve => resolve()), {noSsr: true});
-				const Lazy2 = () => {throw promise;};
+				const Lazy2 = lazy(() => <div>Lazy inner 2</div>, {noSsr: true});
 				const Lazy3 = lazy(() => <div>Lazy inner 3</div>);
 
 				const e = (
@@ -446,25 +454,10 @@ describe('multiple lazy components', () => {
 			});
 
 			itRenders('calls `.abort()` on all promises inside suspense', async ({render, openTag}) => {
-				const promises = [];
-				function makeLazy(num, noSsr) {
-					let loaded = false, promise;
-					return function LazyComponent() {
-						if (loaded) return <div>{`Lazy inner ${num}`}</div>;
-						if (!promise) {
-							promise = new Promise(resolve => resolve()).then(() => loaded = true);
-							if (noSsr) promise.noSsr = true;
-							promise.abort = spy();
-							promises[num - 1] = promise;
-						}
-						throw promise;
-					};
-				}
-
-				const Lazy1 = makeLazy(1);
-				const Lazy2 = makeLazy(2, true);
-				const Lazy3 = makeLazy(3);
-				const Lazy4 = makeLazy(4);
+				const Lazy1 = lazy(() => <div>Lazy inner 1</div>);
+				const Lazy2 = lazy(() => <div>Lazy inner 2</div>, {noSsr: true});
+				const Lazy3 = lazy(() => <div>Lazy inner 3</div>);
+				const Lazy4 = lazy(() => <div>Lazy inner 4</div>);
 
 				const e = (
 					<div>
@@ -479,10 +472,10 @@ describe('multiple lazy components', () => {
 
 				const p = render(e);
 
-				expect(promises[0].abort).toHaveBeenCalledTimes(1);
-				expect(promises[1].abort).toHaveBeenCalledTimes(1);
-				expect(promises[2]).toBeUndefined();
-				expect(promises[3].abort).not.toHaveBeenCalled();
+				expect(Lazy1.promise.abort).toHaveBeenCalledTimes(1);
+				expect(Lazy2.promise.abort).toHaveBeenCalledTimes(1);
+				expect(Lazy3.promise).toBeUndefined();
+				expect(Lazy4.promise.abort).not.toHaveBeenCalled();
 
 				const h = await p;
 				expect(h).toBe(`<div${openTag}><span>Fallback</span><div>Lazy inner 4</div></div>`);
@@ -492,8 +485,7 @@ describe('multiple lazy components', () => {
 		describe('outside suspense', () => {
 			itRenders('rejects promise', async ({render}) => {
 				const Lazy1 = lazy(() => <div>Lazy inner 1</div>);
-				const promise = Object.assign(new Promise(resolve => resolve()), {noSsr: true});
-				const Lazy2 = () => {throw promise;};
+				const Lazy2 = lazy(() => <div>Lazy inner 2</div>, {noSsr: true});
 				const Lazy3 = lazy(() => <div>Lazy inner 3</div>);
 
 				const e = (
@@ -505,13 +497,13 @@ describe('multiple lazy components', () => {
 				);
 
 				const p = render(e);
-				await expect(p).rejects.toBe(promise);
+				await expect(p).rejects.toBe(Lazy2.promise);
 			});
 
 			itRenders('prevents later elements being rendered', async ({render}) => {
 				const Lazy1 = spy(lazy(() => <div>Lazy inner 1</div>));
-				const promise = Object.assign(new Promise(resolve => resolve()), {noSsr: true});
-				const Lazy2 = spy(() => {throw promise;});
+				const Lazy2Actual = lazy(() => <div>Lazy inner 2</div>, {noSsr: true});
+				const Lazy2 = spy(Lazy2Actual);
 				const Lazy3 = spy(lazy(() => <div>Lazy inner 3</div>));
 
 				const e = (
@@ -528,28 +520,13 @@ describe('multiple lazy components', () => {
 				expect(Lazy2).toHaveBeenCalled();
 				expect(Lazy3).not.toHaveBeenCalled();
 
-				await expect(p).rejects.toBe(promise);
+				await expect(p).rejects.toBe(Lazy2Actual.promise);
 			});
 
 			itRenders('calls `.abort()` on all promises', async ({render}) => {
-				const promises = [];
-				function makeLazy(num, noSsr) {
-					let loaded = false, promise;
-					return function LazyComponent() {
-						if (loaded) return <div>{`Lazy inner ${num}`}</div>;
-						if (!promise) {
-							promise = new Promise(resolve => resolve()).then(() => loaded = true);
-							if (noSsr) promise.noSsr = true;
-							promise.abort = spy();
-							promises[num - 1] = promise;
-						}
-						throw promise;
-					};
-				}
-
-				const Lazy1 = makeLazy(1);
-				const Lazy2 = makeLazy(2, true);
-				const Lazy3 = makeLazy(3);
+				const Lazy1 = lazy(() => <div>Lazy inner 1</div>);
+				const Lazy2 = lazy(() => <div>Lazy inner 2</div>, {noSsr: true});
+				const Lazy3 = lazy(() => <div>Lazy inner 3</div>);
 
 				const e = (
 					<div>
@@ -561,11 +538,11 @@ describe('multiple lazy components', () => {
 
 				const p = render(e);
 
-				expect(promises[0].abort).toHaveBeenCalledTimes(1);
-				expect(promises[1].abort).toHaveBeenCalledTimes(1);
-				expect(promises[2]).toBeUndefined();
+				expect(Lazy1.promise.abort).toHaveBeenCalledTimes(1);
+				expect(Lazy2.promise.abort).toHaveBeenCalledTimes(1);
+				expect(Lazy3.promise).toBeUndefined();
 
-				await expect(p).rejects.toBe(promises[1]);
+				await expect(p).rejects.toBe(Lazy2.promise);
 			});
 		});
 	});
@@ -576,6 +553,7 @@ describe('nested lazy components', () => {
 		const Lazy3 = lazy(() => <div>Lazy inner</div>);
 		const Lazy2 = lazy(() => <div>Before Lazy Layer 2<Lazy3/>After Lazy Layer 2</div>);
 		const Lazy = lazy(() => <div>Before Lazy Layer 1<Lazy2/>After Lazy Layer 1</div>);
+
 		const e = (
 			<div>
 				<div>Before Suspense</div>
@@ -610,9 +588,9 @@ describe('nested lazy components', () => {
 
 	describe('rejects when promise marked no SSR', function() {
 		itRenders('when nested 1 deep', async ({render}) => {
-			const promise = Object.assign(new Promise(resolve => resolve()), {noSsr: true});
-			const Lazy2 = () => {throw promise;};
-			const Lazy = lazy(() => <div>Before Lazy Layer 1<Lazy2/>After Lazy Layer 1</div>);
+			const LazyInner = lazy(() => <div>Lazy inner</div>, {noSsr: true});
+			const Lazy = lazy(() => <div>Before Lazy Layer 1<LazyInner/>After Lazy Layer 1</div>);
+
 			const e = (
 				<div>
 					<div>Before Lazy</div>
@@ -622,14 +600,19 @@ describe('nested lazy components', () => {
 			);
 
 			const p = render(e);
-			await expect(p).rejects.toBe(promise);
+			await Lazy.promise;
+			await expect(p).rejects.toBe(LazyInner.promise);
 		});
 
 		itRenders('when nested 2 deep', async ({render}) => {
-			const promise = Object.assign(new Promise(resolve => resolve()), {noSsr: true});
-			const Lazy3 = () => {throw promise;};
-			const Lazy2 = lazy(() => <div>Before Lazy Layer 2<Lazy3/>After Lazy Layer 2</div>);
-			const Lazy = lazy(() => <div>Before Lazy Layer 1<Lazy2/>After Lazy Layer 1</div>);
+			const LazyInnerInner = lazy(() => <div>Lazy inner</div>, {noSsr: true});
+			const LazyInner = lazy(
+				() => <div>Before Lazy Layer 2<LazyInnerInner/>After Lazy Layer 2</div>
+			);
+			const Lazy = lazy(
+				() => <div>Before Lazy Layer 1<LazyInner/>After Lazy Layer 1</div>
+			);
+
 			const e = (
 				<div>
 					<div>Before Lazy</div>
@@ -639,15 +622,17 @@ describe('nested lazy components', () => {
 			);
 
 			const p = render(e);
-			await expect(p).rejects.toBe(promise);
+			await Lazy.promise;
+			await LazyInner.promise;
+			await expect(p).rejects.toBe(LazyInnerInner.promise);
 		});
 	});
 
 	describe('renders fallback when promise marked no SSR', function() {
 		itRenders('when nested 1 deep', async ({render, openTag}) => {
-			const promise = Object.assign(new Promise(resolve => resolve()), {noSsr: true});
-			const Lazy2 = () => {throw promise;};
-			const Lazy = lazy(() => <div>Before Lazy Layer 1<Lazy2/>After Lazy Layer 1</div>);
+			const LazyInner = lazy(() => <div>Lazy inner</div>, {noSsr: true});
+			const Lazy = lazy(() => <div>Before Lazy Layer 1<LazyInner/>After Lazy Layer 1</div>);
+
 			const e = (
 				<div>
 					<div>Before Suspense</div>
@@ -671,10 +656,12 @@ describe('nested lazy components', () => {
 		});
 
 		itRenders('when nested 2 deep', async ({render, openTag}) => {
-			const promise = Object.assign(new Promise(resolve => resolve()), {noSsr: true});
-			const Lazy3 = () => {throw promise;};
-			const Lazy2 = lazy(() => <div>Before Lazy Layer 2<Lazy3/>After Lazy Layer 2</div>);
-			const Lazy = lazy(() => <div>Before Lazy Layer 1<Lazy2/>After Lazy Layer 1</div>);
+			const LazyInnerInner = lazy(() => <div>Lazy inner</div>, {noSsr: true});
+			const LazyInner = lazy(
+				() => <div>Before Lazy Layer 2<LazyInnerInner/>After Lazy Layer 2</div>
+			);
+			const Lazy = lazy(() => <div>Before Lazy Layer 1<LazyInner/>After Lazy Layer 1</div>);
+
 			const e = (
 				<div>
 					<div>Before Suspense</div>
