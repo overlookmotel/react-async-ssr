@@ -453,6 +453,34 @@ describe('multiple lazy components', () => {
 				`));
 			});
 
+			itRenders('does not await previous promises', async ({render, openTag}) => {
+				// Lazy1 + Lazy2 throw promises which never resolve
+				const Lazy1 = () => {throw new Promise(() => {});};
+				const Lazy2 = () => {throw new Promise(() => {});};
+				const Lazy3 = lazy(() => <div>Lazy inner 3</div>, {noSsr: true});
+				const Lazy4 = lazy(() => <div>Lazy inner 4</div>);
+
+				const e = (
+					<div>
+						<Suspense fallback={<span>Fallback</span>}>
+							<Lazy1/>
+							<Lazy2/>
+							<Lazy3/>
+						</Suspense>
+						<Lazy4/>
+					</div>
+				);
+
+				const h = await render(e);
+
+				expect(h).toBe(removeSpacing(`
+					<div${openTag}>
+						<span>Fallback</span>
+						<div>Lazy inner 4</div>
+					</div>
+				`));
+			});
+
 			itRenders('calls `.abort()` on all promises inside suspense', async ({render, openTag}) => {
 				const Lazy1 = lazy(() => <div>Lazy inner 1</div>);
 				const Lazy2 = lazy(() => <div>Lazy inner 2</div>, {noSsr: true});
@@ -521,6 +549,25 @@ describe('multiple lazy components', () => {
 				expect(Lazy3).not.toHaveBeenCalled();
 
 				await expect(p).rejects.toBe(Lazy2Actual.promise);
+			});
+
+			itRenders('does not await previous promises', async ({render}) => {
+				// Lazy1 + Lazy2 throw promises which never resolve
+				const Lazy1 = () => {throw new Promise(() => {});};
+				const Lazy2 = () => {throw new Promise(() => {});};
+				const Lazy3 = lazy(() => <div>Lazy inner 3</div>, {noSsr: true});
+
+				const e = (
+					<div>
+						<Lazy1/>
+						<Lazy2/>
+						<Lazy3/>
+					</div>
+				);
+
+				const p = render(e);
+
+				await expect(p).rejects.toBe(Lazy3.promise);
 			});
 
 			itRenders('calls `.abort()` on all promises', async ({render}) => {
@@ -746,6 +793,28 @@ describe('nested lazy components', () => {
 
 				expect(h).toBe(`<div${openTag}><span>Fallback</span></div>`);
 			});
+		});
+
+		itRenders('does not await previous promises', async ({render, openTag}) => {
+			// Lazy1 + Lazy2 throw promises which never resolve
+			const Lazy1 = () => {throw new Promise(() => {});};
+			const Lazy2 = () => {throw new Promise(() => {});};
+			const Lazy3Inner = lazy(() => <div>Lazy inner 3</div>, {noSsr: true});
+			const Lazy3 = lazy(() => <Lazy3Inner/>);
+
+			const e = (
+				<div>
+					<Suspense fallback={<span>Fallback</span>}>
+						<Lazy1/>
+						<Lazy2/>
+						<Lazy3/>
+					</Suspense>
+				</div>
+			);
+
+			const h = await render(e);
+
+			expect(h).toBe(`<div${openTag}><span>Fallback</span></div>`);
 		});
 	});
 });
