@@ -684,4 +684,68 @@ describe('nested lazy components', () => {
 			`));
 		});
 	});
+
+	describe('any one throwing promise aborts render and', () => {
+		describe('calls `.abort()` on all promises inside suspense', () => {
+			itRenders('when triggered from inside nested lazy element', async ({render, openTag}) => {
+				const Lazy1 = lazy(() => <div>Lazy inner 1</div>, {delay: 500});
+				const Lazy2 = lazy(() => <div>Lazy inner 2</div>, {delay: 500});
+				const Lazy3Inner = lazy(() => <div>Lazy inner 3</div>, {noSsr: true});
+				const Lazy3 = lazy(() => <Lazy3Inner/>);
+
+				const e = (
+					<div>
+						<Suspense fallback={<span>Fallback</span>}>
+							<Lazy1/>
+							<Lazy2/>
+							<Lazy3/>
+						</Suspense>
+					</div>
+				);
+
+				const p = render(e);
+
+				await Lazy3.promise;
+
+				expect(Lazy1.promise.abort).toHaveBeenCalledTimes(1);
+				expect(Lazy2.promise.abort).toHaveBeenCalledTimes(1);
+				expect(Lazy3.promise.abort).not.toHaveBeenCalled();
+				expect(Lazy3Inner.promise.abort).toHaveBeenCalledTimes(1);
+
+				const h = await p;
+
+				expect(h).toBe(`<div${openTag}><span>Fallback</span></div>`);
+			});
+
+			itRenders('including inside nested lazy element', async ({render, openTag}) => {
+				const Lazy1Inner = lazy(() => <div>Lazy inner 1</div>, {delay: 500});
+				const Lazy1 = lazy(() => <Lazy1Inner/>);
+				const Lazy2Inner = lazy(() => <div>Lazy inner 2</div>, {noSsr: true});
+				const Lazy2 = lazy(() => <Lazy2Inner/>);
+
+				const e = (
+					<div>
+						<Suspense fallback={<span>Fallback</span>}>
+							<Lazy1/>
+							<Lazy2/>
+						</Suspense>
+					</div>
+				);
+
+				const p = render(e);
+
+				await Lazy1.promise;
+				await Lazy2.promise;
+
+				expect(Lazy1.promise.abort).not.toHaveBeenCalled();
+				expect(Lazy1Inner.promise.abort).toHaveBeenCalledTimes(1);
+				expect(Lazy2.promise.abort).not.toHaveBeenCalled();
+				expect(Lazy2Inner.promise.abort).toHaveBeenCalledTimes(1);
+
+				const h = await p;
+
+				expect(h).toBe(`<div${openTag}><span>Fallback</span></div>`);
+			});
+		});
+	});
 });
