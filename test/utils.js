@@ -66,6 +66,7 @@ function itRendersWithSyncCompare(testName, fn, describe) {
 					return fn({
 						render: method,
 						Suspense: React.Suspense,
+						Fallback: React.Suspense,
 						lazy,
 						openTag,
 						isStatic
@@ -78,6 +79,7 @@ function itRendersWithSyncCompare(testName, fn, describe) {
 					return fn({
 						render: methodSync,
 						Suspense: Passthrough,
+						Fallback: SuspenseFallback,
 						lazy: lazySync,
 						openTag,
 						isStatic
@@ -90,6 +92,12 @@ function itRendersWithSyncCompare(testName, fn, describe) {
 
 function Passthrough(props) {
 	return props.children || null;
+}
+
+function SuspenseFallback(props) {
+	const {fallback} = props;
+	if (fallback === undefined) return null;
+	return fallback;
 }
 
 function runGroups(fn) {
