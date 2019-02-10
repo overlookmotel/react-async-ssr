@@ -166,7 +166,7 @@ describe('lazy-loaded components space correctly', () => {
 			});
 		});
 
-		describe('and div(s)', function() {
+		describe('and div(s)', () => {
 			itRendersWithSyncCompare('before', async ({render, lazy, openTag}) => {
 				const Lazy = lazy(() => null);
 				const e = (
@@ -206,7 +206,7 @@ describe('lazy-loaded components space correctly', () => {
 		});
 	});
 
-	describe('with div inside lazy', function() {
+	describe('with div inside lazy', () => {
 		itRendersWithSyncCompare('only', async ({render, lazy, openTag}) => {
 			const Lazy = lazy(() => <div>Inside</div>);
 			const e = <Lazy/>;
@@ -214,7 +214,7 @@ describe('lazy-loaded components space correctly', () => {
 			expect(h).toBe(`<div${openTag}>Inside</div>`);
 		});
 
-		describe('and string(s)', function() {
+		describe('and string(s)', () => {
 			itRendersWithSyncCompare('before', async ({render, lazy, openTag}) => {
 				const Lazy = lazy(() => <div>Inside</div>);
 				const e = (
@@ -253,7 +253,7 @@ describe('lazy-loaded components space correctly', () => {
 			});
 		});
 
-		describe('and div(s)', function() {
+		describe('and div(s)', () => {
 			itRendersWithSyncCompare('before', async ({render, lazy, openTag}) => {
 				const Lazy = lazy(() => <div>Inside</div>);
 				const e = (

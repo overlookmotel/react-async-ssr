@@ -633,7 +633,7 @@ describe('nested lazy components', () => {
 		`));
 	});
 
-	describe('rejects when promise marked no SSR', function() {
+	describe('rejects when promise marked no SSR', () => {
 		itRenders('when nested 1 deep', async ({render}) => {
 			const LazyInner = lazy(() => <div>Lazy inner</div>, {noSsr: true});
 			const Lazy = lazy(() => <div>Before Lazy Layer 1<LazyInner/>After Lazy Layer 1</div>);
@@ -675,7 +675,7 @@ describe('nested lazy components', () => {
 		});
 	});
 
-	describe('renders fallback when promise marked no SSR', function() {
+	describe('renders fallback when promise marked no SSR', () => {
 		itRenders('when nested 1 deep', async ({render, openTag}) => {
 			const LazyInner = lazy(() => <div>Lazy inner</div>, {noSsr: true});
 			const Lazy = lazy(() => <div>Before Lazy Layer 1<LazyInner/>After Lazy Layer 1</div>);

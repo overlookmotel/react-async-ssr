@@ -155,7 +155,7 @@ describe('suspense spaces correctly', () => {
 			});
 		});
 
-		describe('and div(s)', function() {
+		describe('and div(s)', () => {
 			itRendersWithSyncCompare('before', async ({render, Suspense, openTag}) => {
 				const e = (
 					<div>
@@ -192,14 +192,14 @@ describe('suspense spaces correctly', () => {
 		});
 	});
 
-	describe('with div inside Suspense', function() {
+	describe('with div inside Suspense', () => {
 		itRendersWithSyncCompare('only', async ({render, Suspense, openTag}) => {
 			const e = <Suspense><div>Inside</div></Suspense>;
 			const h = await render(e);
 			expect(h).toBe(`<div${openTag}>Inside</div>`);
 		});
 
-		describe('and string(s)', function() {
+		describe('and string(s)', () => {
 			itRendersWithSyncCompare('before', async ({render, Suspense, openTag}) => {
 				const e = (
 					<div>
@@ -235,7 +235,7 @@ describe('suspense spaces correctly', () => {
 			});
 		});
 
-		describe('and div(s)', function() {
+		describe('and div(s)', () => {
 			itRendersWithSyncCompare('before', async ({render, Suspense, openTag}) => {
 				const e = (
 					<div>

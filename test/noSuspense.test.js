@@ -13,8 +13,8 @@ const {itRendersWithSyncCompare} = require('./utils');
 
 // Tests
 
-describe('without Suspense', function() {
-	describe('plain', function() {
+describe('without Suspense', () => {
+	describe('plain', () => {
 		itRendersWithSyncCompare('string', async ({render}) => {
 			const e = 'text';
 			const h = await render(e);
@@ -34,7 +34,7 @@ describe('without Suspense', function() {
 		});
 	});
 
-	describe('in function component', function() {
+	describe('in function component', () => {
 		itRendersWithSyncCompare('string', async ({render}) => {
 			const Comp = () => 'text';
 			const e = <Comp/>;
@@ -57,7 +57,7 @@ describe('without Suspense', function() {
 		});
 	});
 
-	describe('in class component', function() {
+	describe('in class component', () => {
 		itRendersWithSyncCompare('string', async ({render}) => {
 			class Comp extends React.Component {
 				render() {
