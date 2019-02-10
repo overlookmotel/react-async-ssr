@@ -184,7 +184,7 @@ There are many solutions, for example using a [Redux](https://redux.js.org/) sto
 
 #### Aborting unnecessary loading
 
-It's possible for a lazy component to begin loading, but then it's result not to be required, because an enclosing Suspense boundary's fallback gets triggered, and so the original content will not be displayed.
+It's possible for a lazy component to begin loading, but then its result not to be required, because an enclosing Suspense boundary's fallback gets triggered, and so the original content will not be displayed.
 
 In these cases, if the promise has an `.abort()` method, it will be called.
 
