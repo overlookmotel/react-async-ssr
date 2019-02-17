@@ -13,10 +13,14 @@ const {itRendersWithSyncCompare} = require('./utils');
 
 // Tests
 
+function Fallback() {
+	return <div>Loading...</div>;
+}
+
 describe('suspense spaces correctly', () => {
 	describe('with string inside Suspense', () => {
 		itRendersWithSyncCompare('only', async ({render, Suspense}) => {
-			const e = <Suspense>Inside</Suspense>;
+			const e = <Suspense fallback={<Fallback/>}>Inside</Suspense>;
 			const h = await render(e);
 			expect(h).toBe('Inside');
 		});
@@ -26,7 +30,7 @@ describe('suspense spaces correctly', () => {
 				const e = (
 					<div>
 						Before
-						<Suspense>Inside</Suspense>
+						<Suspense fallback={<Fallback/>}>Inside</Suspense>
 					</div>
 				);
 
@@ -40,7 +44,7 @@ describe('suspense spaces correctly', () => {
 			itRendersWithSyncCompare('after', async ({render, Suspense, isStatic}) => {
 				const e = (
 					<div>
-						<Suspense>Inside</Suspense>
+						<Suspense fallback={<Fallback/>}>Inside</Suspense>
 						After
 					</div>
 				);
@@ -56,7 +60,7 @@ describe('suspense spaces correctly', () => {
 				const e = (
 					<div>
 						Before
-						<Suspense>Inside</Suspense>
+						<Suspense fallback={<Fallback/>}>Inside</Suspense>
 						After
 					</div>
 				);
@@ -74,7 +78,7 @@ describe('suspense spaces correctly', () => {
 				const e = (
 					<div>
 						<div>Before</div>
-						<Suspense>Inside</Suspense>
+						<Suspense fallback={<Fallback/>}>Inside</Suspense>
 					</div>
 				);
 
@@ -85,7 +89,7 @@ describe('suspense spaces correctly', () => {
 			itRendersWithSyncCompare('after', async ({render, Suspense, openTag}) => {
 				const e = (
 					<div>
-						<Suspense>Inside</Suspense>
+						<Suspense fallback={<Fallback/>}>Inside</Suspense>
 						<div>After</div>
 					</div>
 				);
@@ -98,7 +102,7 @@ describe('suspense spaces correctly', () => {
 				const e = (
 					<div>
 						<div>Before</div>
-						<Suspense>Inside</Suspense>
+						<Suspense fallback={<Fallback/>}>Inside</Suspense>
 						<div>After</div>
 					</div>
 				);
@@ -111,7 +115,7 @@ describe('suspense spaces correctly', () => {
 
 	describe('with empty inside Suspense', () => {
 		itRendersWithSyncCompare('only', async ({render, Suspense}) => {
-			const e = <Suspense></Suspense>;
+			const e = <Suspense fallback={<Fallback/>}></Suspense>;
 			const h = await render(e);
 			expect(h).toBe('');
 		});
@@ -121,7 +125,7 @@ describe('suspense spaces correctly', () => {
 				const e = (
 					<div>
 						Before
-						<Suspense></Suspense>
+						<Suspense fallback={<Fallback/>}></Suspense>
 					</div>
 				);
 				const h = await render(e);
@@ -131,7 +135,7 @@ describe('suspense spaces correctly', () => {
 			itRendersWithSyncCompare('after', async ({render, Suspense, openTag}) => {
 				const e = (
 					<div>
-						<Suspense></Suspense>
+						<Suspense fallback={<Fallback/>}></Suspense>
 						After
 					</div>
 				);
@@ -143,7 +147,7 @@ describe('suspense spaces correctly', () => {
 				const e = (
 					<div>
 						Before
-						<Suspense></Suspense>
+						<Suspense fallback={<Fallback/>}></Suspense>
 						After
 					</div>
 				);
@@ -160,7 +164,7 @@ describe('suspense spaces correctly', () => {
 				const e = (
 					<div>
 						<div>Before</div>
-						<Suspense></Suspense>
+						<Suspense fallback={<Fallback/>}></Suspense>
 					</div>
 				);
 				const h = await render(e);
@@ -170,7 +174,7 @@ describe('suspense spaces correctly', () => {
 			itRendersWithSyncCompare('after', async ({render, Suspense, openTag}) => {
 				const e = (
 					<div>
-						<Suspense></Suspense>
+						<Suspense fallback={<Fallback/>}></Suspense>
 						<div>After</div>
 					</div>
 				);
@@ -182,7 +186,7 @@ describe('suspense spaces correctly', () => {
 				const e = (
 					<div>
 						<div>Before</div>
-						<Suspense></Suspense>
+						<Suspense fallback={<Fallback/>}></Suspense>
 						<div>After</div>
 					</div>
 				);
@@ -194,7 +198,7 @@ describe('suspense spaces correctly', () => {
 
 	describe('with div inside Suspense', () => {
 		itRendersWithSyncCompare('only', async ({render, Suspense, openTag}) => {
-			const e = <Suspense><div>Inside</div></Suspense>;
+			const e = <Suspense fallback={<Fallback/>}><div>Inside</div></Suspense>;
 			const h = await render(e);
 			expect(h).toBe(`<div${openTag}>Inside</div>`);
 		});
@@ -204,7 +208,7 @@ describe('suspense spaces correctly', () => {
 				const e = (
 					<div>
 						Before
-						<Suspense><div>Inside</div></Suspense>
+						<Suspense fallback={<Fallback/>}><div>Inside</div></Suspense>
 					</div>
 				);
 				const h = await render(e);
@@ -214,7 +218,7 @@ describe('suspense spaces correctly', () => {
 			itRendersWithSyncCompare('after', async ({render, Suspense, openTag}) => {
 				const e = (
 					<div>
-						<Suspense><div>Inside</div></Suspense>
+						<Suspense fallback={<Fallback/>}><div>Inside</div></Suspense>
 						After
 					</div>
 				);
@@ -226,7 +230,7 @@ describe('suspense spaces correctly', () => {
 				const e = (
 					<div>
 						Before
-						<Suspense><div>Inside</div></Suspense>
+						<Suspense fallback={<Fallback/>}><div>Inside</div></Suspense>
 						After
 					</div>
 				);
@@ -240,7 +244,7 @@ describe('suspense spaces correctly', () => {
 				const e = (
 					<div>
 						<div>Before</div>
-						<Suspense><div>Inside</div></Suspense>
+						<Suspense fallback={<Fallback/>}><div>Inside</div></Suspense>
 					</div>
 				);
 				const h = await render(e);
@@ -250,7 +254,7 @@ describe('suspense spaces correctly', () => {
 			itRendersWithSyncCompare('after', async ({render, Suspense, openTag}) => {
 				const e = (
 					<div>
-						<Suspense><div>Inside</div></Suspense>
+						<Suspense fallback={<Fallback/>}><div>Inside</div></Suspense>
 						<div>After</div>
 					</div>
 				);
@@ -262,7 +266,7 @@ describe('suspense spaces correctly', () => {
 				const e = (
 					<div>
 						<div>Before</div>
-						<Suspense><div>Inside</div></Suspense>
+						<Suspense fallback={<Fallback/>}><div>Inside</div></Suspense>
 						<div>After</div>
 					</div>
 				);

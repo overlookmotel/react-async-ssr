@@ -62,6 +62,10 @@ describe('context propogates with', () => {
 	});
 });
 
+function Fallback() {
+	return <div>Loading...</div>;
+}
+
 function tests(makeContext) {
 	let Provider, Consumer;
 	beforeEach(() => {
@@ -73,7 +77,7 @@ function tests(makeContext) {
 			itRenders('single boundary', async ({render}) => {
 				const e = (
 					<Provider value="val">
-						<Suspense>
+						<Suspense fallback={<Fallback/>}>
 							<Consumer>{ctx => ctx}</Consumer>
 						</Suspense>
 					</Provider>
@@ -86,9 +90,9 @@ function tests(makeContext) {
 			itRenders('multiple boundaries', async ({render}) => {
 				const e = (
 					<Provider value="val">
-						<Suspense>
-							<Suspense>
-								<Suspense>
+						<Suspense fallback={<Fallback/>}>
+							<Suspense fallback={<Fallback/>}>
+								<Suspense fallback={<Fallback/>}>
 									<Consumer>{ctx => ctx}</Consumer>
 								</Suspense>
 							</Suspense>
@@ -115,7 +119,7 @@ function tests(makeContext) {
 						<Provider value="val">
 							<Provider2 value="val2">
 								<Provider3 value="val3">
-									<Suspense>
+									<Suspense fallback={<Fallback/>}>
 										<div><Consumer>{ctx => ctx}</Consumer></div>
 										<div><Consumer2>{ctx => ctx}</Consumer2></div>
 										<div><Consumer3>{ctx => ctx}</Consumer3></div>
@@ -142,9 +146,9 @@ function tests(makeContext) {
 						<Provider value="val">
 							<Provider2 value="val2">
 								<Provider3 value="val3">
-									<Suspense>
-										<Suspense>
-											<Suspense>
+									<Suspense fallback={<Fallback/>}>
+										<Suspense fallback={<Fallback/>}>
+											<Suspense fallback={<Fallback/>}>
 												<div><Consumer>{ctx => ctx}</Consumer></div>
 												<div><Consumer2>{ctx => ctx}</Consumer2></div>
 												<div><Consumer3>{ctx => ctx}</Consumer3></div>

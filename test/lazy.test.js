@@ -224,6 +224,35 @@ describe('lazy component', () => {
 			`));
 		});
 
+		itRenders('renders fallback of outer Suspense when marked no SSR and inner Suspense has no fallback', async ({render, openTag}) => {
+			const Lazy = lazy(() => <div>Lazy inner</div>, {noSsr: true});
+
+			const e = (
+				<div>
+					<div>Before outer Suspense</div>
+					<Suspense fallback={<span>Fallback outer</span>}>
+						<div>Before inner Suspense</div>
+						<Suspense>
+							<div>Before Lazy</div>
+							<Lazy/>
+							<div>After Lazy</div>
+						</Suspense>
+						<div>After inner Suspense</div>
+					</Suspense>
+					<div>After outer Suspense</div>
+				</div>
+			);
+
+			const h = await render(e);
+			expect(h).toBe(removeSpacing(`
+				<div${openTag}>
+					<div>Before outer Suspense</div>
+					<span>Fallback outer</span>
+					<div>After outer Suspense</div>
+				</div>
+			`));
+		});
+
 		itRenders('rejects when promise marked no SSR and both fallbacks throw promises marked no SSR', async ({render}) => {
 			const Lazy = lazy(() => <div>Lazy inner</div>, {noSsr: true});
 			const LazyFallbackInner = lazy(() => <div>Fallback inner</div>, {noSsr: true});
@@ -247,6 +276,29 @@ describe('lazy component', () => {
 
 			const p = render(e);
 			await expect(p).rejects.toBe(LazyFallbackOuter.promise);
+		});
+
+		itRenders('rejects when promise marked no SSR and both Suspense elements have no fallback', async ({render}) => {
+			const Lazy = lazy(() => <div>Lazy inner</div>, {noSsr: true});
+
+			const e = (
+				<div>
+					<div>Before outer Suspense</div>
+					<Suspense>
+						<div>Before inner Suspense</div>
+						<Suspense>
+							<div>Before Lazy</div>
+							<Lazy/>
+							<div>After Lazy</div>
+						</Suspense>
+						<div>After inner Suspense</div>
+					</Suspense>
+					<div>After outer Suspense</div>
+				</div>
+			);
+
+			const p = render(e);
+			await expect(p).rejects.toBe(Lazy.promise);
 		});
 	});
 
@@ -272,6 +324,42 @@ describe('lazy component', () => {
 			const Lazy = lazy(() => <div>Lazy inner</div>, {noSsr: true});
 
 			const e = <div><Lazy/></div>;
+
+			const p = render(e);
+			await expect(p).rejects.toBe(Lazy.promise);
+		});
+	});
+
+	describe('inside Suspense with no fallback', () => {
+		itRenders('renders lazily', async ({render, openTag}) => {
+			const Lazy = lazy(() => <div>Lazy inner</div>);
+
+			const e = (
+				<div>
+					<Suspense>
+						<Lazy/>
+					</Suspense>
+				</div>
+			);
+
+			const h = await render(e);
+			expect(h).toBe(removeSpacing(`
+				<div${openTag}>
+					<div>Lazy inner</div>
+				</div>
+			`));
+		});
+
+		itRenders('rejects when promise marked no SSR', async ({render}) => {
+			const Lazy = lazy(() => <div>Lazy inner</div>, {noSsr: true});
+
+			const e = (
+				<div>
+					<Suspense>
+						<Lazy/>
+					</Suspense>
+				</div>
+			);
 
 			const p = render(e);
 			await expect(p).rejects.toBe(Lazy.promise);
