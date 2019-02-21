@@ -12,6 +12,7 @@ const React = require('react'),
 
 // Throw any unhandled promise rejections
 process.on('unhandledRejection', err => {
+	console.log('Unhandled rejection'); // eslint-disable-line no-console
 	throw err;
 });
 
@@ -20,7 +21,8 @@ module.exports = {
 	itRenders: wrapMethod(itRenders),
 	itRendersWithSyncCompare: wrapMethod(itRendersWithSyncCompare),
 	lazy,
-	removeSpacing
+	removeSpacing,
+	preventUnhandledRejection
 };
 
 /*
@@ -194,4 +196,8 @@ function lazySync(component) {
  */
 function removeSpacing(text) {
 	return text.replace(/\s*(?:\r?\n|^|$)\s*/g, '');
+}
+
+function preventUnhandledRejection(promise) {
+	promise.catch(() => {});
 }

@@ -10,7 +10,7 @@ const React = require('react'),
 	{Suspense} = React;
 
 // Imports
-const {itRenders, lazy, removeSpacing} = require('./utils');
+const {itRenders, lazy, removeSpacing, preventUnhandledRejection} = require('./utils');
 
 // Globals
 const spy = jest.fn;
@@ -433,6 +433,7 @@ describe('multiple lazy components', () => {
 			);
 
 			const p = render(e);
+			preventUnhandledRejection(p);
 			expect(Lazy1).toHaveBeenCalled();
 			expect(Lazy2).toHaveBeenCalled();
 			expect(Lazy3).toHaveBeenCalled();
@@ -463,6 +464,7 @@ describe('multiple lazy components', () => {
 			);
 
 			const p = render(e);
+			preventUnhandledRejection(p);
 			expect(Lazy1).toHaveBeenCalled();
 			expect(Lazy2).toHaveBeenCalled();
 			expect(Lazy3).toHaveBeenCalled();
@@ -587,6 +589,7 @@ describe('multiple lazy components', () => {
 				);
 
 				const p = render(e);
+				preventUnhandledRejection(p);
 
 				expect(Lazy1.promise.abort).toHaveBeenCalledTimes(1);
 				expect(Lazy2.promise.abort).toHaveBeenCalledTimes(1);
@@ -631,6 +634,7 @@ describe('multiple lazy components', () => {
 				);
 
 				const p = render(e);
+				preventUnhandledRejection(p);
 
 				expect(Lazy1).toHaveBeenCalled();
 				expect(Lazy2).toHaveBeenCalled();
@@ -672,6 +676,7 @@ describe('multiple lazy components', () => {
 				);
 
 				const p = render(e);
+				preventUnhandledRejection(p);
 
 				expect(Lazy1.promise.abort).toHaveBeenCalledTimes(1);
 				expect(Lazy2.promise.abort).toHaveBeenCalledTimes(1);
@@ -735,6 +740,7 @@ describe('nested lazy components', () => {
 			);
 
 			const p = render(e);
+			preventUnhandledRejection(p);
 			await Lazy.promise;
 			await expect(p).rejects.toBe(LazyInner.promise);
 		});
@@ -757,6 +763,7 @@ describe('nested lazy components', () => {
 			);
 
 			const p = render(e);
+			preventUnhandledRejection(p);
 			await Lazy.promise;
 			await LazyInner.promise;
 			await expect(p).rejects.toBe(LazyInnerInner.promise);
@@ -839,6 +846,7 @@ describe('nested lazy components', () => {
 				);
 
 				const p = render(e);
+				preventUnhandledRejection(p);
 
 				await Lazy3.promise;
 
@@ -868,6 +876,7 @@ describe('nested lazy components', () => {
 				);
 
 				const p = render(e);
+				preventUnhandledRejection(p);
 
 				await Lazy1.promise;
 				await Lazy2.promise;
