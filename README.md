@@ -188,8 +188,6 @@ It's possible for a lazy component to begin loading, but then its result not to 
 
 In these cases, if the promise has an `.abort()` method, it will be called.
 
-When a Suspense boundary's fallback is triggered, rendering of all further elements within the boundary is abandoned.
-
 ### Additional notes
 
 #### Stream rendering

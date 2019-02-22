@@ -511,7 +511,7 @@ describe('multiple lazy components', () => {
 				`));
 			});
 
-			itRenders('prevents later elements being rendered', async ({render, openTag}) => {
+			itRenders('still renders later elements', async ({render, openTag}) => {
 				const Lazy1 = spy(lazy(() => <div>Lazy inner 1</div>));
 				const Lazy2 = spy(lazy(() => <div>Lazy inner 2</div>, {noSsr: true}));
 				const Lazy3 = spy(lazy(() => <div>Lazy inner 3</div>));
@@ -532,7 +532,7 @@ describe('multiple lazy components', () => {
 
 				expect(Lazy1).toHaveBeenCalled();
 				expect(Lazy2).toHaveBeenCalled();
-				expect(Lazy3).not.toHaveBeenCalled();
+				expect(Lazy3).toHaveBeenCalled();
 				expect(Lazy4).toHaveBeenCalled();
 
 				expect(h).toBe(removeSpacing(`
@@ -593,7 +593,7 @@ describe('multiple lazy components', () => {
 
 				expect(Lazy1.promise.abort).toHaveBeenCalledTimes(1);
 				expect(Lazy2.promise.abort).toHaveBeenCalledTimes(1);
-				expect(Lazy3.promise).toBeUndefined();
+				expect(Lazy3.promise.abort).toHaveBeenCalledTimes(1);
 				expect(Lazy4.promise.abort).not.toHaveBeenCalled();
 
 				const h = await p;
