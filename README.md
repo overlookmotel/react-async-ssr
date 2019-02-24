@@ -86,19 +86,20 @@ In it's `render()` method, the component should throw a Promise which will resol
 #### Basic example
 
 ```js
-let data = null;
+let data = null, promise;
 function LazyData() {
-  if (!data) {
-    const promise = new Promise(
-      resolve => setTimeout(() => {
+  if (data) return <div>{data.foo}</div>;
+
+  if (!promise) {
+    promise = new Promise(resolve => {
+      setTimeout(() => {
         data = {foo: 'bar'};
         resolve();
-      }, 1000)
-    );
-    throw promise;
+      }, 1000);
+    });
   }
 
-  return <div>{data.foo}</div>;
+  throw promise;
 }
 
 function App() {
