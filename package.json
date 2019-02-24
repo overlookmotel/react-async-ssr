@@ -14,7 +14,7 @@
     "url": "https://github.com/overlookmotel/react-async-ssr/issues"
   },
   "dependencies": {
-    "react-dom": "^16.8.1"
+    "react-dom": "^16.8.3"
   },
   "peerDependencies": {
     "react": "^16.6.0"
