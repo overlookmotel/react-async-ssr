@@ -184,9 +184,11 @@ function tests(makeContext) {
 
 			itRenders('single lazy component', async ({render}) => {
 				const e = (
-					<Provider value="val">
-						<Lazy/>
-					</Provider>
+					<Suspense fallback={<Fallback/>}>
+						<Provider value="val">
+							<Lazy/>
+						</Provider>
+					</Suspense>
 				);
 
 				const h = await render(e);
@@ -195,9 +197,11 @@ function tests(makeContext) {
 
 			itRenders('multiple lazy components', async ({render}) => {
 				const e = (
-					<Provider value="val">
-						<Lazy3/>
-					</Provider>
+					<Suspense fallback={<Fallback/>}>
+						<Provider value="val">
+							<Lazy3/>
+						</Provider>
+					</Suspense>
 				);
 
 				const h = await render(e);
@@ -226,15 +230,17 @@ function tests(makeContext) {
 
 			itRenders('single lazy component', async ({render, openTag}) => {
 				const e = (
-					<div>
-						<Provider value="val">
-							<Provider2 value="val2">
-								<Provider3 value="val3">
-									<Lazy/>
-								</Provider3>
-							</Provider2>
-						</Provider>
-					</div>
+					<Suspense fallback={<Fallback/>}>
+						<div>
+							<Provider value="val">
+								<Provider2 value="val2">
+									<Provider3 value="val3">
+										<Lazy/>
+									</Provider3>
+								</Provider2>
+							</Provider>
+						</div>
+					</Suspense>
 				);
 
 				const h = await render(e);
@@ -251,15 +257,17 @@ function tests(makeContext) {
 
 			itRenders('multiple lazy components', async ({render, openTag}) => {
 				const e = (
-					<div>
-						<Provider value="val">
-							<Provider2 value="val2">
-								<Provider3 value="val3">
-									<Lazy3/>
-								</Provider3>
-							</Provider2>
-						</Provider>
-					</div>
+					<Suspense fallback={<Fallback/>}>
+						<div>
+							<Provider value="val">
+								<Provider2 value="val2">
+									<Provider3 value="val3">
+										<Lazy3/>
+									</Provider3>
+								</Provider2>
+							</Provider>
+						</div>
+					</Suspense>
 				);
 
 				const h = await render(e);
