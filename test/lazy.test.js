@@ -15,6 +15,9 @@ const {itRenders, lazy, removeSpacing, preventUnhandledRejection} = require('./u
 // Globals
 const spy = jest.fn;
 
+// Constants
+const NO_SUSPENSE_ERROR = /^A React component suspended while rendering, but no fallback UI was specified.\n\nAdd a <Suspense fallback=\.\.\.> component higher in the tree to provide a loading indicator or placeholder to display\.$/;
+
 // Tests
 
 describe('lazy component', () => {
@@ -88,7 +91,7 @@ describe('lazy component', () => {
 			);
 
 			const p = render(e);
-			await expect(p).rejects.toBe(LazyFallback.promise);
+			await expect(p).rejects.toThrow(NO_SUSPENSE_ERROR);
 		});
 
 		itRenders('renders fallback when marked no SSR and fallback includes lazy component and inside another Suspense', async ({render, openTag}) => {
@@ -277,7 +280,7 @@ describe('lazy component', () => {
 			);
 
 			const p = render(e);
-			await expect(p).rejects.toBe(LazyFallbackOuter.promise);
+			await expect(p).rejects.toThrow(NO_SUSPENSE_ERROR);
 		});
 
 		itRenders('rejects when both Suspense elements have no fallback', async ({render}) => {
@@ -300,7 +303,7 @@ describe('lazy component', () => {
 			);
 
 			const p = render(e);
-			await expect(p).rejects.toBe(Lazy.promise);
+			await expect(p).rejects.toThrow(NO_SUSPENSE_ERROR);
 		});
 	});
 
@@ -311,7 +314,7 @@ describe('lazy component', () => {
 			const e = <div><Lazy/></div>;
 
 			const p = render(e);
-			await expect(p).rejects.toBe(Lazy.promise);
+			await expect(p).rejects.toThrow(NO_SUSPENSE_ERROR);
 		});
 
 		itRenders('calls `.abort()` on promise', async ({render}) => {
@@ -324,7 +327,7 @@ describe('lazy component', () => {
 
 			expect(Lazy.promise.abort).toHaveBeenCalledTimes(1);
 
-			await expect(p).rejects.toBe(Lazy.promise);
+			await expect(p).rejects.toThrow(NO_SUSPENSE_ERROR);
 		});
 	});
 
@@ -341,7 +344,7 @@ describe('lazy component', () => {
 			);
 
 			const p = render(e);
-			await expect(p).rejects.toBe(Lazy.promise);
+			await expect(p).rejects.toThrow(NO_SUSPENSE_ERROR);
 		});
 
 		itRenders('calls `.abort()` on promise', async ({render}) => {
@@ -360,7 +363,7 @@ describe('lazy component', () => {
 
 			expect(Lazy.promise.abort).toHaveBeenCalledTimes(1);
 
-			await expect(p).rejects.toBe(Lazy.promise);
+			await expect(p).rejects.toThrow(NO_SUSPENSE_ERROR);
 		});
 	});
 });
@@ -563,12 +566,11 @@ describe('multiple lazy components', () => {
 			);
 
 			const p = render(e);
-			await expect(p).rejects.toBe(Lazy1.promise);
+			await expect(p).rejects.toThrow(NO_SUSPENSE_ERROR);
 		});
 
 		itRenders('prevents later elements being rendered', async ({render}) => {
-			const Lazy1Actual = lazy(() => <div>Lazy inner 1</div>);
-			const Lazy1 = spy(Lazy1Actual);
+			const Lazy1 = spy(lazy(() => <div>Lazy inner 1</div>));
 			const Lazy2 = spy(lazy(() => <div>Lazy inner 2</div>));
 			const Lazy3 = spy(lazy(() => <div>Lazy inner 3</div>));
 
@@ -587,7 +589,7 @@ describe('multiple lazy components', () => {
 			expect(Lazy2).not.toHaveBeenCalled();
 			expect(Lazy3).not.toHaveBeenCalled();
 
-			await expect(p).rejects.toBe(Lazy1Actual.promise);
+			await expect(p).rejects.toThrow(NO_SUSPENSE_ERROR);
 		});
 	});
 });
