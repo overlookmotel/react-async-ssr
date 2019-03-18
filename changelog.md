@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.3.0
+
+Breaking changes:
+
+* Reject when promise thrown outside Suspense
+* Rejection error when promise thrown outside Suspense
+* Continue rendering within suspense boundary once fallback triggered
+* Render fallbacks of nested Suspenses when suspend
+
+Bug fixes:
+
+* Ignore Suspense with undefined fallback
+* Fix hang on promise rejection
+* Shimmed function components transmit `this` context
+
+Dependencies:
+
+* Update `react-dom` dependency to 16.8.4
+
+Other:
+
+* Remove undocumented `lazy` method
+* Render within a single thread
+* Tests for spacing in HTML output around fallbacks
+* Minor performance improvements
+* Major refactor
+* Update docs
+
 ## 0.2.0
 
 Breaking changes:
