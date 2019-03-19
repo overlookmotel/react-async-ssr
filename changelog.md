@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.1
+
+Bug fixes:
+
+* No hang on null fallback
+
+Other:
+
+* Refactor PartialRenderer class into multiple files
+
 ## 0.3.0
 
 Breaking changes:
