@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.3
+
+Other:
+
+* Fix Changelog for v0.4.2
+
 ## 0.4.2
 
 Other:
