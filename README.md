@@ -183,6 +183,40 @@ However, some mechanism is required to gather the data loaded on the server in o
 
 There are many solutions, for example using a [Redux](https://redux.js.org/) store, or a [Context](https://reactjs.org/docs/context.html) Provider at the root of the app. This package does not make any assumptions about how the user wants to handle this, and no doubt solutions will emerge from the community. All that this package requires is that components follow React's convention that components wishing to do async loading throw promises.
 
+### Preventing components rendering on server side
+
+Sometimes you might want to prevent a component rendering on server side. For example, it might be a low-priority part of the page, "below the fold", or a heavy component which will take a long time to load on client side and increase the delay before hydration.
+
+This module provides a mechanism for that.
+
+The component should throw a promise which has `[NO_SSR]` property set to `true`.
+
+`[NO_SSR]` is a symbol which can be imported from `react-async-ssr/symbols`.
+
+If the promise has this property, the component will not be rendered and the next Suspense boundary above's fallback will be triggered.
+
+```js
+const {NO_SSR} = require('react-async-ssr/symbols');
+
+function LazyNoSSR() {
+  const promise = new Promise(() => {});
+  promise[NO_SSR] = true;
+  throw promise;
+}
+
+function App() {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <LazyNoSSR/>
+    </React.Suspense>
+  );
+}
+```
+
+When rendered on server, this will output `<div>Loading...</div>`.
+
+On client side, to ensure no hydration mismatch errors, the component must throw a promise which then resolves to the required component/data, and not render the output synchronously.
+
 ### Aborting unnecessary loading
 
 It's possible for a lazy component to begin loading, but then its result not to be required, because an enclosing Suspense boundary's fallback gets triggered, and so the original content will not be displayed.

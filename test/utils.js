@@ -8,7 +8,8 @@
 // Modules
 const React = require('react'),
 	ReactDOMServer = require('react-dom/server'),
-	ssr = require('../index');
+	ssr = require('../index'),
+	{NO_SSR} = require('../symbols');
 
 // Throw any unhandled promise rejections
 process.on('unhandledRejection', err => {
@@ -138,11 +139,11 @@ function wrapMethod(method) {
  * Returns a component which throws a promise when first rendered,
  * and if re-rendered after promise has resolved, returns an element made from
  * the provided component.
- * If `.noSsr` option set, throws a promise with `.noSsr` property.
+ * If `.noSsr` option set, throws a promise with `[NO_SSR]` property.
  *
  * @param {Function} component - Component to render
  * @param {Object} [options] - Options object
- * @param {boolean} [options.noSsr=false] - If `true`, throws promise with `.noSsr` property
+ * @param {boolean} [options.noSsr=false] - If `true`, throws promise with `[NO_SSR]` property
  * @param {boolean} [options.noResolve=false] - If `true`, throws promise that never resolves
  * @param {number} [options.delay=undefined] - If provided, throws promise that delays
  *   provided number of ms before resolving
@@ -158,7 +159,7 @@ function lazy(component, options) {
 		if (!promise) {
 			if (options.noSsr) {
 				promise = new Promise(() => {});
-				promise.noSsr = true;
+				promise[NO_SSR] = true;
 			} else if (options.noResolve) {
 				promise = new Promise(() => {});
 			} else if (options.delay != null) {
