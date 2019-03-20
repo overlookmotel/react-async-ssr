@@ -34,16 +34,17 @@ module.exports = {
  *  - `openTag`: When method is `renderToStringAsync`, `openTag` is ' data-reactroot=""'
  *  - `isStatic`: `true` if method is `renderToStaticMarkupAsync`
  */
-function itRenders(testName, fn, describe) {
+function itRenders(testName, fn, options, describe) {
+	const fallbackFast = options ? options.fallbackFast : undefined;
 	// eslint-disable-next-line jest/valid-describe
 	describe(testName, () => {
-		runGroups(({testName, method, openTag, isStatic}) => {
+		runGroups(({testName, method, openTag, isStatic, fallbackFast}) => {
 			// eslint-disable-next-line jest/expect-expect
 			it(testName, () => {
 				// eslint-disable-next-line jest/no-test-return-statement
-				return fn({render: method, openTag, isStatic});
+				return fn({render: method, openTag, isStatic, fallbackFast});
 			});
-		});
+		}, fallbackFast);
 	});
 }
 
@@ -57,10 +58,10 @@ function itRenders(testName, fn, describe) {
  *  - `Suspense`: If an async method `React.Suspense`; if sync method then the dummy `Passthrough`
  */
 
-function itRendersWithSyncCompare(testName, fn, describe) {
+function itRendersWithSyncCompare(testName, fn, options, describe) {
 	// eslint-disable-next-line jest/valid-describe
 	describe(testName, () => {
-		runGroups(({testName, method, methodSync, methodNameSync, openTag, isStatic}) => {
+		runGroups(({testName, method, methodSync, methodNameSync, openTag, isStatic, fallbackFast}) => {
 			// eslint-disable-next-line jest/valid-describe
 			describe(testName, () => {
 				// eslint-disable-next-line jest/expect-expect
@@ -72,7 +73,8 @@ function itRendersWithSyncCompare(testName, fn, describe) {
 						Fallback: React.Suspense,
 						lazy,
 						openTag,
-						isStatic
+						isStatic,
+						fallbackFast
 					});
 				});
 
@@ -85,7 +87,8 @@ function itRendersWithSyncCompare(testName, fn, describe) {
 						Fallback: SuspenseFallback,
 						lazy: lazySync,
 						openTag,
-						isStatic
+						isStatic,
+						fallbackFast
 					});
 				});
 			});
@@ -103,24 +106,54 @@ function SuspenseFallback(props) {
 	return fallback;
 }
 
-function runGroups(fn) {
-	fn({
+function runGroups(fn, fallbackFast) {
+	const groups = [];
+
+	// renderToString groups
+	const group = {
 		testName: 'with renderToStringAsync',
 		methodNameSync: 'renderToString',
 		method: ssr.renderToStringAsync,
 		methodSync: e => Promise.resolve(ReactDOMServer.renderToString(e)),
 		openTag: ' data-reactroot=""',
-		isStatic: false
-	});
+		isStatic: false,
+		fallbackFast: false
+	};
 
-	fn({
+	if (fallbackFast == null || !fallbackFast) groups.push(group);
+
+	if (fallbackFast == null || fallbackFast) {
+		groups.push(Object.assign({}, group, {
+			testName: 'with renderToStringAsync in fallbackFast mode',
+			fallbackFast: true,
+			method: e => ssr.renderToStringAsync(e, {fallbackFast: true})
+		}));
+	}
+
+	// renderToStaticMarkup groups
+	const groupStatic = {
 		testName: 'with renderToStaticMarkupAsync',
 		methodNameSync: 'renderToStaticMarkup',
 		method: ssr.renderToStaticMarkupAsync,
 		methodSync: e => Promise.resolve(ReactDOMServer.renderToStaticMarkup(e)),
 		openTag: '',
-		isStatic: true
-	});
+		isStatic: true,
+		fallbackFast: false
+	};
+
+	if (fallbackFast == null || !fallbackFast) groups.push(groupStatic);
+
+	if (fallbackFast == null || fallbackFast) {
+		groups.push(Object.assign({}, groupStatic, {
+			testName: 'with renderToStaticMarkupAsync in fallbackFast mode',
+			fallbackFast: true,
+			method: e => ssr.renderToStaticMarkupAsync(e, {fallbackFast: true})
+		}));
+	}
+
+	for (let group of groups) {
+		fn(group);
+	}
 }
 
 /*
@@ -128,9 +161,9 @@ function runGroups(fn) {
  * `.skip()` and `.only` variations to it.
  */
 function wrapMethod(method) {
-	const methodWrapped = (testName, fn) => method(testName, fn, describe);
-	methodWrapped.only = (testName, fn) => method(testName, fn, describe.only);
-	methodWrapped.skip = (testName, fn) => method(testName, fn, describe.skip);
+	const methodWrapped = (testName, fn, options) => method(testName, fn, options, describe);
+	methodWrapped.only = (testName, fn, options) => method(testName, fn, options, describe.only);
+	methodWrapped.skip = (testName, fn, options) => method(testName, fn, options, describe.skip);
 	return methodWrapped;
 }
 

@@ -217,7 +217,31 @@ When rendered on server, this will output `<div>Loading...</div>`.
 
 On client side, to ensure no hydration mismatch errors, the component must throw a promise which then resolves to the required component/data, and not render the output synchronously.
 
-### Aborting unnecessary loading
+#### Optimization: Bail out of rendering when suspended
+
+When a `[NO_SSR]` promise is thrown, default behavior is to continue rendering the rest of the Suspense boundary.
+
+However, this content will not be output as the Suspense fallback will be rendered and output instead.
+
+As an optimization, you can cause the render to bail out of rendering all further content within the Suspense as soon as the fallback is triggered, by providing a `fallbackFast` option to `.renderToStringAsync()`.
+
+```js
+function App() {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <LazyNoSSR/> <!-- throws `[NO_SSR]` promise -->
+      <LazySSR/> <!-- will not be rendered -->
+    </React.Suspense>
+  );
+}
+
+const html = await ReactDOMServer.renderToStringAsync(
+  <App />,
+  {fallbackFast: true}
+);
+```
+
+#### Optimization: Aborting unnecessary loading
 
 It's possible for a lazy component to begin loading, but then its result not to be required, because an enclosing Suspense boundary's fallback gets triggered. If so the result will not be displayed.
 
