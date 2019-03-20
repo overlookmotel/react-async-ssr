@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.1
+
+Features:
+
+* `fallbackFast` option
+
+Other:
+
+* Docs: README update
+* Tests: Trivial refactor
+
 ## 0.4.0
 
 Breaking changes:
