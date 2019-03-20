@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.4.0
+
+Breaking changes:
+
+* Rename promise abort method from `.abort` to symbol `[ABORT]`
+
+Features:
+
+* `NO_SSR` promise signal to prevent server rendering
+
+Other:
+
+* Trivial refactors
+
 ## 0.3.1
 
 Bug fixes:
