@@ -9,7 +9,7 @@
 const React = require('react'),
 	ReactDOMServer = require('react-dom/server'),
 	ssr = require('../index'),
-	{NO_SSR} = require('../symbols');
+	{NO_SSR, ABORT} = require('../symbols');
 
 // Throw any unhandled promise rejections
 process.on('unhandledRejection', err => {
@@ -176,7 +176,7 @@ function lazy(component, options) {
 				});
 			}
 
-			promise.abort = jest.fn(); // Spy
+			promise[ABORT] = jest.fn(); // Spy
 			Lazy.promise = promise;
 		}
 

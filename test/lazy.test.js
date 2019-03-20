@@ -7,7 +7,8 @@
 
 // Modules
 const React = require('react'),
-	{Suspense} = React;
+	{Suspense} = React,
+	{ABORT} = require('../symbols');
 
 // Imports
 const {itRenders, lazy, removeSpacing, preventUnhandledRejection} = require('./utils');
@@ -773,7 +774,7 @@ describe('lazy component', () => {
 			await expect(p).rejects.toThrow(NO_SUSPENSE_ERROR);
 		});
 
-		itRenders('calls `.abort()` on promise', async ({render}) => {
+		itRenders('calls `[ABORT]()` on promise', async ({render}) => {
 			const Lazy = lazy(() => <div>Lazy inner</div>);
 
 			const e = <div><Lazy/></div>;
@@ -781,7 +782,7 @@ describe('lazy component', () => {
 			const p = render(e);
 			preventUnhandledRejection(p);
 
-			expect(Lazy.promise.abort).toHaveBeenCalledTimes(1);
+			expect(Lazy.promise[ABORT]).toHaveBeenCalledTimes(1);
 
 			await expect(p).rejects.toThrow(NO_SUSPENSE_ERROR);
 		});
@@ -803,7 +804,7 @@ describe('lazy component', () => {
 			await expect(p).rejects.toThrow(NO_SUSPENSE_ERROR);
 		});
 
-		itRenders('calls `.abort()` on promise', async ({render}) => {
+		itRenders('calls `[ABORT]()` on promise', async ({render}) => {
 			const Lazy = lazy(() => <div>Lazy inner</div>);
 
 			const e = (
@@ -817,7 +818,7 @@ describe('lazy component', () => {
 			const p = render(e);
 			preventUnhandledRejection(p);
 
-			expect(Lazy.promise.abort).toHaveBeenCalledTimes(1);
+			expect(Lazy.promise[ABORT]).toHaveBeenCalledTimes(1);
 
 			await expect(p).rejects.toThrow(NO_SUSPENSE_ERROR);
 		});
@@ -975,7 +976,7 @@ describe('multiple lazy components', () => {
 			`));
 		});
 
-		itRenders('calls `.abort()` on all promises inside suspense', async ({render, openTag}) => {
+		itRenders('calls `[ABORT]()` on all promises inside suspense', async ({render, openTag}) => {
 			const Lazy1 = lazy(() => <div>Lazy inner 1</div>);
 			const Lazy2 = lazy(() => <div>Lazy inner 2</div>, {noSsr: true});
 			const Lazy3 = lazy(() => <div>Lazy inner 3</div>);
@@ -997,10 +998,10 @@ describe('multiple lazy components', () => {
 			const p = render(e);
 			preventUnhandledRejection(p);
 
-			expect(Lazy1.promise.abort).toHaveBeenCalledTimes(1);
-			expect(Lazy2.promise.abort).toHaveBeenCalledTimes(1);
-			expect(Lazy3.promise.abort).toHaveBeenCalledTimes(1);
-			expect(Lazy4.promise.abort).not.toHaveBeenCalled();
+			expect(Lazy1.promise[ABORT]).toHaveBeenCalledTimes(1);
+			expect(Lazy2.promise[ABORT]).toHaveBeenCalledTimes(1);
+			expect(Lazy3.promise[ABORT]).toHaveBeenCalledTimes(1);
+			expect(Lazy4.promise[ABORT]).not.toHaveBeenCalled();
 
 			const h = await p;
 			expect(h).toBe(`<div${openTag}><span>Fallback</span><div>Lazy inner 4</div></div>`);
@@ -1146,7 +1147,7 @@ describe('nested lazy components', () => {
 	});
 
 	describe('any one throwing promise aborts render and', () => {
-		describe('calls `.abort()` on all promises inside suspense', () => {
+		describe('calls `[ABORT]()` on all promises inside suspense', () => {
 			itRenders('when triggered from inside nested lazy element', async ({render, openTag}) => {
 				const Lazy1 = lazy(() => <div>Lazy inner 1</div>, {delay: 500});
 				const Lazy2 = lazy(() => <div>Lazy inner 2</div>, {delay: 500});
@@ -1168,10 +1169,10 @@ describe('nested lazy components', () => {
 
 				await Lazy3.promise;
 
-				expect(Lazy1.promise.abort).toHaveBeenCalledTimes(1);
-				expect(Lazy2.promise.abort).toHaveBeenCalledTimes(1);
-				expect(Lazy3.promise.abort).not.toHaveBeenCalled();
-				expect(Lazy3Inner.promise.abort).toHaveBeenCalledTimes(1);
+				expect(Lazy1.promise[ABORT]).toHaveBeenCalledTimes(1);
+				expect(Lazy2.promise[ABORT]).toHaveBeenCalledTimes(1);
+				expect(Lazy3.promise[ABORT]).not.toHaveBeenCalled();
+				expect(Lazy3Inner.promise[ABORT]).toHaveBeenCalledTimes(1);
 
 				const h = await p;
 
@@ -1199,10 +1200,10 @@ describe('nested lazy components', () => {
 				await Lazy1.promise;
 				await Lazy2.promise;
 
-				expect(Lazy1.promise.abort).not.toHaveBeenCalled();
-				expect(Lazy1Inner.promise.abort).toHaveBeenCalledTimes(1);
-				expect(Lazy2.promise.abort).not.toHaveBeenCalled();
-				expect(Lazy2Inner.promise.abort).toHaveBeenCalledTimes(1);
+				expect(Lazy1.promise[ABORT]).not.toHaveBeenCalled();
+				expect(Lazy1Inner.promise[ABORT]).toHaveBeenCalledTimes(1);
+				expect(Lazy2.promise[ABORT]).not.toHaveBeenCalled();
+				expect(Lazy2Inner.promise[ABORT]).toHaveBeenCalledTimes(1);
 
 				const h = await p;
 

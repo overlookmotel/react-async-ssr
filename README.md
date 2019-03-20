@@ -219,9 +219,27 @@ On client side, to ensure no hydration mismatch errors, the component must throw
 
 ### Aborting unnecessary loading
 
-It's possible for a lazy component to begin loading, but then its result not to be required, because an enclosing Suspense boundary's fallback gets triggered, and so the original content will not be displayed.
+It's possible for a lazy component to begin loading, but then its result not to be required, because an enclosing Suspense boundary's fallback gets triggered. If so the result will not be displayed.
 
-In these cases, if the promise has an `.abort()` method, it will be called.
+In these cases, if the promise has an `[ABORT]` method, it will be called.
+
+`[ABORT]` is a symbol which can be imported from `react-async-ssr/symbols`.
+
+```js
+const {ABORT} = require('react-async-ssr/symbols');
+
+function AbortableLazy() {
+  const promise = new Promise(
+    resolve => /* do some stuff */
+  );
+
+  promise[ABORT] = () => {
+    /* this will be called if result of promise will not be rendered */
+  };
+
+  throw promise;
+}
+```
 
 ### Additional notes
 
