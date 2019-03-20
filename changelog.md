@@ -4,7 +4,7 @@
 
 Other:
 
-* Changelog for v0.4.2
+* Changelog for v0.4.1
 
 ## 0.4.1
 
