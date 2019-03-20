@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.2
+
+Other:
+
+* Changelog for v0.4.2
+
 ## 0.4.1
 
 Features:
