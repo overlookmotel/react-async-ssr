@@ -62,7 +62,7 @@ function App() {
   );
 }
 
-const html = await ReactDOM.renderToStringAsync(<App />);
+const html = await ReactDOMServer.renderToStringAsync(<App />);
 ```
 
 `<Suspense>` behaves exactly the same on the server as it does on the client.
@@ -143,7 +143,7 @@ function App() {
   );
 }
 
-const html = await ReactDOM.renderToStringAsync(<App />);
+const html = await ReactDOMServer.renderToStringAsync(<App />);
 ```
 
 The above example makes 3 async fetch requests, which are made in parallel. They are awaited, and the HTML markup rendered only once all the data is ready.
@@ -193,7 +193,7 @@ The component should throw a promise which has `[NO_SSR]` property set to `true`
 
 `[NO_SSR]` is a symbol which can be imported from `react-async-ssr/symbols`.
 
-If the promise has this property, the component will not be rendered and the next Suspense boundary above's fallback will be triggered.
+If the promise has this property, the component will not be rendered and the enclosing Suspense boundary's fallback will be triggered.
 
 ```js
 const {NO_SSR} = require('react-async-ssr/symbols');
