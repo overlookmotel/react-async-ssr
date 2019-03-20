@@ -507,11 +507,7 @@ describe('lazy component', () => {
 					);
 
 					const h = await render(e);
-					expect(h).toBe(removeSpacing(`
-						<div${openTag}>
-							<span>Fallback outer</span>
-						</div>
-					`));
+					expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
 
 					expect(Fallback).toHaveBeenCalledTimes(1);
 				});
@@ -533,11 +529,7 @@ describe('lazy component', () => {
 					);
 
 					const h = await render(e);
-					expect(h).toBe(removeSpacing(`
-						<div${openTag}>
-							<span>Fallback outer</span>
-						</div>
-					`));
+					expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
 
 					expect(Fallback).toHaveBeenCalledTimes(1);
 				});
@@ -560,11 +552,7 @@ describe('lazy component', () => {
 					);
 
 					const h = await render(e);
-					expect(h).toBe(removeSpacing(`
-						<div${openTag}>
-							<span>Fallback outer</span>
-						</div>
-					`));
+					expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
 
 					expect(Fallback).toHaveBeenCalledTimes(1);
 				});
@@ -591,11 +579,7 @@ describe('lazy component', () => {
 					);
 
 					const h = await render(e);
-					expect(h).toBe(removeSpacing(`
-						<div${openTag}>
-							<span>Fallback outer</span>
-						</div>
-					`));
+					expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
 
 					expect(Fallback).not.toHaveBeenCalled();
 					expect(Fallback2).toHaveBeenCalledTimes(1);
@@ -621,11 +605,7 @@ describe('lazy component', () => {
 					);
 
 					const h = await render(e);
-					expect(h).toBe(removeSpacing(`
-						<div${openTag}>
-							<span>Fallback outer</span>
-						</div>
-					`));
+					expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
 
 					expect(Fallback).not.toHaveBeenCalled();
 					expect(Fallback2).toHaveBeenCalledTimes(1);
@@ -652,11 +632,7 @@ describe('lazy component', () => {
 					);
 
 					const h = await render(e);
-					expect(h).toBe(removeSpacing(`
-						<div${openTag}>
-							<span>Fallback outer</span>
-						</div>
-					`));
+					expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
 
 					expect(Fallback).not.toHaveBeenCalled();
 					expect(Fallback2).toHaveBeenCalledTimes(1);
@@ -686,11 +662,7 @@ describe('lazy component', () => {
 					);
 
 					const h = await render(e);
-					expect(h).toBe(removeSpacing(`
-						<div${openTag}>
-							<span>Fallback outer</span>
-						</div>
-					`));
+					expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
 
 					expect(Fallback).toHaveBeenCalledTimes(1);
 					expect(Fallback2).toHaveBeenCalledTimes(1);
@@ -718,11 +690,7 @@ describe('lazy component', () => {
 					);
 
 					const h = await render(e);
-					expect(h).toBe(removeSpacing(`
-						<div${openTag}>
-							<span>Fallback outer</span>
-						</div>
-					`));
+					expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
 
 					expect(Fallback).toHaveBeenCalledTimes(1);
 					expect(Fallback2).toHaveBeenCalledTimes(1);
@@ -751,11 +719,7 @@ describe('lazy component', () => {
 					);
 
 					const h = await render(e);
-					expect(h).toBe(removeSpacing(`
-						<div${openTag}>
-							<span>Fallback outer</span>
-						</div>
-					`));
+					expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
 
 					expect(Fallback).toHaveBeenCalledTimes(1);
 					expect(Fallback2).toHaveBeenCalledTimes(1);
