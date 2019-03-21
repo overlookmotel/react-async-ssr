@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.4
+
+Bug fixes:
+
+* Prevent calling callback twice when NO_SSR promise thrown
+
 ## 0.4.3
 
 Other:
