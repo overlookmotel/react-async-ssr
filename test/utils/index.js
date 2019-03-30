@@ -8,8 +8,8 @@
 // Modules
 const React = require('react'),
 	ReactDOMServer = require('react-dom/server'),
-	ssr = require('../index'),
-	{NO_SSR, ABORT} = require('../symbols');
+	ssr = require('../../index'),
+	{NO_SSR, ABORT} = require('../../symbols');
 
 // Throw any unhandled promise rejections
 process.on('unhandledRejection', err => {
