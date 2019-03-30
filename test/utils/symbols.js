@@ -1,14 +1,12 @@
 /* --------------------
  * react-async-ssr module
- * Constants
+ * Tests utility symbols
  * ------------------*/
 
 'use strict';
 
 // Exports
 module.exports = {
-	TYPE_SUSPENSE: 'suspense',
-	TYPE_PROMISE: 'promise',
-	TYPE_FALLBACK: 'fallback',
-	TYPE_TEXT: 'text'
+	TEST_LAZY: Symbol('TEST_LAZY'),
+	TEST_PROMISE: Symbol('TEST_PROMISE')
 };

@@ -9,7 +9,14 @@
 const React = require('react'),
 	ReactDOMServer = require('react-dom/server'),
 	ssr = require('../../index'),
-	{NO_SSR, ABORT} = require('../../symbols');
+	{NO_SSR, ABORT, ON_MOUNT} = require('../../symbols');
+
+// Imports
+const {TEST_LAZY} = require('./symbols');
+
+// Extend expect with `.toBeMounted()` etc
+const expectExtensions = require('./expectExtensions');
+expect.extend(expectExtensions);
 
 // Throw any unhandled promise rejections
 process.on('unhandledRejection', err => {
@@ -210,11 +217,14 @@ function lazy(component, options) {
 			}
 
 			promise[ABORT] = jest.fn(); // Spy
+			promise[ON_MOUNT] = jest.fn(); // Spy
 			Lazy.promise = promise;
 		}
 
 		throw promise;
 	};
+
+	Lazy[TEST_LAZY] = true;
 
 	return Lazy;
 }

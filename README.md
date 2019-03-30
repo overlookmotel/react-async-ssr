@@ -183,6 +183,20 @@ However, some mechanism is required to gather the data loaded on the server in o
 
 There are many solutions, for example using a [Redux](https://redux.js.org/) store, or a [Context](https://reactjs.org/docs/context.html) Provider at the root of the app. This package does not make any assumptions about how the user wants to handle this, and no doubt solutions will emerge from the community. All that this package requires is that components follow React's convention that components wishing to do async loading throw promises.
 
+### Tracking components being used
+
+If promises thrown have an `[ON_MOUNT]()` method, they are called.
+
+`[ON_MOUNT]` is a symbol which can be imported from `react-async-ssr/symbols`.
+
+`[ON_MOUNT]()` is called in the order components will be rendered on the client during hydration. This may not be the same order as the components are rendered on the server, if lazy components are nested within each other. In some cases, a component may render on the server, but not at all on the client during hydration, due to a Suspense fallback being triggered (see below).
+
+`[ON_MOUNT]()` is called with `true` if the element will be rendered on client, or `false` if it will not. `false` happens if the promise was thrown by a component which ends up being inside a Suspense boundary whose fallback is triggered, so the component is not rendered.
+
+Only components whose promise's `[ON_MOUNT]()` method has been called with `true` should have their imported file/data provided on client side so they can be rehydrated synchronously. Those called with `false` should be allowed to load file/data asynchronously.
+
+This is to prevent unnecessary files/data being loaded on the client prior to hydration, when they won't actually be used in hydration. Doing that would increase the time user has to wait before hydration.
+
 ### Preventing components rendering on server side
 
 Sometimes you might want to prevent a component rendering on server side. For example, it might be a low-priority part of the page, "below the fold", or a heavy component which will take a long time to load on client side and increase the delay before hydration.
