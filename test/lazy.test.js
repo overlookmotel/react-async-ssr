@@ -7,8 +7,7 @@
 
 // Modules
 const React = require('react'),
-	{Suspense} = React,
-	{ABORT} = require('../symbols');
+	{Suspense} = React;
 
 // Imports
 const {itRenders, lazy, removeSpacing, preventUnhandledRejection} = require('./utils');
@@ -1300,7 +1299,7 @@ describe('lazy component', () => {
 			const p = render(e);
 			preventUnhandledRejection(p);
 
-			expect(Lazy.promise[ABORT]).toHaveBeenCalledTimes(1);
+			expect(Lazy).toBeAborted();
 
 			await expect(p).rejects.toThrow(NO_SUSPENSE_ERROR);
 		});
@@ -1336,7 +1335,7 @@ describe('lazy component', () => {
 			const p = render(e);
 			preventUnhandledRejection(p);
 
-			expect(Lazy.promise[ABORT]).toHaveBeenCalledTimes(1);
+			expect(Lazy).toBeAborted();
 
 			await expect(p).rejects.toThrow(NO_SUSPENSE_ERROR);
 		});
@@ -1580,14 +1579,14 @@ describe('multiple lazy components', () => {
 				const p = render(e);
 				preventUnhandledRejection(p);
 
-				expect(Lazy1.promise[ABORT]).toHaveBeenCalledTimes(1);
-				expect(Lazy2.promise[ABORT]).toHaveBeenCalledTimes(1);
+				expect(Lazy1).toBeAborted();
+				expect(Lazy2).toBeAborted();
 				if (fallbackFast) {
 					expect(Lazy3).not.toHaveBeenCalled();
 				} else {
-					expect(Lazy3.promise[ABORT]).toHaveBeenCalledTimes(1);
+					expect(Lazy3).toBeAborted();
 				}
-				expect(Lazy4.promise[ABORT]).not.toHaveBeenCalled();
+				expect(Lazy4).not.toBeAborted();
 
 				const h = await p;
 				expect(h).toBe(`<div${openTag}><span>Fallback</span><div>Lazy inner 4</div></div>`);
@@ -1806,10 +1805,10 @@ describe('nested lazy components', () => {
 
 				await Lazy3.promise;
 
-				expect(Lazy1.promise[ABORT]).toHaveBeenCalledTimes(1);
-				expect(Lazy2.promise[ABORT]).toHaveBeenCalledTimes(1);
-				expect(Lazy3.promise[ABORT]).not.toHaveBeenCalled();
-				expect(Lazy3Inner.promise[ABORT]).toHaveBeenCalledTimes(1);
+				expect(Lazy1).toBeAborted();
+				expect(Lazy2).toBeAborted();
+				expect(Lazy3).not.toBeAborted();
+				expect(Lazy3Inner).toBeAborted();
 
 				const h = await p;
 
@@ -1837,10 +1836,10 @@ describe('nested lazy components', () => {
 				await Lazy1.promise;
 				await Lazy2.promise;
 
-				expect(Lazy1.promise[ABORT]).not.toHaveBeenCalled();
-				expect(Lazy1Inner.promise[ABORT]).toHaveBeenCalledTimes(1);
-				expect(Lazy2.promise[ABORT]).not.toHaveBeenCalled();
-				expect(Lazy2Inner.promise[ABORT]).toHaveBeenCalledTimes(1);
+				expect(Lazy1).not.toBeAborted();
+				expect(Lazy1Inner).toBeAborted();
+				expect(Lazy2).not.toBeAborted();
+				expect(Lazy2Inner).toBeAborted();
 
 				const h = await p;
 

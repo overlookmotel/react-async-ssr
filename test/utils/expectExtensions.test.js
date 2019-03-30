@@ -7,7 +7,7 @@
 
 // Modules
 const React = require('react'),
-	{ON_MOUNT} = require('../../symbols');
+	{ABORT, ON_MOUNT} = require('../../symbols');
 
 // Imports
 const {lazy} = require('./index');
@@ -15,6 +15,96 @@ const {lazy} = require('./index');
 // Tests
 
 describe('jest expect extensions (used in tests only)', () => {
+	describe('toBeAborted', () => {
+		it('passes if passed a correctly aborted lazy component', () => {
+			const Lazy = lazy(() => <div></div>);
+			const promise = tryCatch(Lazy);
+			promise[ABORT]();
+			expect(Lazy).toBeAborted();
+		});
+
+		it('errors if passed a non-function', () => {
+			expect(() => {
+				expect(null).toBeAborted();
+			}).toThrow(/^Expected component to be aborted - it is not a component$/);
+		});
+
+		it('errors if passed a function which is not a test lazy component', () => {
+			expect(() => {
+				expect(function() {}).toBeAborted();
+			}).toThrow(/^Expected component to be aborted - it is not a test lazy component$/);
+		});
+
+		it('errors if passed a component which was not called', () => {
+			const Lazy = lazy(() => <div></div>);
+			expect(() => {
+				expect(Lazy).toBeAborted();
+			}).toThrow(/^Expected Lazy to be aborted - it was not called$/);
+		});
+
+		it('errors if passed a component which was not aborted', () => {
+			const Lazy = lazy(() => <div></div>);
+			tryCatch(Lazy);
+			expect(() => {
+				expect(Lazy).toBeAborted();
+			}).toThrow(/^Expected Lazy to be aborted$/);
+		});
+
+		it('errors if passed a component which was aborted twice', () => {
+			const Lazy = lazy(() => <div></div>);
+			const promise = tryCatch(Lazy);
+			promise[ABORT]();
+			promise[ABORT]();
+			expect(() => {
+				expect(Lazy).toBeAborted();
+			}).toThrow(/^Expected Lazy to be aborted - it was aborted 2 times$/);
+		});
+	});
+
+	describe('not.toBeAborted', () => {
+		it('passes if passed a lazy component which was called but not aborted', () => {
+			const Lazy = lazy(() => <div></div>);
+			tryCatch(Lazy);
+			expect(Lazy).not.toBeAborted();
+		});
+
+		it('passes if passed a lazy component which was not called', () => {
+			const Lazy = lazy(() => <div></div>);
+			expect(Lazy).not.toBeAborted();
+		});
+
+		it('errors if passed a non-function', () => {
+			expect(() => {
+				expect(null).not.toBeAborted();
+			}).toThrow(/^Expected component not to be aborted - it is not a component$/);
+		});
+
+		it('errors if passed a function which is not a test lazy component', () => {
+			expect(() => {
+				expect(function() {}).not.toBeAborted();
+			}).toThrow(/^Expected component not to be aborted - it is not a test lazy component$/);
+		});
+
+		it('errors if passed a component which was aborted', () => {
+			const Lazy = lazy(() => <div></div>);
+			const promise = tryCatch(Lazy);
+			promise[ABORT]();
+			expect(() => {
+				expect(Lazy).not.toBeAborted();
+			}).toThrow(/^Expected Lazy not to be aborted$/);
+		});
+
+		it('errors if passed a component which was aborted twice', () => {
+			const Lazy = lazy(() => <div></div>);
+			const promise = tryCatch(Lazy);
+			promise[ABORT]();
+			promise[ABORT]();
+			expect(() => {
+				expect(Lazy).not.toBeAborted();
+			}).toThrow(/^Expected Lazy not to be aborted - it was aborted 2 times$/);
+		});
+	});
+
 	describe('toBeMounted', () => {
 		it('passes if passed a correctly mounted lazy component', () => {
 			const Lazy = lazy(() => <div></div>);

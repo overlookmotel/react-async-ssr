@@ -6,7 +6,7 @@
 'use strict';
 
 // Modules
-const {ON_MOUNT} = require('../../symbols');
+const {ABORT, ON_MOUNT} = require('../../symbols');
 
 // Imports
 const {TEST_LAZY} = require('./symbols');
@@ -17,6 +17,26 @@ const {TEST_LAZY} = require('./symbols');
  * Expect extensions
  */
 const extensions = {};
+
+extensions.toBeAborted = extensions.toAbort = function(Component) {
+	const message = `Expected ${componentName(Component)} ${this.isNot ? 'not ' : ''}to be aborted`;
+
+	// Check `[ABORT]` called correctly if was called
+	const {fail, mock, notCalled} = calledCorrectly(Component, ABORT);
+
+	// Make `expect(C).not.toBeAborted()` not error if `C` never called
+	if (notCalled && this.isNot) return failed(message);
+
+	if (fail) return passedFailed(this, message, fail);
+
+	// Check `[ABORT]` called no more than once
+	const {calls} = mock;
+	if (calls.length > 1) return passedFailed(this, message, `it was aborted ${calls.length} times`);
+
+	// Check aborted
+	if (mock.calls.length === 0) return failed(message);
+	return passed(message);
+};
 
 extensions.toBeMounted = extensions.toMount = function(Component) {
 	const message = mountBaseMessage(this, Component);
