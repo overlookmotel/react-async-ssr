@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.5
+
+Features:
+
+* Call `[ON_MOUNT]` on promises
+
+Other:
+
+* Tests: Refactor with expect extensions
+
 ## 0.4.4
 
 Bug fixes:
