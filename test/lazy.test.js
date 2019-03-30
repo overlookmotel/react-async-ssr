@@ -951,7 +951,7 @@ describe('lazy component', () => {
 						let e, Lazy, Lazy2, Fallback;
 						beforeEach(() => {
 							Lazy = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy2 = spy(lazy(() => <div>Lazy 2</div>));
+							Lazy2 = lazy(() => <div>Lazy 2</div>);
 							Fallback = spy(() => <span>Fallback 1</span>);
 
 							e = (
@@ -1051,7 +1051,7 @@ describe('lazy component', () => {
 						let e, Lazy, Lazy2, Fallback, Fallback2;
 						beforeEach(() => {
 							Lazy = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy2 = spy(lazy(() => <div>Lazy 2</div>));
+							Lazy2 = lazy(() => <div>Lazy 2</div>);
 							Fallback = spy(() => <span>Fallback 1</span>);
 							Fallback2 = spy(() => <span>Fallback 2</span>);
 
@@ -1163,8 +1163,8 @@ describe('lazy component', () => {
 						let e, Lazy, Lazy2, Lazy3, Fallback, Fallback2;
 						beforeEach(() => {
 							Lazy = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy2 = spy(lazy(() => <div>Lazy 2</div>));
-							Lazy3 = spy(lazy(() => <div>Lazy 2</div>));
+							Lazy2 = lazy(() => <div>Lazy 2</div>);
+							Lazy3 = lazy(() => <div>Lazy 2</div>);
 							Fallback = spy(() => <span>Fallback 1</span>);
 							Fallback2 = spy(() => <span>Fallback 2</span>);
 
@@ -1345,14 +1345,11 @@ describe('lazy component', () => {
 
 describe('multiple lazy components', () => {
 	describe('with no no-SSR promises', () => {
-		let e, Lazy1, Lazy2, Lazy3, Lazy1Actual, Lazy2Actual, Lazy3Actual;
+		let e, Lazy1, Lazy2, Lazy3;
 		beforeEach(() => {
-			Lazy1Actual = lazy(() => <div>Lazy inner 1</div>);
-			Lazy1 = spy(Lazy1Actual);
-			Lazy2Actual = lazy(() => <div>Lazy inner 2</div>);
-			Lazy2 = spy(Lazy2Actual);
-			Lazy3Actual = lazy(() => <div>Lazy inner 3</div>);
-			Lazy3 = spy(Lazy3Actual);
+			Lazy1 = lazy(() => <div>Lazy inner 1</div>);
+			Lazy2 = lazy(() => <div>Lazy inner 2</div>);
+			Lazy3 = lazy(() => <div>Lazy inner 3</div>);
 
 			e = (
 				<div>
@@ -1387,11 +1384,11 @@ describe('multiple lazy components', () => {
 
 		itRenders('calls [ON_MOUNT] on all promises', async ({render}) => {
 			await render(e);
-			expect(Lazy1Actual).toBeMountedWith(true);
-			expect(Lazy2Actual).toBeMountedWith(true);
-			expect(Lazy3Actual).toBeMountedWith(true);
-			expect(Lazy1Actual).toBeMountedBefore(Lazy2Actual);
-			expect(Lazy2Actual).toBeMountedBefore(Lazy3Actual);
+			expect(Lazy1).toBeMountedWith(true);
+			expect(Lazy2).toBeMountedWith(true);
+			expect(Lazy3).toBeMountedWith(true);
+			expect(Lazy1).toBeMountedBefore(Lazy2);
+			expect(Lazy2).toBeMountedBefore(Lazy3);
 		});
 	});
 
@@ -1426,16 +1423,12 @@ describe('multiple lazy components', () => {
 		});
 
 		describe('with fallbackFast mode disabled', () => {
-			let e, Lazy1, Lazy2, Lazy3, Lazy4, Lazy1Actual, Lazy2Actual, Lazy3Actual, Lazy4Actual;
+			let e, Lazy1, Lazy2, Lazy3, Lazy4;
 			beforeEach(() => {
-				Lazy1Actual = lazy(() => <div>Lazy inner 1</div>);
-				Lazy1 = spy(Lazy1Actual);
-				Lazy2Actual = lazy(() => <div>Lazy inner 2</div>, {noSsr: true});
-				Lazy2 = spy(Lazy2Actual);
-				Lazy3Actual = lazy(() => <div>Lazy inner 3</div>);
-				Lazy3 = spy(Lazy3Actual);
-				Lazy4Actual = lazy(() => <div>Lazy inner 4</div>);
-				Lazy4 = spy(Lazy4Actual);
+				Lazy1 = lazy(() => <div>Lazy inner 1</div>);
+				Lazy2 = lazy(() => <div>Lazy inner 2</div>, {noSsr: true});
+				Lazy3 = lazy(() => <div>Lazy inner 3</div>);
+				Lazy4 = lazy(() => <div>Lazy inner 4</div>);
 
 				e = (
 					<div>
@@ -1469,31 +1462,27 @@ describe('multiple lazy components', () => {
 
 			itRenders('calls [ON_MOUNT] with false on promises inside suspense', async ({render}) => {
 				await render(e);
-				expect(Lazy1Actual).toBeMountedWith(false);
-				expect(Lazy2Actual).toBeMountedWith(false);
-				expect(Lazy3Actual).toBeMountedWith(false);
-				expect(Lazy1Actual).toBeMountedBefore(Lazy2Actual);
-				expect(Lazy2Actual).toBeMountedBefore(Lazy3Actual);
+				expect(Lazy1).toBeMountedWith(false);
+				expect(Lazy2).toBeMountedWith(false);
+				expect(Lazy3).toBeMountedWith(false);
+				expect(Lazy1).toBeMountedBefore(Lazy2);
+				expect(Lazy2).toBeMountedBefore(Lazy3);
 			}, {fallbackFast: false});
 
 			itRenders('calls [ON_MOUNT] with true on promises outside suspense', async ({render}) => {
 				await render(e);
-				expect(Lazy4Actual).toBeMountedWith(true);
-				expect(Lazy3Actual).toBeMountedBefore(Lazy4Actual);
+				expect(Lazy4).toBeMountedWith(true);
+				expect(Lazy3).toBeMountedBefore(Lazy4);
 			}, {fallbackFast: false});
 		});
 
 		describe('with fallbackFast mode enabled', () => {
-			let e, Lazy1, Lazy2, Lazy3, Lazy4, Lazy1Actual, Lazy2Actual, Lazy3Actual, Lazy4Actual;
+			let e, Lazy1, Lazy2, Lazy3, Lazy4;
 			beforeEach(() => {
-				Lazy1Actual = lazy(() => <div>Lazy inner 1</div>);
-				Lazy1 = spy(Lazy1Actual);
-				Lazy2Actual = lazy(() => <div>Lazy inner 2</div>, {noSsr: true});
-				Lazy2 = spy(Lazy2Actual);
-				Lazy3Actual = lazy(() => <div>Lazy inner 3</div>);
-				Lazy3 = spy(Lazy3Actual);
-				Lazy4Actual = lazy(() => <div>Lazy inner 4</div>);
-				Lazy4 = spy(Lazy4Actual);
+				Lazy1 = lazy(() => <div>Lazy inner 1</div>);
+				Lazy2 = lazy(() => <div>Lazy inner 2</div>, {noSsr: true});
+				Lazy3 = lazy(() => <div>Lazy inner 3</div>);
+				Lazy4 = lazy(() => <div>Lazy inner 4</div>);
 
 				e = (
 					<div>
@@ -1527,14 +1516,14 @@ describe('multiple lazy components', () => {
 
 			itRenders('does not call [ON_MOUNT] on promises inside suspense', async ({render}) => {
 				await render(e);
-				expect(Lazy1Actual).not.toBeMounted();
-				expect(Lazy2Actual).not.toBeMounted();
-				expect(Lazy3Actual).not.toBeMounted();
+				expect(Lazy1).not.toBeMounted();
+				expect(Lazy2).not.toBeMounted();
+				expect(Lazy3).not.toBeMounted();
 			}, {fallbackFast: true});
 
 			itRenders('calls [ON_MOUNT] with true on promises outside suspense', async ({render}) => {
 				await render(e);
-				expect(Lazy4Actual).toBeMountedWith(true);
+				expect(Lazy4).toBeMountedWith(true);
 			}, {fallbackFast: true});
 		});
 
@@ -1572,8 +1561,7 @@ describe('multiple lazy components', () => {
 			async ({render, fallbackFast, openTag}) => {
 				const Lazy1 = lazy(() => <div>Lazy inner 1</div>);
 				const Lazy2 = lazy(() => <div>Lazy inner 2</div>, {noSsr: true});
-				const Lazy3Inner = lazy(() => <div>Lazy inner 3</div>);
-				const Lazy3 = spy(Lazy3Inner);
+				const Lazy3 = lazy(() => <div>Lazy inner 3</div>);
 				const Lazy4 = lazy(() => <div>Lazy inner 4</div>);
 
 				const e = (
@@ -1597,7 +1585,7 @@ describe('multiple lazy components', () => {
 				if (fallbackFast) {
 					expect(Lazy3).not.toHaveBeenCalled();
 				} else {
-					expect(Lazy3Inner.promise[ABORT]).toHaveBeenCalledTimes(1);
+					expect(Lazy3.promise[ABORT]).toHaveBeenCalledTimes(1);
 				}
 				expect(Lazy4.promise[ABORT]).not.toHaveBeenCalled();
 
@@ -1626,9 +1614,9 @@ describe('multiple lazy components', () => {
 		});
 
 		itRenders('prevents later elements being rendered', async ({render}) => {
-			const Lazy1 = spy(lazy(() => <div>Lazy inner 1</div>));
-			const Lazy2 = spy(lazy(() => <div>Lazy inner 2</div>));
-			const Lazy3 = spy(lazy(() => <div>Lazy inner 3</div>));
+			const Lazy1 = lazy(() => <div>Lazy inner 1</div>);
+			const Lazy2 = lazy(() => <div>Lazy inner 2</div>);
+			const Lazy3 = lazy(() => <div>Lazy inner 3</div>);
 
 			const e = (
 				<div>

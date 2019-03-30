@@ -193,7 +193,7 @@ function lazy(component, options) {
 	if (!options) options = {};
 
 	let loaded = false, promise;
-	const Lazy = function Lazy(props) {
+	let Lazy = function LazyComponent(props) {
 		if (loaded) return React.createElement(component, props);
 
 		if (!promise) {
@@ -223,6 +223,9 @@ function lazy(component, options) {
 
 		throw promise;
 	};
+
+	Lazy = jest.fn(Lazy); // Spy
+	Lazy.displayName = 'Lazy';
 
 	Lazy[TEST_LAZY] = true;
 
