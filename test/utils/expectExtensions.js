@@ -3,6 +3,8 @@
  * Expect extensions
  * ------------------*/
 
+/* eslint-disable no-multi-assign */
+
 'use strict';
 
 // Modules
@@ -185,13 +187,14 @@ function mountCalledCorrectlyFailMessage(res, useName) {
 	const {mock, name} = res,
 		{calls} = mock;
 	if (calls.length > 1) return `${useName ? name : 'it'} was mounted ${calls.length} times`;
-	if (calls.length === 0) return;
+	if (calls.length === 0) return null;
 
 	// Check was called with 1 arg only and arg was boolean
 	const [call] = calls;
 	if (call.length === 0) return `${useName ? name : ''}[ON_MOUNT] was called with no arguments`;
 	if (call.length > 1) return `${useName ? name : ''}[ON_MOUNT] was called with ${call.length} arguments`;
 	if (typeof call[0] !== 'boolean') return `${useName ? name : ''}[ON_MOUNT] was not called with a boolean - called with ${call[0]}`;
+	return null;
 }
 
 /**

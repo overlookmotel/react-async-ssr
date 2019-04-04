@@ -19,7 +19,7 @@ describe('lazy-loaded components space correctly', () => {
 	describe('with string inside lazy', () => {
 		itRendersWithSyncCompare('only', async ({render, lazy, Suspense}) => {
 			const Lazy = lazy(() => 'Inside');
-			const e = <Suspense fallback={fallback}><Lazy/></Suspense>;
+			const e = <Suspense fallback={fallback}><Lazy /></Suspense>;
 			const h = await render(e);
 			expect(h).toBe('Inside');
 		});
@@ -31,16 +31,15 @@ describe('lazy-loaded components space correctly', () => {
 					<Suspense fallback={fallback}>
 						<div>
 							Before
-							<Lazy/>
+							<Lazy />
 						</div>
 					</Suspense>
 				);
 
 				const h = await render(e);
-				expect(h).toBe(isStatic ?
-					'<div>BeforeInside</div>' :
-					'<div data-reactroot="">Before<!-- -->Inside</div>'
-				);
+				expect(h).toBe(isStatic
+					? '<div>BeforeInside</div>'
+					: '<div data-reactroot="">Before<!-- -->Inside</div>');
 			});
 
 			itRendersWithSyncCompare('after', async ({render, lazy, Suspense, isStatic}) => {
@@ -48,17 +47,16 @@ describe('lazy-loaded components space correctly', () => {
 				const e = (
 					<Suspense fallback={fallback}>
 						<div>
-							<Lazy/>
+							<Lazy />
 							After
 						</div>
 					</Suspense>
 				);
 
 				const h = await render(e);
-				expect(h).toBe(isStatic ?
-					'<div>InsideAfter</div>' :
-					'<div data-reactroot="">Inside<!-- -->After</div>'
-				);
+				expect(h).toBe(isStatic
+					? '<div>InsideAfter</div>'
+					: '<div data-reactroot="">Inside<!-- -->After</div>');
 			});
 
 			itRendersWithSyncCompare('before and after', async ({render, lazy, Suspense, isStatic}) => {
@@ -67,17 +65,16 @@ describe('lazy-loaded components space correctly', () => {
 					<Suspense fallback={fallback}>
 						<div>
 							Before
-							<Lazy/>
+							<Lazy />
 							After
 						</div>
 					</Suspense>
 				);
 
 				const h = await render(e);
-				expect(h).toBe(isStatic ?
-					'<div>BeforeInsideAfter</div>' :
-					'<div data-reactroot="">Before<!-- -->Inside<!-- -->After</div>'
-				);
+				expect(h).toBe(isStatic
+					? '<div>BeforeInsideAfter</div>'
+					: '<div data-reactroot="">Before<!-- -->Inside<!-- -->After</div>');
 			});
 		});
 
@@ -88,7 +85,7 @@ describe('lazy-loaded components space correctly', () => {
 					<Suspense fallback={fallback}>
 						<div>
 							<div>Before</div>
-							<Lazy/>
+							<Lazy />
 						</div>
 					</Suspense>
 				);
@@ -102,7 +99,7 @@ describe('lazy-loaded components space correctly', () => {
 				const e = (
 					<Suspense fallback={fallback}>
 						<div>
-							<Lazy/>
+							<Lazy />
 							<div>After</div>
 						</div>
 					</Suspense>
@@ -118,7 +115,7 @@ describe('lazy-loaded components space correctly', () => {
 					<Suspense fallback={fallback}>
 						<div>
 							<div>Before</div>
-							<Lazy/>
+							<Lazy />
 							<div>After</div>
 						</div>
 					</Suspense>
@@ -133,7 +130,7 @@ describe('lazy-loaded components space correctly', () => {
 	describe('with empty inside lazy', () => {
 		itRendersWithSyncCompare('only', async ({render, lazy, Suspense}) => {
 			const Lazy = lazy(() => null);
-			const e = <Suspense fallback={fallback}><Lazy/></Suspense>;
+			const e = <Suspense fallback={fallback}><Lazy /></Suspense>;
 			const h = await render(e);
 			expect(h).toBe('');
 		});
@@ -145,7 +142,7 @@ describe('lazy-loaded components space correctly', () => {
 					<Suspense fallback={fallback}>
 						<div>
 						Before
-							<Lazy/>
+							<Lazy />
 						</div>
 					</Suspense>
 				);
@@ -158,7 +155,7 @@ describe('lazy-loaded components space correctly', () => {
 				const e = (
 					<Suspense fallback={fallback}>
 						<div>
-							<Lazy/>
+							<Lazy />
 							After
 						</div>
 					</Suspense>
@@ -173,16 +170,15 @@ describe('lazy-loaded components space correctly', () => {
 					<Suspense fallback={fallback}>
 						<div>
 							Before
-							<Lazy/>
+							<Lazy />
 							After
 						</div>
 					</Suspense>
 				);
 				const h = await render(e);
-				expect(h).toBe(isStatic ?
-					'<div>BeforeAfter</div>' :
-					'<div data-reactroot="">Before<!-- -->After</div>'
-				);
+				expect(h).toBe(isStatic
+					? '<div>BeforeAfter</div>'
+					: '<div data-reactroot="">Before<!-- -->After</div>');
 			});
 		});
 
@@ -193,7 +189,7 @@ describe('lazy-loaded components space correctly', () => {
 					<Suspense fallback={fallback}>
 						<div>
 							<div>Before</div>
-							<Lazy/>
+							<Lazy />
 						</div>
 					</Suspense>
 				);
@@ -206,7 +202,7 @@ describe('lazy-loaded components space correctly', () => {
 				const e = (
 					<Suspense fallback={fallback}>
 						<div>
-							<Lazy/>
+							<Lazy />
 							<div>After</div>
 						</div>
 					</Suspense>
@@ -221,7 +217,7 @@ describe('lazy-loaded components space correctly', () => {
 					<Suspense fallback={fallback}>
 						<div>
 							<div>Before</div>
-							<Lazy/>
+							<Lazy />
 							<div>After</div>
 						</div>
 					</Suspense>
@@ -235,7 +231,7 @@ describe('lazy-loaded components space correctly', () => {
 	describe('with div inside lazy', () => {
 		itRendersWithSyncCompare('only', async ({render, lazy, Suspense, openTag}) => {
 			const Lazy = lazy(() => <div>Inside</div>);
-			const e = <Suspense fallback={fallback}><Lazy/></Suspense>;
+			const e = <Suspense fallback={fallback}><Lazy /></Suspense>;
 			const h = await render(e);
 			expect(h).toBe(`<div${openTag}>Inside</div>`);
 		});
@@ -247,7 +243,7 @@ describe('lazy-loaded components space correctly', () => {
 					<Suspense fallback={fallback}>
 						<div>
 							Before
-							<Lazy/>
+							<Lazy />
 						</div>
 					</Suspense>
 				);
@@ -260,7 +256,7 @@ describe('lazy-loaded components space correctly', () => {
 				const e = (
 					<Suspense fallback={fallback}>
 						<div>
-							<Lazy/>
+							<Lazy />
 							After
 						</div>
 					</Suspense>
@@ -275,7 +271,7 @@ describe('lazy-loaded components space correctly', () => {
 					<Suspense fallback={fallback}>
 						<div>
 							Before
-							<Lazy/>
+							<Lazy />
 							After
 						</div>
 					</Suspense>
@@ -292,7 +288,7 @@ describe('lazy-loaded components space correctly', () => {
 					<Suspense fallback={fallback}>
 						<div>
 							<div>Before</div>
-							<Lazy/>
+							<Lazy />
 						</div>
 					</Suspense>
 				);
@@ -305,7 +301,7 @@ describe('lazy-loaded components space correctly', () => {
 				const e = (
 					<Suspense fallback={fallback}>
 						<div>
-							<Lazy/>
+							<Lazy />
 							<div>After</div>
 						</div>
 					</Suspense>
@@ -320,7 +316,7 @@ describe('lazy-loaded components space correctly', () => {
 					<Suspense fallback={fallback}>
 						<div>
 							<div>Before</div>
-							<Lazy/>
+							<Lazy />
 							<div>After</div>
 						</div>
 					</Suspense>

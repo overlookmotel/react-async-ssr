@@ -16,10 +16,11 @@ const {TEST_LAZY} = require('./symbols');
 
 // Extend expect with `.toBeMounted()` etc
 const expectExtensions = require('./expectExtensions');
+
 expect.extend(expectExtensions);
 
 // Throw any unhandled promise rejections
-process.on('unhandledRejection', err => {
+process.on('unhandledRejection', (err) => {
 	console.log('Unhandled rejection'); // eslint-disable-line no-console
 	throw err;
 });
@@ -45,12 +46,10 @@ function itRenders(testName, fn, options, describe) {
 	const fallbackFast = options ? options.fallbackFast : undefined;
 	// eslint-disable-next-line jest/valid-describe
 	describe(testName, () => {
+		// eslint-disable-next-line no-shadow
 		runGroups(({testName, method, openTag, isStatic, fallbackFast}) => {
 			// eslint-disable-next-line jest/expect-expect
-			it(testName, () => {
-				// eslint-disable-next-line jest/no-test-return-statement
-				return fn({render: method, openTag, isStatic, fallbackFast});
-			});
+			it(testName, () => fn({render: method, openTag, isStatic, fallbackFast}));
 		}, fallbackFast);
 	});
 }
@@ -68,36 +67,31 @@ function itRenders(testName, fn, options, describe) {
 function itRendersWithSyncCompare(testName, fn, options, describe) {
 	// eslint-disable-next-line jest/valid-describe
 	describe(testName, () => {
+		// eslint-disable-next-line no-shadow
 		runGroups(({testName, method, methodSync, methodNameSync, openTag, isStatic, fallbackFast}) => {
 			// eslint-disable-next-line jest/valid-describe
 			describe(testName, () => {
 				// eslint-disable-next-line jest/expect-expect
-				it('renders expected HTML', () => {
-					// eslint-disable-next-line jest/no-test-return-statement
-					return fn({
-						render: method,
-						Suspense: React.Suspense,
-						Fallback: React.Suspense,
-						lazy,
-						openTag,
-						isStatic,
-						fallbackFast
-					});
-				});
+				it('renders expected HTML', () => fn({
+					render: method,
+					Suspense: React.Suspense,
+					Fallback: React.Suspense,
+					lazy,
+					openTag,
+					isStatic,
+					fallbackFast
+				}));
 
 				// eslint-disable-next-line jest/expect-expect
-				it(`renders same HTML as ReactDOM.${methodNameSync}`, () => {
-					// eslint-disable-next-line jest/no-test-return-statement
-					return fn({
-						render: methodSync,
-						Suspense: Passthrough,
-						Fallback: SuspenseFallback,
-						lazy: lazySync,
-						openTag,
-						isStatic,
-						fallbackFast
-					});
-				});
+				it(`renders same HTML as ReactDOM.${methodNameSync}`, () => fn({
+					render: methodSync,
+					Suspense: Passthrough,
+					Fallback: SuspenseFallback,
+					lazy: lazySync,
+					openTag,
+					isStatic,
+					fallbackFast
+				}));
 			});
 		});
 	});
@@ -117,7 +111,7 @@ function runGroups(fn, fallbackFast) {
 	const groups = [];
 
 	// renderToString groups
-	const group = {
+	const groupNonStatic = {
 		testName: 'with renderToStringAsync',
 		methodNameSync: 'renderToString',
 		method: ssr.renderToStringAsync,
@@ -127,10 +121,10 @@ function runGroups(fn, fallbackFast) {
 		fallbackFast: false
 	};
 
-	if (fallbackFast == null || !fallbackFast) groups.push(group);
+	if (fallbackFast == null || !fallbackFast) groups.push(groupNonStatic);
 
 	if (fallbackFast == null || fallbackFast) {
-		groups.push(Object.assign({}, group, {
+		groups.push(Object.assign({}, groupNonStatic, {
 			testName: 'with renderToStringAsync in fallbackFast mode',
 			fallbackFast: true,
 			method: e => ssr.renderToStringAsync(e, {fallbackFast: true})
@@ -158,7 +152,7 @@ function runGroups(fn, fallbackFast) {
 		}));
 	}
 
-	for (let group of groups) {
+	for (const group of groups) {
 		fn(group);
 	}
 }
@@ -192,7 +186,8 @@ function wrapMethod(method) {
 function lazy(component, options) {
 	if (!options) options = {};
 
-	let loaded = false, promise;
+	let loaded = false,
+		promise;
 	let Lazy = function LazyComponent(props) {
 		if (loaded) return React.createElement(component, props);
 
@@ -203,14 +198,14 @@ function lazy(component, options) {
 			} else if (options.noResolve) {
 				promise = new Promise(() => {});
 			} else if (options.delay != null) {
-				promise = new Promise(resolve => {
+				promise = new Promise((resolve) => {
 					setTimeout(() => {
 						loaded = true;
 						resolve();
 					}, options.delay);
 				});
 			} else {
-				promise = new Promise(resolve => {
+				promise = new Promise((resolve) => {
 					loaded = true;
 					resolve();
 				});

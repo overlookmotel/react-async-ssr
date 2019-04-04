@@ -32,7 +32,7 @@ describe('lazy component', () => {
 						<div>Before Suspense</div>
 						<Suspense fallback={<span>Fallback</span>}>
 							<div>Before Lazy</div>
-							<Lazy/>
+							<Lazy />
 							<div>After Lazy</div>
 						</Suspense>
 						<div>After Suspense</div>
@@ -70,7 +70,7 @@ describe('lazy component', () => {
 							<div>Before Suspense</div>
 							<Suspense fallback={<span>Fallback</span>}>
 								<div>Before Lazy</div>
-								<Lazy/>
+								<Lazy />
 								<div>After Lazy</div>
 							</Suspense>
 							<div>After Suspense</div>
@@ -107,9 +107,9 @@ describe('lazy component', () => {
 				const e = (
 					<div>
 						<div>Before Suspense</div>
-						<Suspense fallback={<LazyFallback/>}>
+						<Suspense fallback={<LazyFallback />}>
 							<div>Before Lazy</div>
-							<Lazy/>
+							<Lazy />
 							<div>After Lazy</div>
 						</Suspense>
 						<div>After Suspense</div>
@@ -125,23 +125,21 @@ describe('lazy component', () => {
 				beforeEach(() => {
 					Lazy = lazy(() => <div>Lazy inner</div>, {noSsr: true});
 					LazyFallback = lazy(() => <div>Lazy fallback</div>);
-					Fallback = function Fallback() {
-						return (
-							<div>
-								<div>Before Fallback</div>
-								<LazyFallback/>
-								<div>After Fallback</div>
-							</div>
-						);
-					};
+					Fallback = () => (
+						<div>
+							<div>Before Fallback</div>
+							<LazyFallback />
+							<div>After Fallback</div>
+						</div>
+					);
 
 					e = (
 						<Suspense fallback={<span>Fallback outer</span>}>
 							<div>
 								<div>Before Suspense</div>
-								<Suspense fallback={<Fallback/>}>
+								<Suspense fallback={<Fallback />}>
 									<div>Before Lazy</div>
-									<Lazy/>
+									<Lazy />
 									<div>After Lazy</div>
 								</Suspense>
 								<div>After Suspense</div>
@@ -198,7 +196,7 @@ describe('lazy component', () => {
 							<div>Before inner Suspense</div>
 							<Suspense fallback={<span>Fallback inner</span>}>
 								<div>Before Lazy</div>
-								<Lazy/>
+								<Lazy />
 								<div>After Lazy</div>
 							</Suspense>
 							<div>After inner Suspense</div>
@@ -241,7 +239,7 @@ describe('lazy component', () => {
 							<div>Before inner Suspense</div>
 							<Suspense fallback={<span>Fallback inner</span>}>
 								<div>Before Lazy</div>
-								<Lazy/>
+								<Lazy />
 								<div>After Lazy</div>
 							</Suspense>
 							<div>After inner Suspense</div>
@@ -286,9 +284,9 @@ describe('lazy component', () => {
 						<div>Before outer Suspense</div>
 						<Suspense fallback={<span>Fallback outer</span>}>
 							<div>Before inner Suspense</div>
-							<Suspense fallback={<LazyFallback/>}>
+							<Suspense fallback={<LazyFallback />}>
 								<div>Before Lazy</div>
-								<Lazy/>
+								<Lazy />
 								<div>After Lazy</div>
 							</Suspense>
 							<div>After inner Suspense</div>
@@ -335,7 +333,7 @@ describe('lazy component', () => {
 							<div>Before inner Suspense</div>
 							<Suspense>
 								<div>Before Lazy</div>
-								<Lazy/>
+								<Lazy />
 								<div>After Lazy</div>
 							</Suspense>
 							<div>After inner Suspense</div>
@@ -375,11 +373,11 @@ describe('lazy component', () => {
 			const e = (
 				<div>
 					<div>Before outer Suspense</div>
-					<Suspense fallback={<LazyFallbackOuter/>}>
+					<Suspense fallback={<LazyFallbackOuter />}>
 						<div>Before inner Suspense</div>
-						<Suspense fallback={<LazyFallbackInner/>}>
+						<Suspense fallback={<LazyFallbackInner />}>
 							<div>Before Lazy</div>
-							<Lazy/>
+							<Lazy />
 							<div>After Lazy</div>
 						</Suspense>
 						<div>After inner Suspense</div>
@@ -402,7 +400,7 @@ describe('lazy component', () => {
 						<div>Before inner Suspense</div>
 						<Suspense>
 							<div>Before Lazy</div>
-							<Lazy/>
+							<Lazy />
 							<div>After Lazy</div>
 						</Suspense>
 						<div>After inner Suspense</div>
@@ -427,13 +425,13 @@ describe('lazy component', () => {
 				const e = (
 					<div>
 						<Suspense fallback={<span>Fallback outer</span>}>
-							<Lazy/>
-							<Suspense fallback={<Fallback1/>}>
-								<Suspense fallback={<Fallback2/>}>
+							<Lazy />
+							<Suspense fallback={<Fallback1 />}>
+								<Suspense fallback={<Fallback2 />}>
 									<div>Inside Suspense 1</div>
 								</Suspense>
 							</Suspense>
-							<Suspense fallback={<Fallback3/>}>
+							<Suspense fallback={<Fallback3 />}>
 								<div>Inside Suspense 2</div>
 							</Suspense>
 						</Suspense>
@@ -463,15 +461,15 @@ describe('lazy component', () => {
 				const e = (
 					<div>
 						<Suspense fallback={<span>Fallback outer</span>}>
-							<Suspense fallback={<Fallback1/>}>
-								<Suspense fallback={<Fallback2/>}>
+							<Suspense fallback={<Fallback1 />}>
+								<Suspense fallback={<Fallback2 />}>
 									<div>Inside Suspense 1</div>
 								</Suspense>
 							</Suspense>
-							<Suspense fallback={<Fallback3/>}>
+							<Suspense fallback={<Fallback3 />}>
 								<div>Inside Suspense 2</div>
 							</Suspense>
-							<Lazy/>
+							<Lazy />
 						</Suspense>
 					</div>
 				);
@@ -501,13 +499,13 @@ describe('lazy component', () => {
 				const e = (
 					<div>
 						<Suspense fallback={<span>Fallback outer</span>}>
-							<Lazy/>
-							<Suspense fallback={<Fallback1/>}>
-								<Suspense fallback={<Fallback2/>}>
+							<Lazy />
+							<Suspense fallback={<Fallback1 />}>
+								<Suspense fallback={<Fallback2 />}>
 									<div>Inside Suspense 1</div>
 								</Suspense>
 							</Suspense>
-							<Suspense fallback={<Fallback3/>}>
+							<Suspense fallback={<Fallback3 />}>
 								<div>Inside Suspense 2</div>
 							</Suspense>
 						</Suspense>
@@ -535,15 +533,15 @@ describe('lazy component', () => {
 				const e = (
 					<div>
 						<Suspense fallback={<span>Fallback outer</span>}>
-							<Suspense fallback={<Fallback1/>}>
-								<Suspense fallback={<Fallback2/>}>
+							<Suspense fallback={<Fallback1 />}>
+								<Suspense fallback={<Fallback2 />}>
 									<div>Inside Suspense 1</div>
 								</Suspense>
 							</Suspense>
-							<Suspense fallback={<Fallback3/>}>
+							<Suspense fallback={<Fallback3 />}>
 								<div>Inside Suspense 2</div>
 							</Suspense>
-							<Lazy/>
+							<Lazy />
 						</Suspense>
 					</div>
 				);
@@ -562,7 +560,7 @@ describe('lazy component', () => {
 
 			itRenders('and nested lazy', async ({render, openTag}) => {
 				const LazyInner = lazy(() => <div>Lazy</div>, {noSsr: true});
-				const Lazy = lazy(() => <LazyInner/>);
+				const Lazy = lazy(() => <LazyInner />);
 				const Fallback1 = spy(() => <span>Fallback 1</span>);
 				const Fallback2 = spy(() => <span>Fallback 2</span>);
 				const Fallback3 = spy(() => <span>Fallback 2</span>);
@@ -570,13 +568,13 @@ describe('lazy component', () => {
 				const e = (
 					<div>
 						<Suspense fallback={<span>Fallback outer</span>}>
-							<Lazy/>
-							<Suspense fallback={<Fallback1/>}>
-								<Suspense fallback={<Fallback2/>}>
+							<Lazy />
+							<Suspense fallback={<Fallback1 />}>
+								<Suspense fallback={<Fallback2 />}>
 									<div>Inside Suspense 1</div>
 								</Suspense>
 							</Suspense>
-							<Suspense fallback={<Fallback3/>}>
+							<Suspense fallback={<Fallback3 />}>
 								<div>Inside Suspense 2</div>
 							</Suspense>
 						</Suspense>
@@ -609,9 +607,9 @@ describe('lazy component', () => {
 							e = (
 								<div>
 									<Suspense fallback={<span>Fallback outer</span>}>
-										<Lazy/>
-										<Suspense fallback={<Fallback/>}>
-											<Lazy2/>
+										<Lazy />
+										<Suspense fallback={<Fallback />}>
+											<Lazy2 />
 										</Suspense>
 									</Suspense>
 								</div>
@@ -642,10 +640,10 @@ describe('lazy component', () => {
 							e = (
 								<div>
 									<Suspense fallback={<span>Fallback outer</span>}>
-										<Suspense fallback={<Fallback/>}>
-											<Lazy2/>
+										<Suspense fallback={<Fallback />}>
+											<Lazy2 />
 										</Suspense>
-										<Lazy/>
+										<Lazy />
 									</Suspense>
 								</div>
 							);
@@ -669,16 +667,16 @@ describe('lazy component', () => {
 						let e, LazyInner, Lazy, Lazy2, Fallback;
 						beforeEach(() => {
 							LazyInner = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy = lazy(() => <LazyInner/>);
+							Lazy = lazy(() => <LazyInner />);
 							Lazy2 = lazy(() => <div>Lazy 2</div>);
 							Fallback = spy(() => <span>Fallback 1</span>);
 
 							e = (
 								<div>
 									<Suspense fallback={<span>Fallback outer</span>}>
-										<Lazy/>
-										<Suspense fallback={<Fallback/>}>
-											<Lazy2/>
+										<Lazy />
+										<Suspense fallback={<Fallback />}>
+											<Lazy2 />
 										</Suspense>
 									</Suspense>
 								</div>
@@ -713,10 +711,10 @@ describe('lazy component', () => {
 							e = (
 								<div>
 									<Suspense fallback={<span>Fallback outer</span>}>
-										<Lazy/>
-										<Suspense fallback={<Fallback/>}>
-											<Suspense fallback={<Fallback2/>}>
-												<Lazy2/>
+										<Lazy />
+										<Suspense fallback={<Fallback />}>
+											<Suspense fallback={<Fallback2 />}>
+												<Lazy2 />
 											</Suspense>
 										</Suspense>
 									</Suspense>
@@ -750,12 +748,12 @@ describe('lazy component', () => {
 							e = (
 								<div>
 									<Suspense fallback={<span>Fallback outer</span>}>
-										<Suspense fallback={<Fallback/>}>
-											<Suspense fallback={<Fallback2/>}>
-												<Lazy2/>
+										<Suspense fallback={<Fallback />}>
+											<Suspense fallback={<Fallback2 />}>
+												<Lazy2 />
 											</Suspense>
 										</Suspense>
-										<Lazy/>
+										<Lazy />
 									</Suspense>
 								</div>
 							);
@@ -780,7 +778,7 @@ describe('lazy component', () => {
 						let e, LazyInner, Lazy, Lazy2, Fallback, Fallback2;
 						beforeEach(() => {
 							LazyInner = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy = lazy(() => <LazyInner/>);
+							Lazy = lazy(() => <LazyInner />);
 							Lazy2 = lazy(() => <div>Lazy 2</div>);
 							Fallback = spy(() => <span>Fallback 1</span>);
 							Fallback2 = spy(() => <span>Fallback 2</span>);
@@ -788,10 +786,10 @@ describe('lazy component', () => {
 							e = (
 								<div>
 									<Suspense fallback={<span>Fallback outer</span>}>
-										<Lazy/>
-										<Suspense fallback={<Fallback/>}>
-											<Suspense fallback={<Fallback2/>}>
-												<Lazy2/>
+										<Lazy />
+										<Suspense fallback={<Fallback />}>
+											<Suspense fallback={<Fallback2 />}>
+												<Lazy2 />
 											</Suspense>
 										</Suspense>
 									</Suspense>
@@ -829,12 +827,12 @@ describe('lazy component', () => {
 							e = (
 								<div>
 									<Suspense fallback={<span>Fallback outer</span>}>
-										<Lazy/>
-										<Suspense fallback={<Fallback/>}>
-											<Suspense fallback={<Fallback2/>}>
-												<Lazy2/>
+										<Lazy />
+										<Suspense fallback={<Fallback />}>
+											<Suspense fallback={<Fallback2 />}>
+												<Lazy2 />
 											</Suspense>
-											<Lazy3/>
+											<Lazy3 />
 										</Suspense>
 									</Suspense>
 								</div>
@@ -870,13 +868,13 @@ describe('lazy component', () => {
 							e = (
 								<div>
 									<Suspense fallback={<span>Fallback outer</span>}>
-										<Suspense fallback={<Fallback/>}>
-											<Suspense fallback={<Fallback2/>}>
-												<Lazy2/>
+										<Suspense fallback={<Fallback />}>
+											<Suspense fallback={<Fallback2 />}>
+												<Lazy2 />
 											</Suspense>
-											<Lazy3/>
+											<Lazy3 />
 										</Suspense>
-										<Lazy/>
+										<Lazy />
 									</Suspense>
 								</div>
 							);
@@ -903,7 +901,7 @@ describe('lazy component', () => {
 						let e, LazyInner, Lazy, Lazy2, Lazy3, Fallback, Fallback2;
 						beforeEach(() => {
 							LazyInner = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy = lazy(() => <LazyInner/>);
+							Lazy = lazy(() => <LazyInner />);
 							Lazy2 = lazy(() => <div>Lazy 2</div>);
 							Lazy3 = lazy(() => <div>Lazy 3</div>);
 							Fallback = spy(() => <span>Fallback 1</span>);
@@ -912,12 +910,12 @@ describe('lazy component', () => {
 							e = (
 								<div>
 									<Suspense fallback={<span>Fallback outer</span>}>
-										<Lazy/>
-										<Suspense fallback={<Fallback/>}>
-											<Suspense fallback={<Fallback2/>}>
-												<Lazy2/>
+										<Lazy />
+										<Suspense fallback={<Fallback />}>
+											<Suspense fallback={<Fallback2 />}>
+												<Lazy2 />
 											</Suspense>
-											<Lazy3/>
+											<Lazy3 />
 										</Suspense>
 									</Suspense>
 								</div>
@@ -956,9 +954,9 @@ describe('lazy component', () => {
 							e = (
 								<div>
 									<Suspense fallback={<span>Fallback outer</span>}>
-										<Lazy/>
-										<Suspense fallback={<Fallback/>}>
-											<Lazy2/>
+										<Lazy />
+										<Suspense fallback={<Fallback />}>
+											<Lazy2 />
 										</Suspense>
 									</Suspense>
 								</div>
@@ -988,10 +986,10 @@ describe('lazy component', () => {
 							e = (
 								<div>
 									<Suspense fallback={<span>Fallback outer</span>}>
-										<Suspense fallback={<Fallback/>}>
-											<Lazy2/>
+										<Suspense fallback={<Fallback />}>
+											<Lazy2 />
 										</Suspense>
-										<Lazy/>
+										<Lazy />
 									</Suspense>
 								</div>
 							);
@@ -1014,16 +1012,16 @@ describe('lazy component', () => {
 						let e, LazyInner, Lazy, Lazy2, Fallback;
 						beforeEach(() => {
 							LazyInner = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy = lazy(() => <LazyInner/>);
+							Lazy = lazy(() => <LazyInner />);
 							Lazy2 = lazy(() => <div>Lazy 2</div>);
 							Fallback = spy(() => <span>Fallback 1</span>);
 
 							e = (
 								<div>
 									<Suspense fallback={<span>Fallback outer</span>}>
-										<Lazy/>
-										<Suspense fallback={<Fallback/>}>
-											<Lazy2/>
+										<Lazy />
+										<Suspense fallback={<Fallback />}>
+											<Lazy2 />
 										</Suspense>
 									</Suspense>
 								</div>
@@ -1057,10 +1055,10 @@ describe('lazy component', () => {
 							e = (
 								<div>
 									<Suspense fallback={<span>Fallback outer</span>}>
-										<Lazy/>
-										<Suspense fallback={<Fallback/>}>
-											<Suspense fallback={<Fallback2/>}>
-												<Lazy2/>
+										<Lazy />
+										<Suspense fallback={<Fallback />}>
+											<Suspense fallback={<Fallback2 />}>
+												<Lazy2 />
 											</Suspense>
 										</Suspense>
 									</Suspense>
@@ -1093,12 +1091,12 @@ describe('lazy component', () => {
 							e = (
 								<div>
 									<Suspense fallback={<span>Fallback outer</span>}>
-										<Suspense fallback={<Fallback/>}>
-											<Suspense fallback={<Fallback2/>}>
-												<Lazy2/>
+										<Suspense fallback={<Fallback />}>
+											<Suspense fallback={<Fallback2 />}>
+												<Lazy2 />
 											</Suspense>
 										</Suspense>
-										<Lazy/>
+										<Lazy />
 									</Suspense>
 								</div>
 							);
@@ -1122,7 +1120,7 @@ describe('lazy component', () => {
 						let e, LazyInner, Lazy, Lazy2, Fallback, Fallback2;
 						beforeEach(() => {
 							LazyInner = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy = lazy(() => <LazyInner/>);
+							Lazy = lazy(() => <LazyInner />);
 							Lazy2 = lazy(() => <div>Lazy 2</div>);
 							Fallback = spy(() => <span>Fallback 1</span>);
 							Fallback2 = spy(() => <span>Fallback 2</span>);
@@ -1130,10 +1128,10 @@ describe('lazy component', () => {
 							e = (
 								<div>
 									<Suspense fallback={<span>Fallback outer</span>}>
-										<Lazy/>
-										<Suspense fallback={<Fallback/>}>
-											<Suspense fallback={<Fallback2/>}>
-												<Lazy2/>
+										<Lazy />
+										<Suspense fallback={<Fallback />}>
+											<Suspense fallback={<Fallback2 />}>
+												<Lazy2 />
 											</Suspense>
 										</Suspense>
 									</Suspense>
@@ -1170,12 +1168,12 @@ describe('lazy component', () => {
 							e = (
 								<div>
 									<Suspense fallback={<span>Fallback outer</span>}>
-										<Lazy/>
-										<Suspense fallback={<Fallback/>}>
-											<Suspense fallback={<Fallback2/>}>
-												<Lazy2/>
+										<Lazy />
+										<Suspense fallback={<Fallback />}>
+											<Suspense fallback={<Fallback2 />}>
+												<Lazy2 />
 											</Suspense>
-											<Lazy3/>
+											<Lazy3 />
 										</Suspense>
 									</Suspense>
 								</div>
@@ -1209,13 +1207,13 @@ describe('lazy component', () => {
 							e = (
 								<div>
 									<Suspense fallback={<span>Fallback outer</span>}>
-										<Suspense fallback={<Fallback/>}>
-											<Suspense fallback={<Fallback2/>}>
-												<Lazy2/>
+										<Suspense fallback={<Fallback />}>
+											<Suspense fallback={<Fallback2 />}>
+												<Lazy2 />
 											</Suspense>
-											<Lazy3/>
+											<Lazy3 />
 										</Suspense>
-										<Lazy/>
+										<Lazy />
 									</Suspense>
 								</div>
 							);
@@ -1240,7 +1238,7 @@ describe('lazy component', () => {
 						let e, LazyInner, Lazy, Lazy2, Lazy3, Fallback, Fallback2;
 						beforeEach(() => {
 							LazyInner = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy = lazy(() => <LazyInner/>);
+							Lazy = lazy(() => <LazyInner />);
 							Lazy2 = lazy(() => <div>Lazy 2</div>);
 							Lazy3 = lazy(() => <div>Lazy 2</div>);
 							Fallback = spy(() => <span>Fallback 1</span>);
@@ -1249,12 +1247,12 @@ describe('lazy component', () => {
 							e = (
 								<div>
 									<Suspense fallback={<span>Fallback outer</span>}>
-										<Lazy/>
-										<Suspense fallback={<Fallback/>}>
-											<Suspense fallback={<Fallback2/>}>
-												<Lazy2/>
+										<Lazy />
+										<Suspense fallback={<Fallback />}>
+											<Suspense fallback={<Fallback2 />}>
+												<Lazy2 />
 											</Suspense>
-											<Lazy3/>
+											<Lazy3 />
 										</Suspense>
 									</Suspense>
 								</div>
@@ -1285,7 +1283,7 @@ describe('lazy component', () => {
 		itRenders('rejects', async ({render}) => {
 			const Lazy = lazy(() => <div>Lazy inner</div>);
 
-			const e = <div><Lazy/></div>;
+			const e = <div><Lazy /></div>;
 
 			const p = render(e);
 			await expect(p).rejects.toThrow(NO_SUSPENSE_ERROR);
@@ -1294,7 +1292,7 @@ describe('lazy component', () => {
 		itRenders('calls `[ABORT]()` on promise', async ({render}) => {
 			const Lazy = lazy(() => <div>Lazy inner</div>);
 
-			const e = <div><Lazy/></div>;
+			const e = <div><Lazy /></div>;
 
 			const p = render(e);
 			preventUnhandledRejection(p);
@@ -1312,7 +1310,7 @@ describe('lazy component', () => {
 			const e = (
 				<div>
 					<Suspense>
-						<Lazy/>
+						<Lazy />
 					</Suspense>
 				</div>
 			);
@@ -1327,7 +1325,7 @@ describe('lazy component', () => {
 			const e = (
 				<div>
 					<Suspense>
-						<Lazy/>
+						<Lazy />
 					</Suspense>
 				</div>
 			);
@@ -1353,9 +1351,9 @@ describe('multiple lazy components', () => {
 			e = (
 				<div>
 					<Suspense fallback={<span>Fallback</span>}>
-						<Lazy1/>
-						<Lazy2/>
-						<Lazy3/>
+						<Lazy1 />
+						<Lazy2 />
+						<Lazy3 />
 					</Suspense>
 				</div>
 			);
@@ -1402,9 +1400,9 @@ describe('multiple lazy components', () => {
 					<div>Before Suspense</div>
 					<Suspense fallback={<span>Fallback</span>}>
 						<div>Before Lazy</div>
-						<Lazy1/>
-						<Lazy2/>
-						<Lazy3/>
+						<Lazy1 />
+						<Lazy2 />
+						<Lazy3 />
 						<div>After Lazy</div>
 					</Suspense>
 					<div>After Suspense</div>
@@ -1433,11 +1431,11 @@ describe('multiple lazy components', () => {
 					<div>
 						<Suspense fallback={<span>Fallback outer</span>}>
 							<Suspense fallback={<span>Fallback</span>}>
-								<Lazy1/>
-								<Lazy2/>
-								<Lazy3/>
+								<Lazy1 />
+								<Lazy2 />
+								<Lazy3 />
 							</Suspense>
-							<Lazy4/>
+							<Lazy4 />
 						</Suspense>
 					</div>
 				);
@@ -1487,11 +1485,11 @@ describe('multiple lazy components', () => {
 					<div>
 						<Suspense fallback={<span>Fallback outer</span>}>
 							<Suspense fallback={<span>Fallback</span>}>
-								<Lazy1/>
-								<Lazy2/>
-								<Lazy3/>
+								<Lazy1 />
+								<Lazy2 />
+								<Lazy3 />
 							</Suspense>
-							<Lazy4/>
+							<Lazy4 />
 						</Suspense>
 					</div>
 				);
@@ -1528,8 +1526,8 @@ describe('multiple lazy components', () => {
 
 		itRenders('does not await previous promises', async ({render, openTag}) => {
 			// Lazy1 + Lazy2 throw promises which never resolve
-			const Lazy1 = () => {throw new Promise(() => {});};
-			const Lazy2 = () => {throw new Promise(() => {});};
+			const Lazy1 = () => {throw new Promise(() => {});}; // eslint-disable-line block-spacing
+			const Lazy2 = () => {throw new Promise(() => {});}; // eslint-disable-line block-spacing
 			const Lazy3 = lazy(() => <div>Lazy inner 3</div>, {noSsr: true});
 			const Lazy4 = lazy(() => <div>Lazy inner 4</div>);
 
@@ -1537,11 +1535,11 @@ describe('multiple lazy components', () => {
 				<div>
 					<Suspense fallback={<span>Fallback outer</span>}>
 						<Suspense fallback={<span>Fallback</span>}>
-							<Lazy1/>
-							<Lazy2/>
-							<Lazy3/>
+							<Lazy1 />
+							<Lazy2 />
+							<Lazy3 />
 						</Suspense>
-						<Lazy4/>
+						<Lazy4 />
 					</Suspense>
 				</div>
 			);
@@ -1556,7 +1554,8 @@ describe('multiple lazy components', () => {
 			`));
 		});
 
-		itRenders('calls `[ABORT]()` on all promises inside suspense',
+		itRenders(
+			'calls `[ABORT]()` on all promises inside suspense',
 			async ({render, fallbackFast, openTag}) => {
 				const Lazy1 = lazy(() => <div>Lazy inner 1</div>);
 				const Lazy2 = lazy(() => <div>Lazy inner 2</div>, {noSsr: true});
@@ -1567,11 +1566,11 @@ describe('multiple lazy components', () => {
 					<div>
 						<Suspense fallback={<span>Fallback outer</span>}>
 							<Suspense fallback={<span>Fallback</span>}>
-								<Lazy1/>
-								<Lazy2/>
-								<Lazy3/>
+								<Lazy1 />
+								<Lazy2 />
+								<Lazy3 />
 							</Suspense>
-							<Lazy4/>
+							<Lazy4 />
 						</Suspense>
 					</div>
 				);
@@ -1602,9 +1601,9 @@ describe('multiple lazy components', () => {
 
 			const e = (
 				<div>
-					<Lazy1/>
-					<Lazy2/>
-					<Lazy3/>
+					<Lazy1 />
+					<Lazy2 />
+					<Lazy3 />
 				</div>
 			);
 
@@ -1619,9 +1618,9 @@ describe('multiple lazy components', () => {
 
 			const e = (
 				<div>
-					<Lazy1/>
-					<Lazy2/>
-					<Lazy3/>
+					<Lazy1 />
+					<Lazy2 />
+					<Lazy3 />
 				</div>
 			);
 
@@ -1642,15 +1641,27 @@ describe('nested lazy components', () => {
 		let e, Lazy, Lazy2, Lazy3;
 		beforeEach(() => {
 			Lazy3 = lazy(() => <div>Lazy inner</div>);
-			Lazy2 = lazy(() => <div>Before Lazy Layer 2<Lazy3/>After Lazy Layer 2</div>);
-			Lazy = lazy(() => <div>Before Lazy Layer 1<Lazy2/>After Lazy Layer 1</div>);
+			Lazy2 = lazy(() => (
+				<div>
+					Before Lazy Layer 2
+					<Lazy3 />
+					After Lazy Layer 2
+				</div>
+			));
+			Lazy = lazy(() => (
+				<div>
+					Before Lazy Layer 1
+					<Lazy2 />
+					After Lazy Layer 1
+				</div>
+			));
 
 			e = (
 				<div>
 					<div>Before Suspense</div>
 					<Suspense fallback={<span>Fallback</span>}>
 						<div>Before Lazy</div>
-						<Lazy/>
+						<Lazy />
 						<div>After Lazy</div>
 					</Suspense>
 					<div>After Suspense</div>
@@ -1694,14 +1705,20 @@ describe('nested lazy components', () => {
 			let e, Lazy, LazyInner;
 			beforeEach(() => {
 				LazyInner = lazy(() => <div>Lazy inner</div>, {noSsr: true});
-				Lazy = lazy(() => <div>Before Lazy Layer 1<LazyInner/>After Lazy Layer 1</div>);
+				Lazy = lazy(() => (
+					<div>
+						Before Lazy Layer 1
+						<LazyInner />
+						After Lazy Layer 1
+					</div>
+				));
 
 				e = (
 					<div>
 						<div>Before Suspense</div>
 						<Suspense fallback={<span>Fallback</span>}>
 							<div>Before Lazy</div>
-							<Lazy/>
+							<Lazy />
 							<div>After Lazy</div>
 						</Suspense>
 						<div>After Suspense</div>
@@ -1737,17 +1754,27 @@ describe('nested lazy components', () => {
 			let e, Lazy, LazyInner, LazyInnerInner;
 			beforeEach(() => {
 				LazyInnerInner = lazy(() => <div>Lazy inner</div>, {noSsr: true});
-				LazyInner = lazy(
-					() => <div>Before Lazy Layer 2<LazyInnerInner/>After Lazy Layer 2</div>
-				);
-				Lazy = lazy(() => <div>Before Lazy Layer 1<LazyInner/>After Lazy Layer 1</div>);
+				LazyInner = lazy(() => (
+					<div>
+						Before Lazy Layer 2
+						<LazyInnerInner />
+						After Lazy Layer 2
+					</div>
+				));
+				Lazy = lazy(() => (
+					<div>
+						Before Lazy Layer 1
+						<LazyInner />
+						After Lazy Layer 1
+					</div>
+				));
 
 				e = (
 					<div>
 						<div>Before Suspense</div>
 						<Suspense fallback={<span>Fallback</span>}>
 							<div>Before Lazy</div>
-							<Lazy/>
+							<Lazy />
 							<div>After Lazy</div>
 						</Suspense>
 						<div>After Suspense</div>
@@ -1788,14 +1815,14 @@ describe('nested lazy components', () => {
 				const Lazy1 = lazy(() => <div>Lazy inner 1</div>, {delay: 500});
 				const Lazy2 = lazy(() => <div>Lazy inner 2</div>, {delay: 500});
 				const Lazy3Inner = lazy(() => <div>Lazy inner 3</div>, {noSsr: true});
-				const Lazy3 = lazy(() => <Lazy3Inner/>);
+				const Lazy3 = lazy(() => <Lazy3Inner />);
 
 				const e = (
 					<div>
 						<Suspense fallback={<span>Fallback</span>}>
-							<Lazy1/>
-							<Lazy2/>
-							<Lazy3/>
+							<Lazy1 />
+							<Lazy2 />
+							<Lazy3 />
 						</Suspense>
 					</div>
 				);
@@ -1817,15 +1844,15 @@ describe('nested lazy components', () => {
 
 			itRenders('including inside nested lazy element', async ({render, openTag}) => {
 				const Lazy1Inner = lazy(() => <div>Lazy inner 1</div>, {delay: 500});
-				const Lazy1 = lazy(() => <Lazy1Inner/>);
+				const Lazy1 = lazy(() => <Lazy1Inner />);
 				const Lazy2Inner = lazy(() => <div>Lazy inner 2</div>, {noSsr: true});
-				const Lazy2 = lazy(() => <Lazy2Inner/>);
+				const Lazy2 = lazy(() => <Lazy2Inner />);
 
 				const e = (
 					<div>
 						<Suspense fallback={<span>Fallback</span>}>
-							<Lazy1/>
-							<Lazy2/>
+							<Lazy1 />
+							<Lazy2 />
 						</Suspense>
 					</div>
 				);
@@ -1849,17 +1876,17 @@ describe('nested lazy components', () => {
 
 		itRenders('does not await previous promises', async ({render, openTag}) => {
 			// Lazy1 + Lazy2 throw promises which never resolve
-			const Lazy1 = () => {throw new Promise(() => {});};
-			const Lazy2 = () => {throw new Promise(() => {});};
+			const Lazy1 = () => {throw new Promise(() => {});}; // eslint-disable-line block-spacing
+			const Lazy2 = () => {throw new Promise(() => {});}; // eslint-disable-line block-spacing
 			const Lazy3Inner = lazy(() => <div>Lazy inner 3</div>, {noSsr: true});
-			const Lazy3 = lazy(() => <Lazy3Inner/>);
+			const Lazy3 = lazy(() => <Lazy3Inner />);
 
 			const e = (
 				<div>
 					<Suspense fallback={<span>Fallback</span>}>
-						<Lazy1/>
-						<Lazy2/>
-						<Lazy3/>
+						<Lazy1 />
+						<Lazy2 />
+						<Lazy3 />
 					</Suspense>
 				</div>
 			);

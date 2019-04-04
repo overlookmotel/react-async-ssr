@@ -17,7 +17,7 @@ const {lazy} = require('./index');
 describe('jest expect extensions (used in tests only)', () => {
 	describe('toBeAborted', () => {
 		it('passes if passed a correctly aborted lazy component', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ABORT]();
 			expect(Lazy).toBeAborted();
@@ -31,19 +31,19 @@ describe('jest expect extensions (used in tests only)', () => {
 
 		it('errors if passed a function which is not a test lazy component', () => {
 			expect(() => {
-				expect(function() {}).toBeAborted();
+				expect(() => {}).toBeAborted();
 			}).toThrow(/^Expected component to be aborted - it is not a test lazy component$/);
 		});
 
 		it('errors if passed a component which was not called', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			expect(() => {
 				expect(Lazy).toBeAborted();
 			}).toThrow(/^Expected Lazy to be aborted - it was not called$/);
 		});
 
 		it('errors if passed a component which was not aborted', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			tryCatch(Lazy);
 			expect(() => {
 				expect(Lazy).toBeAborted();
@@ -51,7 +51,7 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a component which was aborted twice', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ABORT]();
 			promise[ABORT]();
@@ -63,13 +63,13 @@ describe('jest expect extensions (used in tests only)', () => {
 
 	describe('not.toBeAborted', () => {
 		it('passes if passed a lazy component which was called but not aborted', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			tryCatch(Lazy);
 			expect(Lazy).not.toBeAborted();
 		});
 
 		it('passes if passed a lazy component which was not called', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			expect(Lazy).not.toBeAborted();
 		});
 
@@ -81,12 +81,12 @@ describe('jest expect extensions (used in tests only)', () => {
 
 		it('errors if passed a function which is not a test lazy component', () => {
 			expect(() => {
-				expect(function() {}).not.toBeAborted();
+				expect(() => {}).not.toBeAborted();
 			}).toThrow(/^Expected component not to be aborted - it is not a test lazy component$/);
 		});
 
 		it('errors if passed a component which was aborted', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ABORT]();
 			expect(() => {
@@ -95,7 +95,7 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a component which was aborted twice', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ABORT]();
 			promise[ABORT]();
@@ -107,7 +107,7 @@ describe('jest expect extensions (used in tests only)', () => {
 
 	describe('toBeMounted', () => {
 		it('passes if passed a correctly mounted lazy component', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ON_MOUNT](true);
 			expect(Lazy).toBeMounted();
@@ -121,19 +121,19 @@ describe('jest expect extensions (used in tests only)', () => {
 
 		it('errors if passed a function which is not a test lazy component', () => {
 			expect(() => {
-				expect(function() {}).toBeMounted();
+				expect(() => {}).toBeMounted();
 			}).toThrow(/^Expected component to be mounted - it is not a test lazy component$/);
 		});
 
 		it('errors if passed a component which was not called', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			expect(() => {
 				expect(Lazy).toBeMounted();
 			}).toThrow(/^Expected Lazy to be mounted - it was not called$/);
 		});
 
 		it('errors if passed a component which was not mounted', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			tryCatch(Lazy);
 			expect(() => {
 				expect(Lazy).toBeMounted();
@@ -141,7 +141,7 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a component which was mounted twice', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ON_MOUNT](true);
 			promise[ON_MOUNT](true);
@@ -151,7 +151,7 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a component which was mounted with no arguments', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ON_MOUNT]();
 			expect(() => {
@@ -160,7 +160,7 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a component which was mounted with 2 arguments', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ON_MOUNT](true, true);
 			expect(() => {
@@ -169,7 +169,7 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a component which was mounted with non-boolean argument', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ON_MOUNT](1);
 			expect(() => {
@@ -180,13 +180,13 @@ describe('jest expect extensions (used in tests only)', () => {
 
 	describe('not.toBeMounted', () => {
 		it('passes if passed a lazy component which was called but not mounted', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			tryCatch(Lazy);
 			expect(Lazy).not.toBeMounted();
 		});
 
 		it('passes if passed a lazy component which was not called', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			expect(Lazy).not.toBeMounted();
 		});
 
@@ -198,12 +198,12 @@ describe('jest expect extensions (used in tests only)', () => {
 
 		it('errors if passed a function which is not a test lazy component', () => {
 			expect(() => {
-				expect(function() {}).not.toBeMounted();
+				expect(() => {}).not.toBeMounted();
 			}).toThrow(/^Expected component not to be mounted - it is not a test lazy component$/);
 		});
 
 		it('errors if passed a component which was mounted', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ON_MOUNT](true);
 			expect(() => {
@@ -212,7 +212,7 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a component which was mounted twice', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ON_MOUNT](true);
 			promise[ON_MOUNT](true);
@@ -222,7 +222,7 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a component which was mounted with no arguments', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ON_MOUNT]();
 			expect(() => {
@@ -231,7 +231,7 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a component which was mounted with 2 arguments', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ON_MOUNT](true, true);
 			expect(() => {
@@ -240,7 +240,7 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a component which was mounted with non-boolean argument', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ON_MOUNT](1);
 			expect(() => {
@@ -251,7 +251,7 @@ describe('jest expect extensions (used in tests only)', () => {
 
 	describe('toBeMountedWith', () => {
 		it('passes if passed a correctly mounted lazy component with correct value', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ON_MOUNT](true);
 			expect(Lazy).toBeMountedWith(true);
@@ -265,19 +265,19 @@ describe('jest expect extensions (used in tests only)', () => {
 
 		it('errors if passed a function which is not a test lazy component', () => {
 			expect(() => {
-				expect(function() {}).toBeMountedWith(true);
+				expect(() => {}).toBeMountedWith(true);
 			}).toThrow(/^Expected component to be mounted with true - it is not a test lazy component$/);
 		});
 
 		it('errors if passed a component which was not called', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			expect(() => {
 				expect(Lazy).toBeMountedWith(true);
 			}).toThrow(/^Expected Lazy to be mounted with true - it was not called$/);
 		});
 
 		it('errors if passed a component which was not mounted', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			tryCatch(Lazy);
 			expect(() => {
 				expect(Lazy).toBeMountedWith(true);
@@ -285,7 +285,7 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a component which was mounted twice', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ON_MOUNT](true);
 			promise[ON_MOUNT](true);
@@ -295,7 +295,7 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a component which was mounted with no arguments', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ON_MOUNT]();
 			expect(() => {
@@ -304,7 +304,7 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a component which was mounted with 2 arguments', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ON_MOUNT](true, true);
 			expect(() => {
@@ -313,7 +313,7 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a component which was mounted with non-boolean argument', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ON_MOUNT](1);
 			expect(() => {
@@ -322,7 +322,7 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a component which was mounted with wrong value', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ON_MOUNT](false);
 			expect(() => {
@@ -341,8 +341,8 @@ describe('jest expect extensions (used in tests only)', () => {
 
 	describe('toBeMountedBefore', () => {
 		it('passes if passed a correctly mounted lazy components, mounted in correct order', () => {
-			const Lazy1 = lazy(() => <div></div>);
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
+			const Lazy2 = lazy(() => <div />);
 			const promise1 = tryCatch(Lazy1);
 			const promise2 = tryCatch(Lazy2);
 			promise1[ON_MOUNT](true);
@@ -351,7 +351,7 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a non-function', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ON_MOUNT](true);
 			expect(() => {
@@ -360,7 +360,7 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if comparing to a non-function', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ON_MOUNT](true);
 			expect(() => {
@@ -369,27 +369,27 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a function which is not a test lazy component', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ON_MOUNT](true);
 			expect(() => {
-				expect(function() {}).toBeMountedBefore(Lazy);
+				expect(() => {}).toBeMountedBefore(Lazy);
 			}).toThrow(/^Expected component to be mounted before Lazy - component is not a test lazy component$/);
 		});
 
 		it('errors if comparing to a function which is not a test lazy component', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ON_MOUNT](true);
 			expect(() => {
-				expect(Lazy).toBeMountedBefore(function() {});
+				expect(Lazy).toBeMountedBefore(() => {});
 			}).toThrow(/^Expected Lazy to be mounted before component - component is not a test lazy component$/);
 		});
 
 		it('errors if passed a component which was not called', () => {
-			const Lazy1 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
 			Lazy1.displayName = 'Lazy1';
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy2 = lazy(() => <div />);
 			Lazy2.displayName = 'Lazy2';
 			const promise2 = tryCatch(Lazy2);
 			promise2[ON_MOUNT](true);
@@ -399,9 +399,9 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if comparing to a component which was not called', () => {
-			const Lazy1 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
 			Lazy1.displayName = 'Lazy1';
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy2 = lazy(() => <div />);
 			Lazy2.displayName = 'Lazy2';
 			const promise1 = tryCatch(Lazy1);
 			promise1[ON_MOUNT](true);
@@ -411,9 +411,9 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a component which was not mounted', () => {
-			const Lazy1 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
 			Lazy1.displayName = 'Lazy1';
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy2 = lazy(() => <div />);
 			Lazy2.displayName = 'Lazy2';
 			tryCatch(Lazy1);
 			const promise2 = tryCatch(Lazy2);
@@ -424,9 +424,9 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if compared to a component which was not mounted', () => {
-			const Lazy1 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
 			Lazy1.displayName = 'Lazy1';
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy2 = lazy(() => <div />);
 			Lazy2.displayName = 'Lazy2';
 			const promise1 = tryCatch(Lazy1);
 			tryCatch(Lazy2);
@@ -437,9 +437,9 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a component which was mounted twice', () => {
-			const Lazy1 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
 			Lazy1.displayName = 'Lazy1';
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy2 = lazy(() => <div />);
 			Lazy2.displayName = 'Lazy2';
 			const promise1 = tryCatch(Lazy1);
 			const promise2 = tryCatch(Lazy2);
@@ -452,9 +452,9 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if comparing to a component which was mounted twice', () => {
-			const Lazy1 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
 			Lazy1.displayName = 'Lazy1';
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy2 = lazy(() => <div />);
 			Lazy2.displayName = 'Lazy2';
 			const promise1 = tryCatch(Lazy1);
 			const promise2 = tryCatch(Lazy2);
@@ -467,9 +467,9 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a component which was mounted with no arguments', () => {
-			const Lazy1 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
 			Lazy1.displayName = 'Lazy1';
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy2 = lazy(() => <div />);
 			Lazy2.displayName = 'Lazy2';
 			const promise1 = tryCatch(Lazy1);
 			const promise2 = tryCatch(Lazy2);
@@ -481,9 +481,9 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if comparing to a component which was mounted with no arguments', () => {
-			const Lazy1 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
 			Lazy1.displayName = 'Lazy1';
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy2 = lazy(() => <div />);
 			Lazy2.displayName = 'Lazy2';
 			const promise1 = tryCatch(Lazy1);
 			const promise2 = tryCatch(Lazy2);
@@ -495,9 +495,9 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a component which was mounted with 2 arguments', () => {
-			const Lazy1 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
 			Lazy1.displayName = 'Lazy1';
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy2 = lazy(() => <div />);
 			Lazy2.displayName = 'Lazy2';
 			const promise1 = tryCatch(Lazy1);
 			const promise2 = tryCatch(Lazy2);
@@ -509,9 +509,9 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if comparing to a component which was mounted with 2 arguments', () => {
-			const Lazy1 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
 			Lazy1.displayName = 'Lazy1';
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy2 = lazy(() => <div />);
 			Lazy2.displayName = 'Lazy2';
 			const promise1 = tryCatch(Lazy1);
 			const promise2 = tryCatch(Lazy2);
@@ -523,9 +523,9 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a component which was mounted with non-boolean argument', () => {
-			const Lazy1 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
 			Lazy1.displayName = 'Lazy1';
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy2 = lazy(() => <div />);
 			Lazy2.displayName = 'Lazy2';
 			const promise1 = tryCatch(Lazy1);
 			const promise2 = tryCatch(Lazy2);
@@ -537,9 +537,9 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if comparing to a component which was mounted with non-boolean argument', () => {
-			const Lazy1 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
 			Lazy1.displayName = 'Lazy1';
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy2 = lazy(() => <div />);
 			Lazy2.displayName = 'Lazy2';
 			const promise1 = tryCatch(Lazy1);
 			const promise2 = tryCatch(Lazy2);
@@ -551,9 +551,9 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if components mounted in wrong order', () => {
-			const Lazy1 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
 			Lazy1.displayName = 'Lazy1';
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy2 = lazy(() => <div />);
 			Lazy2.displayName = 'Lazy2';
 			const promise1 = tryCatch(Lazy1);
 			const promise2 = tryCatch(Lazy2);
@@ -575,8 +575,8 @@ describe('jest expect extensions (used in tests only)', () => {
 
 	describe('toBeMountedAfter', () => {
 		it('passes if passed correctly mounted lazy components, mounted in correct order', () => {
-			const Lazy1 = lazy(() => <div></div>);
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
+			const Lazy2 = lazy(() => <div />);
 			const promise1 = tryCatch(Lazy1);
 			const promise2 = tryCatch(Lazy2);
 			promise1[ON_MOUNT](true);
@@ -585,7 +585,7 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a non-function', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ON_MOUNT](true);
 			expect(() => {
@@ -594,7 +594,7 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if comparing to a non-function', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ON_MOUNT](true);
 			expect(() => {
@@ -603,27 +603,27 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a function which is not a test lazy component', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ON_MOUNT](true);
 			expect(() => {
-				expect(function() {}).toBeMountedAfter(Lazy);
+				expect(() => {}).toBeMountedAfter(Lazy);
 			}).toThrow(/^Expected component to be mounted after Lazy - component is not a test lazy component$/);
 		});
 
 		it('errors if comparing to a function which is not a test lazy component', () => {
-			const Lazy = lazy(() => <div></div>);
+			const Lazy = lazy(() => <div />);
 			const promise = tryCatch(Lazy);
 			promise[ON_MOUNT](true);
 			expect(() => {
-				expect(Lazy).toBeMountedAfter(function() {});
+				expect(Lazy).toBeMountedAfter(() => {});
 			}).toThrow(/^Expected Lazy to be mounted after component - component is not a test lazy component$/);
 		});
 
 		it('errors if passed a component which was not called', () => {
-			const Lazy1 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
 			Lazy1.displayName = 'Lazy1';
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy2 = lazy(() => <div />);
 			Lazy2.displayName = 'Lazy2';
 			const promise2 = tryCatch(Lazy2);
 			promise2[ON_MOUNT](true);
@@ -633,9 +633,9 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if comparing to a component which was not called', () => {
-			const Lazy1 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
 			Lazy1.displayName = 'Lazy1';
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy2 = lazy(() => <div />);
 			Lazy2.displayName = 'Lazy2';
 			const promise1 = tryCatch(Lazy1);
 			promise1[ON_MOUNT](true);
@@ -645,9 +645,9 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a component which was not mounted', () => {
-			const Lazy1 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
 			Lazy1.displayName = 'Lazy1';
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy2 = lazy(() => <div />);
 			Lazy2.displayName = 'Lazy2';
 			tryCatch(Lazy1);
 			const promise2 = tryCatch(Lazy2);
@@ -658,9 +658,9 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if compared to a component which was not mounted', () => {
-			const Lazy1 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
 			Lazy1.displayName = 'Lazy1';
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy2 = lazy(() => <div />);
 			Lazy2.displayName = 'Lazy2';
 			const promise1 = tryCatch(Lazy1);
 			tryCatch(Lazy2);
@@ -671,9 +671,9 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a component which was mounted twice', () => {
-			const Lazy1 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
 			Lazy1.displayName = 'Lazy1';
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy2 = lazy(() => <div />);
 			Lazy2.displayName = 'Lazy2';
 			const promise1 = tryCatch(Lazy1);
 			const promise2 = tryCatch(Lazy2);
@@ -686,9 +686,9 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if comparing to a component which was mounted twice', () => {
-			const Lazy1 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
 			Lazy1.displayName = 'Lazy1';
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy2 = lazy(() => <div />);
 			Lazy2.displayName = 'Lazy2';
 			const promise1 = tryCatch(Lazy1);
 			const promise2 = tryCatch(Lazy2);
@@ -701,9 +701,9 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a component which was mounted with no arguments', () => {
-			const Lazy1 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
 			Lazy1.displayName = 'Lazy1';
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy2 = lazy(() => <div />);
 			Lazy2.displayName = 'Lazy2';
 			const promise1 = tryCatch(Lazy1);
 			const promise2 = tryCatch(Lazy2);
@@ -715,9 +715,9 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if comparing to a component which was mounted with no arguments', () => {
-			const Lazy1 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
 			Lazy1.displayName = 'Lazy1';
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy2 = lazy(() => <div />);
 			Lazy2.displayName = 'Lazy2';
 			const promise1 = tryCatch(Lazy1);
 			const promise2 = tryCatch(Lazy2);
@@ -729,9 +729,9 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a component which was mounted with 2 arguments', () => {
-			const Lazy1 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
 			Lazy1.displayName = 'Lazy1';
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy2 = lazy(() => <div />);
 			Lazy2.displayName = 'Lazy2';
 			const promise1 = tryCatch(Lazy1);
 			const promise2 = tryCatch(Lazy2);
@@ -743,9 +743,9 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if comparing to a component which was mounted with 2 arguments', () => {
-			const Lazy1 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
 			Lazy1.displayName = 'Lazy1';
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy2 = lazy(() => <div />);
 			Lazy2.displayName = 'Lazy2';
 			const promise1 = tryCatch(Lazy1);
 			const promise2 = tryCatch(Lazy2);
@@ -757,9 +757,9 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if passed a component which was mounted with non-boolean argument', () => {
-			const Lazy1 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
 			Lazy1.displayName = 'Lazy1';
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy2 = lazy(() => <div />);
 			Lazy2.displayName = 'Lazy2';
 			const promise1 = tryCatch(Lazy1);
 			const promise2 = tryCatch(Lazy2);
@@ -771,9 +771,9 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if comparing to a component which was mounted with non-boolean argument', () => {
-			const Lazy1 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
 			Lazy1.displayName = 'Lazy1';
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy2 = lazy(() => <div />);
 			Lazy2.displayName = 'Lazy2';
 			const promise1 = tryCatch(Lazy1);
 			const promise2 = tryCatch(Lazy2);
@@ -785,9 +785,9 @@ describe('jest expect extensions (used in tests only)', () => {
 		});
 
 		it('errors if components mounted in wrong order', () => {
-			const Lazy1 = lazy(() => <div></div>);
+			const Lazy1 = lazy(() => <div />);
 			Lazy1.displayName = 'Lazy1';
-			const Lazy2 = lazy(() => <div></div>);
+			const Lazy2 = lazy(() => <div />);
 			Lazy2.displayName = 'Lazy2';
 			const promise1 = tryCatch(Lazy1);
 			const promise2 = tryCatch(Lazy2);
@@ -808,7 +808,7 @@ describe('jest expect extensions (used in tests only)', () => {
 	});
 });
 
-function tryCatch(fn) {
+function tryCatch(fn) { // eslint-disable-line consistent-return
 	try {
 		fn();
 	} catch (err) {

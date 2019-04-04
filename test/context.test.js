@@ -36,7 +36,7 @@ describe('context propogates with', () => {
 	});
 
 	describe('legacy Context API', () => {
-		tests(num => {
+		tests((num) => {
 			const key = `ctx${num}`;
 
 			class Provider extends React.Component {
@@ -77,7 +77,7 @@ function tests(makeContext) {
 			itRenders('single boundary', async ({render}) => {
 				const e = (
 					<Provider value="val">
-						<Suspense fallback={<Fallback/>}>
+						<Suspense fallback={<Fallback />}>
 							<Consumer>{ctx => ctx}</Consumer>
 						</Suspense>
 					</Provider>
@@ -90,9 +90,9 @@ function tests(makeContext) {
 			itRenders('multiple boundaries', async ({render}) => {
 				const e = (
 					<Provider value="val">
-						<Suspense fallback={<Fallback/>}>
-							<Suspense fallback={<Fallback/>}>
-								<Suspense fallback={<Fallback/>}>
+						<Suspense fallback={<Fallback />}>
+							<Suspense fallback={<Fallback />}>
+								<Suspense fallback={<Fallback />}>
 									<Consumer>{ctx => ctx}</Consumer>
 								</Suspense>
 							</Suspense>
@@ -119,7 +119,7 @@ function tests(makeContext) {
 						<Provider value="val">
 							<Provider2 value="val2">
 								<Provider3 value="val3">
-									<Suspense fallback={<Fallback/>}>
+									<Suspense fallback={<Fallback />}>
 										<div><Consumer>{ctx => ctx}</Consumer></div>
 										<div><Consumer2>{ctx => ctx}</Consumer2></div>
 										<div><Consumer3>{ctx => ctx}</Consumer3></div>
@@ -146,9 +146,9 @@ function tests(makeContext) {
 						<Provider value="val">
 							<Provider2 value="val2">
 								<Provider3 value="val3">
-									<Suspense fallback={<Fallback/>}>
-										<Suspense fallback={<Fallback/>}>
-											<Suspense fallback={<Fallback/>}>
+									<Suspense fallback={<Fallback />}>
+										<Suspense fallback={<Fallback />}>
+											<Suspense fallback={<Fallback />}>
 												<div><Consumer>{ctx => ctx}</Consumer></div>
 												<div><Consumer2>{ctx => ctx}</Consumer2></div>
 												<div><Consumer3>{ctx => ctx}</Consumer3></div>
@@ -178,15 +178,15 @@ function tests(makeContext) {
 			let Lazy, Lazy2, Lazy3;
 			beforeEach(() => {
 				Lazy = lazy(() => <Consumer>{ctx => ctx}</Consumer>);
-				Lazy2 = lazy(() => <Lazy/>);
-				Lazy3 = lazy(() => <Lazy2/>);
+				Lazy2 = lazy(() => <Lazy />);
+				Lazy3 = lazy(() => <Lazy2 />);
 			});
 
 			itRenders('single lazy component', async ({render}) => {
 				const e = (
-					<Suspense fallback={<Fallback/>}>
+					<Suspense fallback={<Fallback />}>
 						<Provider value="val">
-							<Lazy/>
+							<Lazy />
 						</Provider>
 					</Suspense>
 				);
@@ -197,9 +197,9 @@ function tests(makeContext) {
 
 			itRenders('multiple lazy components', async ({render}) => {
 				const e = (
-					<Suspense fallback={<Fallback/>}>
+					<Suspense fallback={<Fallback />}>
 						<Provider value="val">
-							<Lazy3/>
+							<Lazy3 />
 						</Provider>
 					</Suspense>
 				);
@@ -224,18 +224,18 @@ function tests(makeContext) {
 						<div><Consumer3>{ctx => ctx}</Consumer3></div>
 					</div>
 				));
-				Lazy2 = lazy(() => <Lazy/>);
-				Lazy3 = lazy(() => <Lazy2/>);
+				Lazy2 = lazy(() => <Lazy />);
+				Lazy3 = lazy(() => <Lazy2 />);
 			});
 
 			itRenders('single lazy component', async ({render, openTag}) => {
 				const e = (
-					<Suspense fallback={<Fallback/>}>
+					<Suspense fallback={<Fallback />}>
 						<div>
 							<Provider value="val">
 								<Provider2 value="val2">
 									<Provider3 value="val3">
-										<Lazy/>
+										<Lazy />
 									</Provider3>
 								</Provider2>
 							</Provider>
@@ -257,12 +257,12 @@ function tests(makeContext) {
 
 			itRenders('multiple lazy components', async ({render, openTag}) => {
 				const e = (
-					<Suspense fallback={<Fallback/>}>
+					<Suspense fallback={<Fallback />}>
 						<div>
 							<Provider value="val">
 								<Provider2 value="val2">
 									<Provider3 value="val3">
-										<Lazy3/>
+										<Lazy3 />
 									</Provider3>
 								</Provider2>
 							</Provider>
@@ -300,7 +300,7 @@ function tests(makeContext) {
 				const e = (
 					<Provider value="val">
 						<Suspense fallback={fallback}>
-							<Lazy/>
+							<Lazy />
 						</Suspense>
 					</Provider>
 				);
@@ -314,7 +314,7 @@ function tests(makeContext) {
 					<Provider value="val">
 						<Suspense fallback={fallback}>
 							<Provider value="valx">
-								<Lazy/>
+								<Lazy />
 							</Provider>
 						</Suspense>
 					</Provider>
@@ -349,7 +349,7 @@ function tests(makeContext) {
 							<Provider2 value="val2">
 								<Provider3 value="val3">
 									<Suspense fallback={fallback}>
-										<Lazy/>
+										<Lazy />
 									</Suspense>
 								</Provider3>
 							</Provider2>
@@ -379,7 +379,7 @@ function tests(makeContext) {
 										<Provider value="valx">
 											<Provider2 value="val2x">
 												<Provider3 value="val3x">
-													<Lazy/>
+													<Lazy />
 												</Provider3>
 											</Provider2>
 										</Provider>

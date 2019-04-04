@@ -24,7 +24,7 @@ describe('suspense fallback spaces correctly', () => {
 			itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback}) => {
 				const e = (
 					<Fallback fallback="Fallback">
-						<Lazy/>
+						<Lazy />
 					</Fallback>
 				);
 
@@ -36,7 +36,7 @@ describe('suspense fallback spaces correctly', () => {
 				const e = (
 					<Fallback fallback="Fallback">
 						Before Lazy
-						<Lazy/>
+						<Lazy />
 					</Fallback>
 				);
 
@@ -48,7 +48,7 @@ describe('suspense fallback spaces correctly', () => {
 				const e = (
 					<Fallback fallback="Fallback">
 						<div>Before Lazy</div>
-						<Lazy/>
+						<Lazy />
 					</Fallback>
 				);
 
@@ -62,54 +62,51 @@ describe('suspense fallback spaces correctly', () => {
 				itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback, isStatic}) => {
 					const e = (
 						<div>
-						Before
+							Before
 							<Fallback fallback="Fallback">
-								<Lazy/>
+								<Lazy />
 							</Fallback>
 						</div>
 					);
 
 					const h = await render(e);
-					expect(h).toBe(isStatic ?
-						'<div>BeforeFallback</div>' :
-						'<div data-reactroot="">Before<!-- -->Fallback</div>'
-					);
+					expect(h).toBe(isStatic
+						? '<div>BeforeFallback</div>'
+						: '<div data-reactroot="">Before<!-- -->Fallback</div>');
 				});
 
 				itRendersWithSyncCompare('and string before lazy', async ({render, Fallback, isStatic}) => {
 					const e = (
 						<div>
-						Before
+							Before
 							<Fallback fallback="Fallback">
 								Before Lazy
-								<Lazy/>
+								<Lazy />
 							</Fallback>
 						</div>
 					);
 
 					const h = await render(e);
-					expect(h).toBe(isStatic ?
-						'<div>BeforeFallback</div>' :
-						'<div data-reactroot="">Before<!-- -->Fallback</div>'
-					);
+					expect(h).toBe(isStatic
+						? '<div>BeforeFallback</div>'
+						: '<div data-reactroot="">Before<!-- -->Fallback</div>');
 				});
 
 				itRendersWithSyncCompare('and div before lazy', async ({render, Fallback, isStatic}) => {
 					const e = (
 						<div>
-						Before
+							Before
 							<Fallback fallback="Fallback">
 								<div>Before Lazy</div>
-								<Lazy/>
+								<Lazy />
 							</Fallback>
 						</div>
 					);
 
 					const h = await render(e);
-					expect(h).toBe(isStatic ?
-						'<div>BeforeFallback</div>' :
-						'<div data-reactroot="">Before<!-- -->Fallback</div>'
-					);
+					expect(h).toBe(isStatic
+						? '<div>BeforeFallback</div>'
+						: '<div data-reactroot="">Before<!-- -->Fallback</div>');
 				});
 			});
 
@@ -118,17 +115,16 @@ describe('suspense fallback spaces correctly', () => {
 					const e = (
 						<div>
 							<Fallback fallback="Fallback">
-								<Lazy/>
+								<Lazy />
 							</Fallback>
-						After
+							After
 						</div>
 					);
 
 					const h = await render(e);
-					expect(h).toBe(isStatic ?
-						'<div>FallbackAfter</div>' :
-						'<div data-reactroot="">Fallback<!-- -->After</div>'
-					);
+					expect(h).toBe(isStatic
+						? '<div>FallbackAfter</div>'
+						: '<div data-reactroot="">Fallback<!-- -->After</div>');
 				});
 
 				itRendersWithSyncCompare('and string before lazy', async ({render, Fallback, isStatic}) => {
@@ -136,17 +132,16 @@ describe('suspense fallback spaces correctly', () => {
 						<div>
 							<Fallback fallback="Fallback">
 								Before Lazy
-								<Lazy/>
+								<Lazy />
 							</Fallback>
-						After
+							After
 						</div>
 					);
 
 					const h = await render(e);
-					expect(h).toBe(isStatic ?
-						'<div>FallbackAfter</div>' :
-						'<div data-reactroot="">Fallback<!-- -->After</div>'
-					);
+					expect(h).toBe(isStatic
+						? '<div>FallbackAfter</div>'
+						: '<div data-reactroot="">Fallback<!-- -->After</div>');
 				});
 
 				itRendersWithSyncCompare('and div before lazy', async ({render, Fallback, isStatic}) => {
@@ -154,17 +149,16 @@ describe('suspense fallback spaces correctly', () => {
 						<div>
 							<Fallback fallback="Fallback">
 								<div>Before Lazy</div>
-								<Lazy/>
+								<Lazy />
 							</Fallback>
-						After
+							After
 						</div>
 					);
 
 					const h = await render(e);
-					expect(h).toBe(isStatic ?
-						'<div>FallbackAfter</div>' :
-						'<div data-reactroot="">Fallback<!-- -->After</div>'
-					);
+					expect(h).toBe(isStatic
+						? '<div>FallbackAfter</div>'
+						: '<div data-reactroot="">Fallback<!-- -->After</div>');
 				});
 			});
 
@@ -172,57 +166,54 @@ describe('suspense fallback spaces correctly', () => {
 				itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback, isStatic}) => {
 					const e = (
 						<div>
-						Before
+							Before
 							<Fallback fallback="Fallback">
-								<Lazy/>
+								<Lazy />
 							</Fallback>
-						After
+							After
 						</div>
 					);
 
 					const h = await render(e);
-					expect(h).toBe(isStatic ?
-						'<div>BeforeFallbackAfter</div>' :
-						'<div data-reactroot="">Before<!-- -->Fallback<!-- -->After</div>'
-					);
+					expect(h).toBe(isStatic
+						? '<div>BeforeFallbackAfter</div>'
+						: '<div data-reactroot="">Before<!-- -->Fallback<!-- -->After</div>');
 				});
 
 				itRendersWithSyncCompare('and string before lazy', async ({render, Fallback, isStatic}) => {
 					const e = (
 						<div>
-						Before
+							Before
 							<Fallback fallback="Fallback">
 								Before Lazy
-								<Lazy/>
+								<Lazy />
 							</Fallback>
-						After
+							After
 						</div>
 					);
 
 					const h = await render(e);
-					expect(h).toBe(isStatic ?
-						'<div>BeforeFallbackAfter</div>' :
-						'<div data-reactroot="">Before<!-- -->Fallback<!-- -->After</div>'
-					);
+					expect(h).toBe(isStatic
+						? '<div>BeforeFallbackAfter</div>'
+						: '<div data-reactroot="">Before<!-- -->Fallback<!-- -->After</div>');
 				});
 
 				itRendersWithSyncCompare('and div before lazy', async ({render, Fallback, isStatic}) => {
 					const e = (
 						<div>
-						Before
+							Before
 							<Fallback fallback="Fallback">
 								<div>Before Lazy</div>
-								<Lazy/>
+								<Lazy />
 							</Fallback>
-						After
+							After
 						</div>
 					);
 
 					const h = await render(e);
-					expect(h).toBe(isStatic ?
-						'<div>BeforeFallbackAfter</div>' :
-						'<div data-reactroot="">Before<!-- -->Fallback<!-- -->After</div>'
-					);
+					expect(h).toBe(isStatic
+						? '<div>BeforeFallbackAfter</div>'
+						: '<div data-reactroot="">Before<!-- -->Fallback<!-- -->After</div>');
 				});
 			});
 		});
@@ -234,7 +225,7 @@ describe('suspense fallback spaces correctly', () => {
 						<div>
 							<div>Before</div>
 							<Fallback fallback="Fallback">
-								<Lazy/>
+								<Lazy />
 							</Fallback>
 						</div>
 					);
@@ -249,7 +240,7 @@ describe('suspense fallback spaces correctly', () => {
 							<div>Before</div>
 							<Fallback fallback="Fallback">
 								Before Lazy
-								<Lazy/>
+								<Lazy />
 							</Fallback>
 						</div>
 					);
@@ -264,7 +255,7 @@ describe('suspense fallback spaces correctly', () => {
 							<div>Before</div>
 							<Fallback fallback="Fallback">
 								<div>Before Lazy</div>
-								<Lazy/>
+								<Lazy />
 							</Fallback>
 						</div>
 					);
@@ -279,7 +270,7 @@ describe('suspense fallback spaces correctly', () => {
 					const e = (
 						<div>
 							<Fallback fallback="Fallback">
-								<Lazy/>
+								<Lazy />
 							</Fallback>
 							<div>After</div>
 						</div>
@@ -294,7 +285,7 @@ describe('suspense fallback spaces correctly', () => {
 						<div>
 							<Fallback fallback="Fallback">
 								Before Lazy
-								<Lazy/>
+								<Lazy />
 							</Fallback>
 							<div>After</div>
 						</div>
@@ -309,7 +300,7 @@ describe('suspense fallback spaces correctly', () => {
 						<div>
 							<Fallback fallback="Fallback">
 								<div>Before Lazy</div>
-								<Lazy/>
+								<Lazy />
 							</Fallback>
 							<div>After</div>
 						</div>
@@ -326,7 +317,7 @@ describe('suspense fallback spaces correctly', () => {
 						<div>
 							<div>Before</div>
 							<Fallback fallback="Fallback">
-								<Lazy/>
+								<Lazy />
 							</Fallback>
 							<div>After</div>
 						</div>
@@ -342,7 +333,7 @@ describe('suspense fallback spaces correctly', () => {
 							<div>Before</div>
 							<Fallback fallback="Fallback">
 								Before Lazy
-								<Lazy/>
+								<Lazy />
 							</Fallback>
 							<div>After</div>
 						</div>
@@ -358,7 +349,7 @@ describe('suspense fallback spaces correctly', () => {
 							<div>Before</div>
 							<Fallback fallback="Fallback">
 								<div>Before Lazy</div>
-								<Lazy/>
+								<Lazy />
 							</Fallback>
 							<div>After</div>
 						</div>
@@ -374,19 +365,29 @@ describe('suspense fallback spaces correctly', () => {
 	describe('with null fallback', () => {
 		describe('only', () => {
 			itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback}) => {
-				const e = <Fallback fallback={null}><Lazy/></Fallback>;
+				const e = <Fallback fallback={null}><Lazy /></Fallback>;
 				const h = await render(e);
 				expect(h).toBe('');
 			});
 
 			itRendersWithSyncCompare('and string before lazy', async ({render, Fallback}) => {
-				const e = <Fallback fallback={null}>Before Lazy<Lazy/></Fallback>;
+				const e = (
+					<Fallback fallback={null}>
+						Before Lazy
+						<Lazy />
+					</Fallback>
+				);
 				const h = await render(e);
 				expect(h).toBe('');
 			});
 
 			itRendersWithSyncCompare('and div before lazy', async ({render, Fallback}) => {
-				const e = <Fallback fallback={null}><div>Before Lazy</div><Lazy/></Fallback>;
+				const e = (
+					<Fallback fallback={null}>
+						<div>Before Lazy</div>
+						<Lazy />
+					</Fallback>
+				);
 				const h = await render(e);
 				expect(h).toBe('');
 			});
@@ -398,7 +399,7 @@ describe('suspense fallback spaces correctly', () => {
 					const e = (
 						<div>
 							Before
-							<Fallback fallback={null}><Lazy/></Fallback>
+							<Fallback fallback={null}><Lazy /></Fallback>
 						</div>
 					);
 					const h = await render(e);
@@ -409,7 +410,10 @@ describe('suspense fallback spaces correctly', () => {
 					const e = (
 						<div>
 							Before
-							<Fallback fallback={null}>Before Lazy<Lazy/></Fallback>
+							<Fallback fallback={null}>
+								Before Lazy
+								<Lazy />
+							</Fallback>
 						</div>
 					);
 					const h = await render(e);
@@ -420,7 +424,10 @@ describe('suspense fallback spaces correctly', () => {
 					const e = (
 						<div>
 							Before
-							<Fallback fallback={null}><div>Before Lazy</div><Lazy/></Fallback>
+							<Fallback fallback={null}>
+								<div>Before Lazy</div>
+								<Lazy />
+							</Fallback>
 						</div>
 					);
 					const h = await render(e);
@@ -432,7 +439,7 @@ describe('suspense fallback spaces correctly', () => {
 				itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback, openTag}) => {
 					const e = (
 						<div>
-							<Fallback fallback={null}><Lazy/></Fallback>
+							<Fallback fallback={null}><Lazy /></Fallback>
 							After
 						</div>
 					);
@@ -443,7 +450,10 @@ describe('suspense fallback spaces correctly', () => {
 				itRendersWithSyncCompare('and string before lazy', async ({render, Fallback, openTag}) => {
 					const e = (
 						<div>
-							<Fallback fallback={null}>Before Lazy<Lazy/></Fallback>
+							<Fallback fallback={null}>
+								Before Lazy
+								<Lazy />
+							</Fallback>
 							After
 						</div>
 					);
@@ -454,7 +464,10 @@ describe('suspense fallback spaces correctly', () => {
 				itRendersWithSyncCompare('and div before lazy', async ({render, Fallback, openTag}) => {
 					const e = (
 						<div>
-							<Fallback fallback={null}><div>Before Lazy</div><Lazy/></Fallback>
+							<Fallback fallback={null}>
+								<div>Before Lazy</div>
+								<Lazy />
+							</Fallback>
 							After
 						</div>
 					);
@@ -468,45 +481,48 @@ describe('suspense fallback spaces correctly', () => {
 					const e = (
 						<div>
 							Before
-							<Fallback fallback={null}><Lazy/></Fallback>
+							<Fallback fallback={null}><Lazy /></Fallback>
 							After
 						</div>
 					);
 					const h = await render(e);
-					expect(h).toBe(isStatic ?
-						'<div>BeforeAfter</div>' :
-						'<div data-reactroot="">Before<!-- -->After</div>'
-					);
+					expect(h).toBe(isStatic
+						? '<div>BeforeAfter</div>'
+						: '<div data-reactroot="">Before<!-- -->After</div>');
 				});
 
 				itRendersWithSyncCompare('and string before lazy', async ({render, Fallback, isStatic}) => {
 					const e = (
 						<div>
 							Before
-							<Fallback fallback={null}>Before Lazy<Lazy/></Fallback>
+							<Fallback fallback={null}>
+								Before Lazy
+								<Lazy />
+							</Fallback>
 							After
 						</div>
 					);
 					const h = await render(e);
-					expect(h).toBe(isStatic ?
-						'<div>BeforeAfter</div>' :
-						'<div data-reactroot="">Before<!-- -->After</div>'
-					);
+					expect(h).toBe(isStatic
+						? '<div>BeforeAfter</div>'
+						: '<div data-reactroot="">Before<!-- -->After</div>');
 				});
 
 				itRendersWithSyncCompare('and div before lazy', async ({render, Fallback, isStatic}) => {
 					const e = (
 						<div>
 							Before
-							<Fallback fallback={null}><div>Before Lazy</div><Lazy/></Fallback>
+							<Fallback fallback={null}>
+								<div>Before Lazy</div>
+								<Lazy />
+							</Fallback>
 							After
 						</div>
 					);
 					const h = await render(e);
-					expect(h).toBe(isStatic ?
-						'<div>BeforeAfter</div>' :
-						'<div data-reactroot="">Before<!-- -->After</div>'
-					);
+					expect(h).toBe(isStatic
+						? '<div>BeforeAfter</div>'
+						: '<div data-reactroot="">Before<!-- -->After</div>');
 				});
 			});
 		});
@@ -517,7 +533,7 @@ describe('suspense fallback spaces correctly', () => {
 					const e = (
 						<div>
 							<div>Before</div>
-							<Fallback fallback={null}><Lazy/></Fallback>
+							<Fallback fallback={null}><Lazy /></Fallback>
 						</div>
 					);
 					const h = await render(e);
@@ -528,7 +544,10 @@ describe('suspense fallback spaces correctly', () => {
 					const e = (
 						<div>
 							<div>Before</div>
-							<Fallback fallback={null}>Before Lazy<Lazy/></Fallback>
+							<Fallback fallback={null}>
+								Before Lazy
+								<Lazy />
+							</Fallback>
 						</div>
 					);
 					const h = await render(e);
@@ -539,7 +558,10 @@ describe('suspense fallback spaces correctly', () => {
 					const e = (
 						<div>
 							<div>Before</div>
-							<Fallback fallback={null}><div>Before Lazy</div><Lazy/></Fallback>
+							<Fallback fallback={null}>
+								<div>Before Lazy</div>
+								<Lazy />
+							</Fallback>
 						</div>
 					);
 					const h = await render(e);
@@ -551,7 +573,7 @@ describe('suspense fallback spaces correctly', () => {
 				itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback, openTag}) => {
 					const e = (
 						<div>
-							<Fallback fallback={null}><Lazy/></Fallback>
+							<Fallback fallback={null}><Lazy /></Fallback>
 							<div>After</div>
 						</div>
 					);
@@ -562,7 +584,10 @@ describe('suspense fallback spaces correctly', () => {
 				itRendersWithSyncCompare('and string before lazy', async ({render, Fallback, openTag}) => {
 					const e = (
 						<div>
-							<Fallback fallback={null}>Before Lazy<Lazy/></Fallback>
+							<Fallback fallback={null}>
+								Before Lazy
+								<Lazy />
+							</Fallback>
 							<div>After</div>
 						</div>
 					);
@@ -573,7 +598,10 @@ describe('suspense fallback spaces correctly', () => {
 				itRendersWithSyncCompare('and div before lazy', async ({render, Fallback, openTag}) => {
 					const e = (
 						<div>
-							<Fallback fallback={null}><div>Before Lazy</div><Lazy/></Fallback>
+							<Fallback fallback={null}>
+								<div>Before Lazy</div>
+								<Lazy />
+							</Fallback>
 							<div>After</div>
 						</div>
 					);
@@ -587,7 +615,7 @@ describe('suspense fallback spaces correctly', () => {
 					const e = (
 						<div>
 							<div>Before</div>
-							<Fallback fallback={null}><Lazy/></Fallback>
+							<Fallback fallback={null}><Lazy /></Fallback>
 							<div>After</div>
 						</div>
 					);
@@ -599,7 +627,10 @@ describe('suspense fallback spaces correctly', () => {
 					const e = (
 						<div>
 							<div>Before</div>
-							<Fallback fallback={null}>Before Lazy<Lazy/></Fallback>
+							<Fallback fallback={null}>
+								Before Lazy
+								<Lazy />
+							</Fallback>
 							<div>After</div>
 						</div>
 					);
@@ -611,7 +642,10 @@ describe('suspense fallback spaces correctly', () => {
 					const e = (
 						<div>
 							<div>Before</div>
-							<Fallback fallback={null}><div>Before Lazy</div><Lazy/></Fallback>
+							<Fallback fallback={null}>
+								<div>Before Lazy</div>
+								<Lazy />
+							</Fallback>
 							<div>After</div>
 						</div>
 					);
@@ -625,7 +659,7 @@ describe('suspense fallback spaces correctly', () => {
 	describe('with div inside fallback', () => {
 		describe('only', () => {
 			itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback, openTag}) => {
-				const e = <Fallback fallback={<div>Fallback</div>}><Lazy/></Fallback>;
+				const e = <Fallback fallback={<div>Fallback</div>}><Lazy /></Fallback>;
 				const h = await render(e);
 				expect(h).toBe(`<div${openTag}>Fallback</div>`);
 			});
@@ -634,7 +668,7 @@ describe('suspense fallback spaces correctly', () => {
 				const e = (
 					<Fallback fallback={<div>Fallback</div>}>
 						Before Lazy
-						<Lazy/>
+						<Lazy />
 					</Fallback>
 				);
 				const h = await render(e);
@@ -645,7 +679,7 @@ describe('suspense fallback spaces correctly', () => {
 				const e = (
 					<Fallback fallback={<div>Fallback</div>}>
 						<div>Before Lazy</div>
-						<Lazy/>
+						<Lazy />
 					</Fallback>
 				);
 				const h = await render(e);
@@ -660,7 +694,7 @@ describe('suspense fallback spaces correctly', () => {
 						<div>
 							Before
 							<Fallback fallback={<div>Fallback</div>}>
-								<Lazy/>
+								<Lazy />
 							</Fallback>
 						</div>
 					);
@@ -674,7 +708,7 @@ describe('suspense fallback spaces correctly', () => {
 							Before
 							<Fallback fallback={<div>Fallback</div>}>
 								Before Lazy
-								<Lazy/>
+								<Lazy />
 							</Fallback>
 						</div>
 					);
@@ -688,7 +722,7 @@ describe('suspense fallback spaces correctly', () => {
 							Before
 							<Fallback fallback={<div>Fallback</div>}>
 								<div>Before Lazy</div>
-								<Lazy/>
+								<Lazy />
 							</Fallback>
 						</div>
 					);
@@ -701,7 +735,7 @@ describe('suspense fallback spaces correctly', () => {
 				itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback, openTag}) => {
 					const e = (
 						<div>
-							<Fallback fallback={<div>Fallback</div>}><Lazy/></Fallback>
+							<Fallback fallback={<div>Fallback</div>}><Lazy /></Fallback>
 							After
 						</div>
 					);
@@ -714,7 +748,7 @@ describe('suspense fallback spaces correctly', () => {
 						<div>
 							<Fallback fallback={<div>Fallback</div>}>
 								Before Lazy
-								<Lazy/>
+								<Lazy />
 							</Fallback>
 							After
 						</div>
@@ -728,7 +762,7 @@ describe('suspense fallback spaces correctly', () => {
 						<div>
 							<Fallback fallback={<div>Fallback</div>}>
 								<div>Before Lazy</div>
-								<Lazy/>
+								<Lazy />
 							</Fallback>
 							After
 						</div>
@@ -743,7 +777,7 @@ describe('suspense fallback spaces correctly', () => {
 					const e = (
 						<div>
 							Before
-							<Fallback fallback={<div>Fallback</div>}><Lazy/></Fallback>
+							<Fallback fallback={<div>Fallback</div>}><Lazy /></Fallback>
 							After
 						</div>
 					);
@@ -757,7 +791,7 @@ describe('suspense fallback spaces correctly', () => {
 							Before
 							<Fallback fallback={<div>Fallback</div>}>
 								Before Lazy
-								<Lazy/>
+								<Lazy />
 							</Fallback>
 							After
 						</div>
@@ -772,7 +806,7 @@ describe('suspense fallback spaces correctly', () => {
 							Before
 							<Fallback fallback={<div>Fallback</div>}>
 								<div>Before Lazy</div>
-								<Lazy/>
+								<Lazy />
 							</Fallback>
 							After
 						</div>
@@ -789,7 +823,7 @@ describe('suspense fallback spaces correctly', () => {
 					const e = (
 						<div>
 							<div>Before</div>
-							<Fallback fallback={<div>Fallback</div>}><Lazy/></Fallback>
+							<Fallback fallback={<div>Fallback</div>}><Lazy /></Fallback>
 						</div>
 					);
 					const h = await render(e);
@@ -802,7 +836,7 @@ describe('suspense fallback spaces correctly', () => {
 							<div>Before</div>
 							<Fallback fallback={<div>Fallback</div>}>
 								Before Lazy
-								<Lazy/>
+								<Lazy />
 							</Fallback>
 						</div>
 					);
@@ -816,7 +850,7 @@ describe('suspense fallback spaces correctly', () => {
 							<div>Before</div>
 							<Fallback fallback={<div>Fallback</div>}>
 								<div>Before Lazy</div>
-								<Lazy/>
+								<Lazy />
 							</Fallback>
 						</div>
 					);
@@ -829,7 +863,7 @@ describe('suspense fallback spaces correctly', () => {
 				itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback, openTag}) => {
 					const e = (
 						<div>
-							<Fallback fallback={<div>Fallback</div>}><Lazy/></Fallback>
+							<Fallback fallback={<div>Fallback</div>}><Lazy /></Fallback>
 							<div>After</div>
 						</div>
 					);
@@ -842,7 +876,7 @@ describe('suspense fallback spaces correctly', () => {
 						<div>
 							<Fallback fallback={<div>Fallback</div>}>
 								Before Lazy
-								<Lazy/>
+								<Lazy />
 							</Fallback>
 							<div>After</div>
 						</div>
@@ -856,7 +890,7 @@ describe('suspense fallback spaces correctly', () => {
 						<div>
 							<Fallback fallback={<div>Fallback</div>}>
 								<div>Before Lazy</div>
-								<Lazy/>
+								<Lazy />
 							</Fallback>
 							<div>After</div>
 						</div>
@@ -871,7 +905,7 @@ describe('suspense fallback spaces correctly', () => {
 					const e = (
 						<div>
 							<div>Before</div>
-							<Fallback fallback={<div>Fallback</div>}><Lazy/></Fallback>
+							<Fallback fallback={<div>Fallback</div>}><Lazy /></Fallback>
 							<div>After</div>
 						</div>
 					);
@@ -885,7 +919,7 @@ describe('suspense fallback spaces correctly', () => {
 							<div>Before</div>
 							<Fallback fallback={<div>Fallback</div>}>
 								Before Lazy
-								<Lazy/>
+								<Lazy />
 							</Fallback>
 							<div>After</div>
 						</div>
@@ -900,7 +934,7 @@ describe('suspense fallback spaces correctly', () => {
 							<div>Before</div>
 							<Fallback fallback={<div>Fallback</div>}>
 								<div>Before Lazy</div>
-								<Lazy/>
+								<Lazy />
 							</Fallback>
 							<div>After</div>
 						</div>

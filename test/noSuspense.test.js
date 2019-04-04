@@ -37,21 +37,21 @@ describe('without Suspense', () => {
 	describe('in function component', () => {
 		itRendersWithSyncCompare('string', async ({render}) => {
 			const Comp = () => 'text';
-			const e = <Comp/>;
+			const e = <Comp />;
 			const h = await render(e);
 			expect(h).toBe('text');
 		});
 
 		itRendersWithSyncCompare('div', async ({render, openTag}) => {
 			const Comp = () => <div>text</div>;
-			const e = <Comp/>;
+			const e = <Comp />;
 			const h = await render(e);
 			expect(h).toBe(`<div${openTag}>text</div>`);
 		});
 
 		itRendersWithSyncCompare('nested divs', async ({render, openTag}) => {
 			const Comp = () => <div><div>text</div></div>;
-			const e = <Comp/>;
+			const e = <Comp />;
 			const h = await render(e);
 			expect(h).toBe(`<div${openTag}><div>text</div></div>`);
 		});
@@ -64,29 +64,31 @@ describe('without Suspense', () => {
 					return 'text';
 				}
 			}
-			const e = <Comp/>;
+			const e = <Comp />;
 			const h = await render(e);
 			expect(h).toBe('text');
 		});
 
 		itRendersWithSyncCompare('div', async ({render, openTag}) => {
+			// eslint-disable-next-line react/prefer-stateless-function
 			class Comp extends React.Component {
 				render() {
 					return <div>text</div>;
 				}
 			}
-			const e = <Comp/>;
+			const e = <Comp />;
 			const h = await render(e);
 			expect(h).toBe(`<div${openTag}>text</div>`);
 		});
 
 		itRendersWithSyncCompare('nested divs', async ({render, openTag}) => {
+			// eslint-disable-next-line react/prefer-stateless-function
 			class Comp extends React.Component {
 				render() {
 					return <div><div>text</div></div>;
 				}
 			}
-			const e = <Comp/>;
+			const e = <Comp />;
 			const h = await render(e);
 			expect(h).toBe(`<div${openTag}><div>text</div></div>`);
 		});
