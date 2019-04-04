@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.6
+
+Other:
+
+* Update `react-dom` dependency
+* Update linting rules
+* Fix ESLint errors [refactor]
+
 ## 0.4.5
 
 Features:
