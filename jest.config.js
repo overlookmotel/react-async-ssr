@@ -5,8 +5,11 @@ module.exports = {
 	clearMocks: true,
 	coverageDirectory: 'coverage',
 	collectCoverageFrom: [
-		'*.js',
-		'lib/**/*.js',
+		'**/*.js',
+		'!.**',
+		'!**/.**',
+		'!**/node_modules/**',
+		'!test/**',
 		'!jest.config.js'
 	]
 };
