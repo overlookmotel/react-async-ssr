@@ -293,6 +293,13 @@ In the first render pass, all the promises for async-loaded data are collected. 
 
 The `.renderToStringAsync()` method provided by this package renders in a single pass. The render is interrupted when awaiting an async resource and resumed once it has loaded.
 
+#### Disabled Functionality
+Some React functionality is disabled on the server by React. This library only seeks to make Suspense work. https://github.com/overlookmotel/react-async-ssr/issues/16
+The disabled functionality includes, but is not limited to:
+`setState`
+`forceRender`
+`useEffect`
+
 ## Tests
 
 Use `npm test` to run the tests. Use `npm run cover` to check coverage.
