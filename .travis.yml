@@ -20,4 +20,6 @@ matrix:
   allow_failures:
     - env: COVERAGE=true
 
+cache: npm
+
 sudo: false
