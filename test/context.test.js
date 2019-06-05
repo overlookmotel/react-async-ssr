@@ -7,11 +7,13 @@
 
 // Modules
 const React = require('react'),
-	{Suspense} = React,
 	PropTypes = require('prop-types');
 
 // Imports
-const {itRenders, lazy, removeSpacing} = require('./utils');
+const itRenders = require('./utils/itRenders');
+
+// Init
+require('./utils');
 
 // Tests
 
@@ -62,64 +64,62 @@ describe('context propogates with', () => {
 	});
 });
 
-function Fallback() {
-	return <div>Loading...</div>;
-}
-
 function tests(makeContext) {
-	let Provider, Consumer;
-	beforeEach(() => {
-		({Provider, Consumer} = makeContext(1));
+	// Extend itRenders to add Context and fallback
+	const itRendersWithContext = itRenders.extend({
+		prep() {
+			const {Provider, Consumer} = makeContext(1);
+			const fallback = <div>Loading...</div>;
+			return {Provider, Consumer, fallback};
+		}
 	});
 
 	describe('across Suspense boundary with', () => {
 		describe('one context', () => {
-			itRenders('single boundary', async ({render}) => {
-				const e = (
+			itRendersWithContext('single boundary', {
+				element: ({Suspense, Provider, Consumer, fallback}) => (
 					<Provider value="val">
-						<Suspense fallback={<Fallback />}>
+						<Suspense fallback={fallback}>
 							<Consumer>{ctx => ctx}</Consumer>
 						</Suspense>
 					</Provider>
-				);
-
-				const h = await render(e);
-				expect(h).toBe('val');
+				),
+				html: 'val'
 			});
 
-			itRenders('multiple boundaries', async ({render}) => {
-				const e = (
+			itRendersWithContext('multiple boundaries', {
+				element: ({Suspense, Provider, Consumer, fallback}) => (
 					<Provider value="val">
-						<Suspense fallback={<Fallback />}>
-							<Suspense fallback={<Fallback />}>
-								<Suspense fallback={<Fallback />}>
+						<Suspense fallback={fallback}>
+							<Suspense fallback={fallback}>
+								<Suspense fallback={fallback}>
 									<Consumer>{ctx => ctx}</Consumer>
 								</Suspense>
 							</Suspense>
 						</Suspense>
 					</Provider>
-				);
-
-				const h = await render(e);
-				expect(h).toBe('val');
+				),
+				html: 'val'
 			});
 		});
 
 		describe('multiple contexts', () => {
-			let Provider2, Consumer2,
-				Provider3, Consumer3;
-			beforeEach(() => {
-				({Provider: Provider2, Consumer: Consumer2} = makeContext(2));
-				({Provider: Provider3, Consumer: Consumer3} = makeContext(3));
-			});
+			function prep() {
+				const {Provider: Provider2, Consumer: Consumer2} = makeContext(2),
+					{Provider: Provider3, Consumer: Consumer3} = makeContext(3);
+				return {Provider2, Consumer2, Provider3, Consumer3};
+			}
 
-			itRenders('single boundary', async ({render, openTag}) => {
-				const e = (
+			itRendersWithContext('single boundary', {
+				prep,
+				element: (
+					{Suspense, Provider, Consumer, Provider2, Consumer2, Provider3, Consumer3, fallback}
+				) => (
 					<div>
 						<Provider value="val">
 							<Provider2 value="val2">
 								<Provider3 value="val3">
-									<Suspense fallback={<Fallback />}>
+									<Suspense fallback={fallback}>
 										<div><Consumer>{ctx => ctx}</Consumer></div>
 										<div><Consumer2>{ctx => ctx}</Consumer2></div>
 										<div><Consumer3>{ctx => ctx}</Consumer3></div>
@@ -128,27 +128,28 @@ function tests(makeContext) {
 							</Provider2>
 						</Provider>
 					</div>
-				);
-
-				const h = await render(e);
-				expect(h).toBe(removeSpacing(`
+				),
+				html: ({openTag}) => (`
 					<div${openTag}>
 						<div>val</div>
 						<div>val2</div>
 						<div>val3</div>
 					</div>
-				`));
+				`)
 			});
 
-			itRenders('multiple boundaries', async ({render, openTag}) => {
-				const e = (
+			itRendersWithContext('multiple boundaries', {
+				prep,
+				element: (
+					{Suspense, Provider, Consumer, Provider2, Consumer2, Provider3, Consumer3, fallback}
+				) => (
 					<div>
 						<Provider value="val">
 							<Provider2 value="val2">
 								<Provider3 value="val3">
-									<Suspense fallback={<Fallback />}>
-										<Suspense fallback={<Fallback />}>
-											<Suspense fallback={<Fallback />}>
+									<Suspense fallback={fallback}>
+										<Suspense fallback={fallback}>
+											<Suspense fallback={fallback}>
 												<div><Consumer>{ctx => ctx}</Consumer></div>
 												<div><Consumer2>{ctx => ctx}</Consumer2></div>
 												<div><Consumer3>{ctx => ctx}</Consumer3></div>
@@ -159,78 +160,73 @@ function tests(makeContext) {
 							</Provider2>
 						</Provider>
 					</div>
-				);
-
-				const h = await render(e);
-				expect(h).toBe(removeSpacing(`
+				),
+				html: ({openTag}) => (`
 					<div${openTag}>
 						<div>val</div>
 						<div>val2</div>
 						<div>val3</div>
 					</div>
-				`));
+				`)
 			});
 		});
 	});
 
 	describe('within lazy component', () => {
 		describe('one context', () => {
-			let Lazy, Lazy2, Lazy3;
-			beforeEach(() => {
-				Lazy = lazy(() => <Consumer>{ctx => ctx}</Consumer>);
-				Lazy2 = lazy(() => <Lazy />);
-				Lazy3 = lazy(() => <Lazy2 />);
+			itRendersWithContext('single lazy component', {
+				element({Suspense, lazy, Provider, Consumer, fallback}) {
+					const Lazy = lazy(() => <Consumer>{ctx => ctx}</Consumer>);
+
+					return (
+						<Suspense fallback={fallback}>
+							<Provider value="val">
+								<Lazy />
+							</Provider>
+						</Suspense>
+					);
+				},
+				html: 'val'
 			});
 
-			itRenders('single lazy component', async ({render}) => {
-				const e = (
-					<Suspense fallback={<Fallback />}>
-						<Provider value="val">
-							<Lazy />
-						</Provider>
-					</Suspense>
-				);
+			itRendersWithContext('multiple lazy components', {
+				element({Suspense, lazy, Provider, Consumer, fallback}) {
+					const Lazy = lazy(() => <Consumer>{ctx => ctx}</Consumer>),
+						Lazy2 = lazy(() => <Lazy />),
+						Lazy3 = lazy(() => <Lazy2 />);
 
-				const h = await render(e);
-				expect(h).toBe('val');
-			});
-
-			itRenders('multiple lazy components', async ({render}) => {
-				const e = (
-					<Suspense fallback={<Fallback />}>
-						<Provider value="val">
-							<Lazy3 />
-						</Provider>
-					</Suspense>
-				);
-
-				const h = await render(e);
-				expect(h).toBe('val');
+					return (
+						<Suspense fallback={fallback}>
+							<Provider value="val">
+								<Lazy3 />
+							</Provider>
+						</Suspense>
+					);
+				},
+				html: 'val'
 			});
 		});
 
 		describe('multiple contexts', () => {
-			let Provider2, Consumer2,
-				Provider3, Consumer3,
-				Lazy, Lazy2, Lazy3;
-			beforeEach(() => {
-				({Provider: Provider2, Consumer: Consumer2} = makeContext(2));
-				({Provider: Provider3, Consumer: Consumer3} = makeContext(3));
+			function prep({lazy, Consumer}) {
+				const {Provider: Provider2, Consumer: Consumer2} = makeContext(2),
+					{Provider: Provider3, Consumer: Consumer3} = makeContext(3);
 
-				Lazy = lazy(() => (
+				const Lazy = lazy(() => (
 					<div>
 						<div><Consumer>{ctx => ctx}</Consumer></div>
 						<div><Consumer2>{ctx => ctx}</Consumer2></div>
 						<div><Consumer3>{ctx => ctx}</Consumer3></div>
 					</div>
 				));
-				Lazy2 = lazy(() => <Lazy />);
-				Lazy3 = lazy(() => <Lazy2 />);
-			});
 
-			itRenders('single lazy component', async ({render, openTag}) => {
-				const e = (
-					<Suspense fallback={<Fallback />}>
+				return {Provider2, Consumer2, Provider3, Consumer3, Lazy};
+			}
+
+			itRendersWithContext('single lazy component', {
+				prep,
+				element: ({Suspense, Provider, Provider2, Provider3, Lazy, fallback}) => (
+					<Suspense fallback={fallback}>
 						<div>
 							<Provider value="val">
 								<Provider2 value="val2">
@@ -241,10 +237,8 @@ function tests(makeContext) {
 							</Provider>
 						</div>
 					</Suspense>
-				);
-
-				const h = await render(e);
-				expect(h).toBe(removeSpacing(`
+				),
+				html: ({openTag}) => (`
 					<div${openTag}>
 						<div>
 							<div>val</div>
@@ -252,26 +246,30 @@ function tests(makeContext) {
 							<div>val3</div>
 						</div>
 					</div>
-				`));
+				`)
 			});
 
-			itRenders('multiple lazy components', async ({render, openTag}) => {
-				const e = (
-					<Suspense fallback={<Fallback />}>
-						<div>
-							<Provider value="val">
-								<Provider2 value="val2">
-									<Provider3 value="val3">
-										<Lazy3 />
-									</Provider3>
-								</Provider2>
-							</Provider>
-						</div>
-					</Suspense>
-				);
+			itRendersWithContext('multiple lazy components', {
+				prep,
+				element({Suspense, lazy, Provider, Provider2, Provider3, Lazy, fallback}) {
+					const Lazy2 = lazy(() => <Lazy />),
+						Lazy3 = lazy(() => <Lazy2 />);
 
-				const h = await render(e);
-				expect(h).toBe(removeSpacing(`
+					return (
+						<Suspense fallback={fallback}>
+							<div>
+								<Provider value="val">
+									<Provider2 value="val2">
+										<Provider3 value="val3">
+											<Lazy3 />
+										</Provider3>
+									</Provider2>
+								</Provider>
+							</div>
+						</Suspense>
+					);
+				},
+				html: ({openTag}) => (`
 					<div${openTag}>
 						<div>
 							<div>val</div>
@@ -279,86 +277,86 @@ function tests(makeContext) {
 							<div>val3</div>
 						</div>
 					</div>
-				`));
+				`)
 			});
 		});
 	});
 
 	describe('into suspense fallback', () => {
-		let Lazy;
-		beforeEach(() => {
-			Lazy = lazy(() => {}, {noSsr: true});
+		// Extend itRenders to add Lazy
+		const itRendersWithLazy = itRendersWithContext.extend({
+			prep: ({lazy}) => ({
+				Lazy: lazy(() => {}, {noSsr: true})
+			})
 		});
 
 		describe('one context', () => {
-			let fallback;
-			beforeEach(() => {
-				fallback = <Consumer>{ctx => ctx}</Consumer>;
+			// Extend itRenders to add fallback containing Consumer
+			const itRendersWithFallbackContext = itRendersWithLazy.extend({
+				prep: ({Consumer}) => ({
+					fallback: <Consumer>{ctx => ctx}</Consumer>
+				})
 			});
 
-			itRenders('when fallback triggered', async ({render}) => {
-				const e = (
+			itRendersWithFallbackContext('when fallback triggered', {
+				element: ({Suspended, Lazy, Provider, fallback}) => (
 					<Provider value="val">
-						<Suspense fallback={fallback}>
+						<Suspended fallback={fallback}>
 							<Lazy />
-						</Suspense>
+						</Suspended>
 					</Provider>
-				);
-
-				const h = await render(e);
-				expect(h).toBe('val');
+				),
+				html: 'val'
 			});
 
-			itRenders('in Suspense\'s scope', async ({render}) => {
-				const e = (
+			itRendersWithFallbackContext("in Suspense's scope", {
+				element: ({Suspended, Lazy, Provider, fallback}) => (
 					<Provider value="val">
-						<Suspense fallback={fallback}>
+						<Suspended fallback={fallback}>
 							<Provider value="valx">
 								<Lazy />
 							</Provider>
-						</Suspense>
+						</Suspended>
 					</Provider>
-				);
-
-				const h = await render(e);
-				expect(h).toBe('val');
+				),
+				html: 'val'
 			});
 		});
 
 		describe('multiple contexts', () => {
-			let Provider2, Consumer2,
-				Provider3, Consumer3,
-				fallback;
-			beforeEach(() => {
-				({Provider: Provider2, Consumer: Consumer2} = makeContext(2));
-				({Provider: Provider3, Consumer: Consumer3} = makeContext(3));
+			// Extend itRenders to add fallback containing Consumers
+			const itRendersWithContextsFallback = itRendersWithLazy.extend({
+				prep({Consumer}) {
+					const {Provider: Provider2, Consumer: Consumer2} = makeContext(2),
+						{Provider: Provider3, Consumer: Consumer3} = makeContext(3);
 
-				fallback = (
-					<div>
-						<div><Consumer>{ctx => ctx}</Consumer></div>
-						<div><Consumer2>{ctx => ctx}</Consumer2></div>
-						<div><Consumer3>{ctx => ctx}</Consumer3></div>
-					</div>
-				);
+					const fallback = (
+						<div>
+							<div><Consumer>{ctx => ctx}</Consumer></div>
+							<div><Consumer2>{ctx => ctx}</Consumer2></div>
+							<div><Consumer3>{ctx => ctx}</Consumer3></div>
+						</div>
+					);
+
+					return {Provider2, Consumer2, Provider3, Consumer3, fallback};
+				}
 			});
 
-			itRenders('when fallback triggered', async ({render, openTag}) => {
-				const e = (
+			itRendersWithContextsFallback('when fallback triggered', {
+				element: ({Suspended, Lazy, Provider, Provider2, Provider3, fallback}) => (
 					<div>
 						<Provider value="val">
 							<Provider2 value="val2">
 								<Provider3 value="val3">
-									<Suspense fallback={fallback}>
+									<Suspended fallback={fallback}>
 										<Lazy />
-									</Suspense>
+									</Suspended>
 								</Provider3>
 							</Provider2>
 						</Provider>
 					</div>
-				);
-
-				const h = await render(e);
-				expect(h).toBe(removeSpacing(`
+				),
+				html: ({openTag}) => (`
 					<div${openTag}>
 						<div>
 							<div>val</div>
@@ -366,16 +364,16 @@ function tests(makeContext) {
 							<div>val3</div>
 						</div>
 					</div>
-				`));
+				`)
 			});
 
-			itRenders('in Suspense\'s scope', async ({render, openTag}) => {
-				const e = (
+			itRendersWithContextsFallback("in Suspense's scope", {
+				element: ({Suspended, Lazy, Provider, Provider2, Provider3, fallback}) => (
 					<div>
 						<Provider value="val">
 							<Provider2 value="val2">
 								<Provider3 value="val3">
-									<Suspense fallback={fallback}>
+									<Suspended fallback={fallback}>
 										<Provider value="valx">
 											<Provider2 value="val2x">
 												<Provider3 value="val3x">
@@ -383,15 +381,13 @@ function tests(makeContext) {
 												</Provider3>
 											</Provider2>
 										</Provider>
-									</Suspense>
+									</Suspended>
 								</Provider3>
 							</Provider2>
 						</Provider>
 					</div>
-				);
-
-				const h = await render(e);
-				expect(h).toBe(removeSpacing(`
+				),
+				html: ({openTag}) => (`
 					<div${openTag}>
 						<div>
 							<div>val</div>
@@ -399,7 +395,7 @@ function tests(makeContext) {
 							<div>val3</div>
 						</div>
 					</div>
-				`));
+				`)
 			});
 		});
 	});

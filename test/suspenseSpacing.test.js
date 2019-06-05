@@ -9,265 +9,243 @@
 const React = require('react');
 
 // Imports
-const {itRendersWithSyncCompare} = require('./utils');
+const itRenders = require('./utils/itRenders');
+
+// Init
+require('./utils');
 
 // Tests
 
-function Fallback() {
-	return <div>Loading...</div>;
-}
-
 describe('suspense spaces correctly', () => {
+	const itRendersWithFallback = itRenders.extend({
+		prep: () => ({
+			fallback: <div>Loading...</div>
+		})
+	});
+
 	describe('with string inside Suspense', () => {
-		itRendersWithSyncCompare('only', async ({render, Suspense}) => {
-			const e = <Suspense fallback={<Fallback />}>Inside</Suspense>;
-			const h = await render(e);
-			expect(h).toBe('Inside');
+		itRendersWithFallback('only', {
+			element: ({Suspense, fallback}) => (
+				<Suspense fallback={fallback}>Inside</Suspense>
+			),
+			html: 'Inside'
 		});
 
 		describe('and string(s)', () => {
-			itRendersWithSyncCompare('before', async ({render, Suspense, isStatic}) => {
-				const e = (
+			itRendersWithFallback('before', {
+				element: ({Suspense, fallback}) => (
 					<div>
 						Before
-						<Suspense fallback={<Fallback />}>Inside</Suspense>
+						<Suspense fallback={fallback}>Inside</Suspense>
 					</div>
-				);
-
-				const h = await render(e);
-				expect(h).toBe(isStatic
-					? '<div>BeforeInside</div>'
-					: '<div data-reactroot="">Before<!-- -->Inside</div>');
+				),
+				htmlStatic: '<div>BeforeInside</div>',
+				htmlNonStatic: '<div data-reactroot="">Before<!-- -->Inside</div>'
 			});
 
-			itRendersWithSyncCompare('after', async ({render, Suspense, isStatic}) => {
-				const e = (
+			itRendersWithFallback('after', {
+				element: ({Suspense, fallback}) => (
 					<div>
-						<Suspense fallback={<Fallback />}>Inside</Suspense>
+						<Suspense fallback={fallback}>Inside</Suspense>
 						After
 					</div>
-				);
-
-				const h = await render(e);
-				expect(h).toBe(isStatic
-					? '<div>InsideAfter</div>'
-					: '<div data-reactroot="">Inside<!-- -->After</div>');
+				),
+				htmlStatic: '<div>InsideAfter</div>',
+				htmlNonStatic: '<div data-reactroot="">Inside<!-- -->After</div>'
 			});
 
-			itRendersWithSyncCompare('before and after', async ({render, Suspense, isStatic}) => {
-				const e = (
+			itRendersWithFallback('before and after', {
+				element: ({Suspense, fallback}) => (
 					<div>
 						Before
-						<Suspense fallback={<Fallback />}>Inside</Suspense>
+						<Suspense fallback={fallback}>Inside</Suspense>
 						After
 					</div>
-				);
-
-				const h = await render(e);
-				expect(h).toBe(isStatic
-					? '<div>BeforeInsideAfter</div>'
-					: '<div data-reactroot="">Before<!-- -->Inside<!-- -->After</div>');
+				),
+				htmlStatic: '<div>BeforeInsideAfter</div>',
+				htmlNonStatic: '<div data-reactroot="">Before<!-- -->Inside<!-- -->After</div>'
 			});
 		});
 
 		describe('and div(s)', () => {
-			itRendersWithSyncCompare('before', async ({render, Suspense, openTag}) => {
-				const e = (
+			itRendersWithFallback('before', {
+				element: ({Suspense, fallback}) => (
 					<div>
 						<div>Before</div>
-						<Suspense fallback={<Fallback />}>Inside</Suspense>
+						<Suspense fallback={fallback}>Inside</Suspense>
 					</div>
-				);
-
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}><div>Before</div>Inside</div>`);
+				),
+				html: ({openTag}) => `<div${openTag}><div>Before</div>Inside</div>`
 			});
 
-			itRendersWithSyncCompare('after', async ({render, Suspense, openTag}) => {
-				const e = (
+			itRendersWithFallback('after', {
+				element: ({Suspense, fallback}) => (
 					<div>
-						<Suspense fallback={<Fallback />}>Inside</Suspense>
+						<Suspense fallback={fallback}>Inside</Suspense>
 						<div>After</div>
 					</div>
-				);
-
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}>Inside<div>After</div></div>`);
+				),
+				html: ({openTag}) => `<div${openTag}>Inside<div>After</div></div>`
 			});
 
-			itRendersWithSyncCompare('before and after', async ({render, Suspense, openTag}) => {
-				const e = (
+			itRendersWithFallback('before and after', {
+				element: ({Suspense, fallback}) => (
 					<div>
 						<div>Before</div>
-						<Suspense fallback={<Fallback />}>Inside</Suspense>
+						<Suspense fallback={fallback}>Inside</Suspense>
 						<div>After</div>
 					</div>
-				);
-
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}><div>Before</div>Inside<div>After</div></div>`);
+				),
+				html: ({openTag}) => `<div${openTag}><div>Before</div>Inside<div>After</div></div>`
 			});
 		});
 	});
 
 	describe('with empty inside Suspense', () => {
-		itRendersWithSyncCompare('only', async ({render, Suspense}) => {
-			const e = <Suspense fallback={<Fallback />} />;
-			const h = await render(e);
-			expect(h).toBe('');
+		itRendersWithFallback('only', {
+			element: ({Suspense, fallback}) => <Suspense fallback={fallback} />,
+			html: ''
 		});
 
 		describe('and string(s)', () => {
-			itRendersWithSyncCompare('before', async ({render, Suspense, openTag}) => {
-				const e = (
+			itRendersWithFallback('before', {
+				element: ({Suspense, fallback}) => (
 					<div>
 						Before
-						<Suspense fallback={<Fallback />} />
+						<Suspense fallback={fallback} />
 					</div>
-				);
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}>Before</div>`);
+				),
+				html: ({openTag}) => `<div${openTag}>Before</div>`
 			});
 
-			itRendersWithSyncCompare('after', async ({render, Suspense, openTag}) => {
-				const e = (
+			itRendersWithFallback('after', {
+				element: ({Suspense, fallback}) => (
 					<div>
-						<Suspense fallback={<Fallback />} />
+						<Suspense fallback={fallback} />
 						After
 					</div>
-				);
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}>After</div>`);
+				),
+				html: ({openTag}) => `<div${openTag}>After</div>`
 			});
 
-			itRendersWithSyncCompare('before and after', async ({render, Suspense, isStatic}) => {
-				const e = (
+			itRendersWithFallback('before and after', {
+				element: ({Suspense, fallback}) => (
 					<div>
 						Before
-						<Suspense fallback={<Fallback />} />
+						<Suspense fallback={fallback} />
 						After
 					</div>
-				);
-				const h = await render(e);
-				expect(h).toBe(isStatic
-					? '<div>BeforeAfter</div>'
-					: '<div data-reactroot="">Before<!-- -->After</div>');
+				),
+				htmlStatic: '<div>BeforeAfter</div>',
+				htmlNonStatic: '<div data-reactroot="">Before<!-- -->After</div>'
 			});
 		});
 
 		describe('and div(s)', () => {
-			itRendersWithSyncCompare('before', async ({render, Suspense, openTag}) => {
-				const e = (
+			itRendersWithFallback('before', {
+				element: ({Suspense, fallback}) => (
 					<div>
 						<div>Before</div>
-						<Suspense fallback={<Fallback />} />
+						<Suspense fallback={fallback} />
 					</div>
-				);
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}><div>Before</div></div>`);
+				),
+				html: ({openTag}) => `<div${openTag}><div>Before</div></div>`
 			});
 
-			itRendersWithSyncCompare('after', async ({render, Suspense, openTag}) => {
-				const e = (
+			itRendersWithFallback('after', {
+				element: ({Suspense, fallback}) => (
 					<div>
-						<Suspense fallback={<Fallback />} />
+						<Suspense fallback={fallback} />
 						<div>After</div>
 					</div>
-				);
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}><div>After</div></div>`);
+				),
+				html: ({openTag}) => `<div${openTag}><div>After</div></div>`
 			});
 
-			itRendersWithSyncCompare('before and after', async ({render, Suspense, openTag}) => {
-				const e = (
+			itRendersWithFallback('before and after', {
+				element: ({Suspense, fallback}) => (
 					<div>
 						<div>Before</div>
-						<Suspense fallback={<Fallback />} />
+						<Suspense fallback={fallback} />
 						<div>After</div>
 					</div>
-				);
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}><div>Before</div><div>After</div></div>`);
+				),
+				html: ({openTag}) => `<div${openTag}><div>Before</div><div>After</div></div>`
 			});
 		});
 	});
 
 	describe('with div inside Suspense', () => {
-		itRendersWithSyncCompare('only', async ({render, Suspense, openTag}) => {
-			const e = <Suspense fallback={<Fallback />}><div>Inside</div></Suspense>;
-			const h = await render(e);
-			expect(h).toBe(`<div${openTag}>Inside</div>`);
+		itRendersWithFallback('only', {
+			element: ({Suspense, fallback}) => (
+				<Suspense fallback={fallback}><div>Inside</div></Suspense>
+			),
+			html: ({openTag}) => `<div${openTag}>Inside</div>`
 		});
 
 		describe('and string(s)', () => {
-			itRendersWithSyncCompare('before', async ({render, Suspense, openTag}) => {
-				const e = (
+			itRendersWithFallback('before', {
+				element: ({Suspense, fallback}) => (
 					<div>
 						Before
-						<Suspense fallback={<Fallback />}><div>Inside</div></Suspense>
+						<Suspense fallback={fallback}><div>Inside</div></Suspense>
 					</div>
-				);
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}>Before<div>Inside</div></div>`);
+				),
+				html: ({openTag}) => `<div${openTag}>Before<div>Inside</div></div>`
 			});
 
-			itRendersWithSyncCompare('after', async ({render, Suspense, openTag}) => {
-				const e = (
+			itRendersWithFallback('after', {
+				element: ({Suspense, fallback}) => (
 					<div>
-						<Suspense fallback={<Fallback />}><div>Inside</div></Suspense>
+						<Suspense fallback={fallback}><div>Inside</div></Suspense>
 						After
 					</div>
-				);
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}><div>Inside</div>After</div>`);
+				),
+				html: ({openTag}) => `<div${openTag}><div>Inside</div>After</div>`
 			});
 
-			itRendersWithSyncCompare('before and after', async ({render, Suspense, openTag}) => {
-				const e = (
+			itRendersWithFallback('before and after', {
+				element: ({Suspense, fallback}) => (
 					<div>
 						Before
-						<Suspense fallback={<Fallback />}><div>Inside</div></Suspense>
+						<Suspense fallback={fallback}><div>Inside</div></Suspense>
 						After
 					</div>
-				);
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}>Before<div>Inside</div>After</div>`);
+				),
+				html: ({openTag}) => `<div${openTag}>Before<div>Inside</div>After</div>`
 			});
 		});
 
 		describe('and div(s)', () => {
-			itRendersWithSyncCompare('before', async ({render, Suspense, openTag}) => {
-				const e = (
+			itRendersWithFallback('before', {
+				element: ({Suspense, fallback}) => (
 					<div>
 						<div>Before</div>
-						<Suspense fallback={<Fallback />}><div>Inside</div></Suspense>
+						<Suspense fallback={fallback}><div>Inside</div></Suspense>
 					</div>
-				);
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}><div>Before</div><div>Inside</div></div>`);
+				),
+				html: ({openTag}) => `<div${openTag}><div>Before</div><div>Inside</div></div>`
 			});
 
-			itRendersWithSyncCompare('after', async ({render, Suspense, openTag}) => {
-				const e = (
+			itRendersWithFallback('after', {
+				element: ({Suspense, fallback}) => (
 					<div>
-						<Suspense fallback={<Fallback />}><div>Inside</div></Suspense>
+						<Suspense fallback={fallback}><div>Inside</div></Suspense>
 						<div>After</div>
 					</div>
-				);
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}><div>Inside</div><div>After</div></div>`);
+				),
+				html: ({openTag}) => `<div${openTag}><div>Inside</div><div>After</div></div>`
 			});
 
-			itRendersWithSyncCompare('before and after', async ({render, Suspense, openTag}) => {
-				const e = (
+			itRendersWithFallback('before and after', {
+				element: ({Suspense, fallback}) => (
 					<div>
 						<div>Before</div>
-						<Suspense fallback={<Fallback />}><div>Inside</div></Suspense>
+						<Suspense fallback={fallback}><div>Inside</div></Suspense>
 						<div>After</div>
 					</div>
-				);
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}><div>Before</div><div>Inside</div><div>After</div></div>`);
+				),
+				html: ({openTag}) => `<div${openTag}><div>Before</div><div>Inside</div><div>After</div></div>`
 			});
 		});
 	});

@@ -9,59 +9,63 @@
 const React = require('react');
 
 // Imports
-const {itRendersWithSyncCompare} = require('./utils');
+const itRenders = require('./utils/itRenders');
+
+// Init
+require('./utils');
 
 // Tests
 
 describe('lazy-loaded components space correctly', () => {
-	const fallback = <div>Fallback</div>;
+	const itRendersWithFallback = itRenders.extend({
+		prep: () => ({
+			fallback: <div>Fallback</div>
+		})
+	});
 
 	describe('with string inside lazy', () => {
-		itRendersWithSyncCompare('only', async ({render, lazy, Suspense}) => {
-			const Lazy = lazy(() => 'Inside');
-			const e = <Suspense fallback={fallback}><Lazy /></Suspense>;
-			const h = await render(e);
-			expect(h).toBe('Inside');
+		const itRendersWithLazy = itRendersWithFallback.extend({
+			prep: ({lazy}) => ({
+				Lazy: lazy(() => 'Inside')
+			})
+		});
+
+		itRendersWithLazy('only', {
+			element: ({Suspense, Lazy, fallback}) => (
+				<Suspense fallback={fallback}><Lazy /></Suspense>
+			),
+			html: 'Inside'
 		});
 
 		describe('and string(s)', () => {
-			itRendersWithSyncCompare('before', async ({render, lazy, Suspense, isStatic}) => {
-				const Lazy = lazy(() => 'Inside');
-				const e = (
+			itRendersWithLazy('before', {
+				element: ({Suspense, Lazy, fallback}) => (
 					<Suspense fallback={fallback}>
 						<div>
 							Before
 							<Lazy />
 						</div>
 					</Suspense>
-				);
-
-				const h = await render(e);
-				expect(h).toBe(isStatic
-					? '<div>BeforeInside</div>'
-					: '<div data-reactroot="">Before<!-- -->Inside</div>');
+				),
+				htmlStatic: '<div>BeforeInside</div>',
+				htmlNonStatic: '<div data-reactroot="">Before<!-- -->Inside</div>'
 			});
 
-			itRendersWithSyncCompare('after', async ({render, lazy, Suspense, isStatic}) => {
-				const Lazy = lazy(() => 'Inside');
-				const e = (
+			itRendersWithLazy('after', {
+				element: ({Suspense, Lazy, fallback}) => (
 					<Suspense fallback={fallback}>
 						<div>
 							<Lazy />
 							After
 						</div>
 					</Suspense>
-				);
-
-				const h = await render(e);
-				expect(h).toBe(isStatic
-					? '<div>InsideAfter</div>'
-					: '<div data-reactroot="">Inside<!-- -->After</div>');
+				),
+				htmlStatic: '<div>InsideAfter</div>',
+				htmlNonStatic: '<div data-reactroot="">Inside<!-- -->After</div>'
 			});
 
-			itRendersWithSyncCompare('before and after', async ({render, lazy, Suspense, isStatic}) => {
-				const Lazy = lazy(() => 'Inside');
-				const e = (
+			itRendersWithLazy('before and after', {
+				element: ({Suspense, Lazy, fallback}) => (
 					<Suspense fallback={fallback}>
 						<div>
 							Before
@@ -69,49 +73,39 @@ describe('lazy-loaded components space correctly', () => {
 							After
 						</div>
 					</Suspense>
-				);
-
-				const h = await render(e);
-				expect(h).toBe(isStatic
-					? '<div>BeforeInsideAfter</div>'
-					: '<div data-reactroot="">Before<!-- -->Inside<!-- -->After</div>');
+				),
+				htmlStatic: '<div>BeforeInsideAfter</div>',
+				htmlNonStatic: '<div data-reactroot="">Before<!-- -->Inside<!-- -->After</div>'
 			});
 		});
 
 		describe('and div(s)', () => {
-			itRendersWithSyncCompare('before', async ({render, lazy, Suspense, openTag}) => {
-				const Lazy = lazy(() => 'Inside');
-				const e = (
+			itRendersWithLazy('before', {
+				element: ({Suspense, Lazy, fallback}) => (
 					<Suspense fallback={fallback}>
 						<div>
 							<div>Before</div>
 							<Lazy />
 						</div>
 					</Suspense>
-				);
-
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}><div>Before</div>Inside</div>`);
+				),
+				html: ({openTag}) => `<div${openTag}><div>Before</div>Inside</div>`
 			});
 
-			itRendersWithSyncCompare('after', async ({render, lazy, Suspense, openTag}) => {
-				const Lazy = lazy(() => 'Inside');
-				const e = (
+			itRendersWithLazy('after', {
+				element: ({Suspense, Lazy, fallback}) => (
 					<Suspense fallback={fallback}>
 						<div>
 							<Lazy />
 							<div>After</div>
 						</div>
 					</Suspense>
-				);
-
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}>Inside<div>After</div></div>`);
+				),
+				html: ({openTag}) => `<div${openTag}>Inside<div>After</div></div>`
 			});
 
-			itRendersWithSyncCompare('before and after', async ({render, lazy, Suspense, openTag}) => {
-				const Lazy = lazy(() => 'Inside');
-				const e = (
+			itRendersWithLazy('before and after', {
+				element: ({Suspense, Lazy, fallback}) => (
 					<Suspense fallback={fallback}>
 						<div>
 							<div>Before</div>
@@ -119,54 +113,53 @@ describe('lazy-loaded components space correctly', () => {
 							<div>After</div>
 						</div>
 					</Suspense>
-				);
-
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}><div>Before</div>Inside<div>After</div></div>`);
+				),
+				html: ({openTag}) => `<div${openTag}><div>Before</div>Inside<div>After</div></div>`
 			});
 		});
 	});
 
 	describe('with empty inside lazy', () => {
-		itRendersWithSyncCompare('only', async ({render, lazy, Suspense}) => {
-			const Lazy = lazy(() => null);
-			const e = <Suspense fallback={fallback}><Lazy /></Suspense>;
-			const h = await render(e);
-			expect(h).toBe('');
+		const itRendersWithLazy = itRendersWithFallback.extend({
+			prep: ({lazy}) => ({
+				Lazy: lazy(() => null)
+			})
+		});
+
+		itRendersWithLazy('only', {
+			element: ({Suspense, Lazy, fallback}) => (
+				<Suspense fallback={fallback}><Lazy /></Suspense>
+			),
+			html: ''
 		});
 
 		describe('and string(s)', () => {
-			itRendersWithSyncCompare('before', async ({render, lazy, Suspense, openTag}) => {
-				const Lazy = lazy(() => null);
-				const e = (
+			itRendersWithLazy('before', {
+				element: ({Suspense, Lazy, fallback}) => (
 					<Suspense fallback={fallback}>
 						<div>
-						Before
+							Before
 							<Lazy />
 						</div>
 					</Suspense>
-				);
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}>Before</div>`);
+				),
+				html: ({openTag}) => `<div${openTag}>Before</div>`
 			});
 
-			itRendersWithSyncCompare('after', async ({render, lazy, Suspense, openTag}) => {
-				const Lazy = lazy(() => null);
-				const e = (
+			itRendersWithLazy('after', {
+				element: ({Suspense, Lazy, fallback}) => (
 					<Suspense fallback={fallback}>
 						<div>
 							<Lazy />
 							After
 						</div>
 					</Suspense>
-				);
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}>After</div>`);
+				),
+				html: ({openTag}) => `<div${openTag}>After</div>`
 			});
 
-			itRendersWithSyncCompare('before and after', async ({render, lazy, Suspense, isStatic}) => {
-				const Lazy = lazy(() => null);
-				const e = (
+			itRendersWithLazy('before and after', {
+				element: ({Suspense, Lazy, fallback}) => (
 					<Suspense fallback={fallback}>
 						<div>
 							Before
@@ -174,46 +167,39 @@ describe('lazy-loaded components space correctly', () => {
 							After
 						</div>
 					</Suspense>
-				);
-				const h = await render(e);
-				expect(h).toBe(isStatic
-					? '<div>BeforeAfter</div>'
-					: '<div data-reactroot="">Before<!-- -->After</div>');
+				),
+				htmlStatic: '<div>BeforeAfter</div>',
+				htmlNonStatic: '<div data-reactroot="">Before<!-- -->After</div>'
 			});
 		});
 
 		describe('and div(s)', () => {
-			itRendersWithSyncCompare('before', async ({render, lazy, Suspense, openTag}) => {
-				const Lazy = lazy(() => null);
-				const e = (
+			itRendersWithLazy('before', {
+				element: ({Suspense, Lazy, fallback}) => (
 					<Suspense fallback={fallback}>
 						<div>
 							<div>Before</div>
 							<Lazy />
 						</div>
 					</Suspense>
-				);
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}><div>Before</div></div>`);
+				),
+				html: ({openTag}) => `<div${openTag}><div>Before</div></div>`
 			});
 
-			itRendersWithSyncCompare('after', async ({render, lazy, Suspense, openTag}) => {
-				const Lazy = lazy(() => null);
-				const e = (
+			itRendersWithLazy('after', {
+				element: ({Suspense, Lazy, fallback}) => (
 					<Suspense fallback={fallback}>
 						<div>
 							<Lazy />
 							<div>After</div>
 						</div>
 					</Suspense>
-				);
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}><div>After</div></div>`);
+				),
+				html: ({openTag}) => `<div${openTag}><div>After</div></div>`
 			});
 
-			itRendersWithSyncCompare('before and after', async ({render, lazy, Suspense, openTag}) => {
-				const Lazy = lazy(() => null);
-				const e = (
+			itRendersWithLazy('before and after', {
+				element: ({Suspense, Lazy, fallback}) => (
 					<Suspense fallback={fallback}>
 						<div>
 							<div>Before</div>
@@ -221,53 +207,53 @@ describe('lazy-loaded components space correctly', () => {
 							<div>After</div>
 						</div>
 					</Suspense>
-				);
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}><div>Before</div><div>After</div></div>`);
+				),
+				html: ({openTag}) => `<div${openTag}><div>Before</div><div>After</div></div>`
 			});
 		});
 	});
 
 	describe('with div inside lazy', () => {
-		itRendersWithSyncCompare('only', async ({render, lazy, Suspense, openTag}) => {
-			const Lazy = lazy(() => <div>Inside</div>);
-			const e = <Suspense fallback={fallback}><Lazy /></Suspense>;
-			const h = await render(e);
-			expect(h).toBe(`<div${openTag}>Inside</div>`);
+		const itRendersWithLazy = itRendersWithFallback.extend({
+			prep: ({lazy}) => ({
+				Lazy: lazy(() => <div>Inside</div>)
+			})
+		});
+
+		itRendersWithLazy('only', {
+			element: ({Suspense, Lazy, fallback}) => (
+				<Suspense fallback={fallback}><Lazy /></Suspense>
+			),
+			html: ({openTag}) => `<div${openTag}>Inside</div>`
 		});
 
 		describe('and string(s)', () => {
-			itRendersWithSyncCompare('before', async ({render, lazy, Suspense, openTag}) => {
-				const Lazy = lazy(() => <div>Inside</div>);
-				const e = (
+			itRendersWithLazy('before', {
+				element: ({Suspense, Lazy, fallback}) => (
 					<Suspense fallback={fallback}>
 						<div>
 							Before
 							<Lazy />
 						</div>
 					</Suspense>
-				);
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}>Before<div>Inside</div></div>`);
+				),
+				html: ({openTag}) => `<div${openTag}>Before<div>Inside</div></div>`
 			});
 
-			itRendersWithSyncCompare('after', async ({render, lazy, Suspense, openTag}) => {
-				const Lazy = lazy(() => <div>Inside</div>);
-				const e = (
+			itRendersWithLazy('after', {
+				element: ({Suspense, Lazy, fallback}) => (
 					<Suspense fallback={fallback}>
 						<div>
 							<Lazy />
 							After
 						</div>
 					</Suspense>
-				);
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}><div>Inside</div>After</div>`);
+				),
+				html: ({openTag}) => `<div${openTag}><div>Inside</div>After</div>`
 			});
 
-			itRendersWithSyncCompare('before and after', async ({render, lazy, Suspense, openTag}) => {
-				const Lazy = lazy(() => <div>Inside</div>);
-				const e = (
+			itRendersWithLazy('before and after', {
+				element: ({Suspense, Lazy, fallback}) => (
 					<Suspense fallback={fallback}>
 						<div>
 							Before
@@ -275,44 +261,38 @@ describe('lazy-loaded components space correctly', () => {
 							After
 						</div>
 					</Suspense>
-				);
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}>Before<div>Inside</div>After</div>`);
+				),
+				html: ({openTag}) => `<div${openTag}>Before<div>Inside</div>After</div>`
 			});
 		});
 
 		describe('and div(s)', () => {
-			itRendersWithSyncCompare('before', async ({render, lazy, Suspense, openTag}) => {
-				const Lazy = lazy(() => <div>Inside</div>);
-				const e = (
+			itRendersWithLazy('before', {
+				element: ({Suspense, Lazy, fallback}) => (
 					<Suspense fallback={fallback}>
 						<div>
 							<div>Before</div>
 							<Lazy />
 						</div>
 					</Suspense>
-				);
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}><div>Before</div><div>Inside</div></div>`);
+				),
+				html: ({openTag}) => `<div${openTag}><div>Before</div><div>Inside</div></div>`
 			});
 
-			itRendersWithSyncCompare('after', async ({render, lazy, Suspense, openTag}) => {
-				const Lazy = lazy(() => <div>Inside</div>);
-				const e = (
+			itRendersWithLazy('after', {
+				element: ({Suspense, Lazy, fallback}) => (
 					<Suspense fallback={fallback}>
 						<div>
 							<Lazy />
 							<div>After</div>
 						</div>
 					</Suspense>
-				);
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}><div>Inside</div><div>After</div></div>`);
+				),
+				html: ({openTag}) => `<div${openTag}><div>Inside</div><div>After</div></div>`
 			});
 
-			itRendersWithSyncCompare('before and after', async ({render, lazy, Suspense, openTag}) => {
-				const Lazy = lazy(() => <div>Inside</div>);
-				const e = (
+			itRendersWithLazy('before and after', {
+				element: ({Suspense, Lazy, fallback}) => (
 					<Suspense fallback={fallback}>
 						<div>
 							<div>Before</div>
@@ -320,9 +300,8 @@ describe('lazy-loaded components space correctly', () => {
 							<div>After</div>
 						</div>
 					</Suspense>
-				);
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}><div>Before</div><div>Inside</div><div>After</div></div>`);
+				),
+				html: ({openTag}) => `<div${openTag}><div>Before</div><div>Inside</div><div>After</div></div>`
 			});
 		});
 	});

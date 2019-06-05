@@ -9,88 +9,94 @@
 const React = require('react');
 
 // Imports
-const {itRendersWithSyncCompare} = require('./utils');
+const itRenders = require('./utils/itRenders');
+
+// Init
+require('./utils');
 
 // Tests
 
 describe('without Suspense', () => {
 	describe('plain', () => {
-		itRendersWithSyncCompare('string', async ({render}) => {
-			const e = 'text';
-			const h = await render(e);
-			expect(h).toBe('text');
+		itRenders('string', {
+			element: () => 'text',
+			html: 'text'
 		});
 
-		itRendersWithSyncCompare('div', async ({render, openTag}) => {
-			const e = <div>text</div>;
-			const h = await render(e);
-			expect(h).toBe(`<div${openTag}>text</div>`);
+		itRenders('div', {
+			element: () => <div>text</div>,
+			html: ({openTag}) => `<div${openTag}>text</div>`
 		});
 
-		itRendersWithSyncCompare('nested divs', async ({render, openTag}) => {
-			const e = <div><div>text</div></div>;
-			const h = await render(e);
-			expect(h).toBe(`<div${openTag}><div>text</div></div>`);
+		itRenders('nested divs', {
+			element: () => <div><div>text</div></div>,
+			html: ({openTag}) => `<div${openTag}><div>text</div></div>`
 		});
 	});
 
 	describe('in function component', () => {
-		itRendersWithSyncCompare('string', async ({render}) => {
-			const Comp = () => 'text';
-			const e = <Comp />;
-			const h = await render(e);
-			expect(h).toBe('text');
+		itRenders('string', {
+			element() {
+				const Comp = () => 'text';
+				return <Comp />;
+			},
+			html: 'text'
 		});
 
-		itRendersWithSyncCompare('div', async ({render, openTag}) => {
-			const Comp = () => <div>text</div>;
-			const e = <Comp />;
-			const h = await render(e);
-			expect(h).toBe(`<div${openTag}>text</div>`);
+		itRenders('div', {
+			element() {
+				const Comp = () => <div>text</div>;
+				return <Comp />;
+			},
+			html: ({openTag}) => `<div${openTag}>text</div>`
 		});
 
-		itRendersWithSyncCompare('nested divs', async ({render, openTag}) => {
-			const Comp = () => <div><div>text</div></div>;
-			const e = <Comp />;
-			const h = await render(e);
-			expect(h).toBe(`<div${openTag}><div>text</div></div>`);
+		itRenders('nested divs', {
+			element() {
+				const Comp = () => <div><div>text</div></div>;
+				return <Comp />;
+			},
+			html: ({openTag}) => `<div${openTag}><div>text</div></div>`
 		});
 	});
 
 	describe('in class component', () => {
-		itRendersWithSyncCompare('string', async ({render}) => {
-			class Comp extends React.Component {
-				render() {
-					return 'text';
+		itRenders('string', {
+			element() {
+				class Comp extends React.Component {
+					render() {
+						return 'text';
+					}
 				}
-			}
-			const e = <Comp />;
-			const h = await render(e);
-			expect(h).toBe('text');
+				return <Comp />;
+			},
+			html: 'text'
 		});
 
-		itRendersWithSyncCompare('div', async ({render, openTag}) => {
-			// eslint-disable-next-line react/prefer-stateless-function
-			class Comp extends React.Component {
-				render() {
-					return <div>text</div>;
+		itRenders('div', {
+			element() {
+				// eslint-disable-next-line react/prefer-stateless-function
+				class Comp extends React.Component {
+					render() {
+						return <div>text</div>;
+					}
 				}
-			}
-			const e = <Comp />;
-			const h = await render(e);
-			expect(h).toBe(`<div${openTag}>text</div>`);
+				return <Comp />;
+			},
+			html: ({openTag}) => `<div${openTag}>text</div>`
 		});
 
-		itRendersWithSyncCompare('nested divs', async ({render, openTag}) => {
-			// eslint-disable-next-line react/prefer-stateless-function
-			class Comp extends React.Component {
-				render() {
-					return <div><div>text</div></div>;
+		itRenders('nested divs', {
+			element() {
+				// eslint-disable-next-line react/prefer-stateless-function
+				class Comp extends React.Component {
+					render() {
+						return <div><div>text</div></div>;
+					}
 				}
-			}
-			const e = <Comp />;
-			const h = await render(e);
-			expect(h).toBe(`<div${openTag}><div>text</div></div>`);
+				return <Comp />;
+			},
+			html: ({openTag}) => `<div${openTag}><div>text</div></div>`
 		});
 	});
 });

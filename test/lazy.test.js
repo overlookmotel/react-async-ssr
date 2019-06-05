@@ -6,28 +6,33 @@
 'use strict';
 
 // Modules
-const React = require('react'),
-	{Suspense} = React;
+const React = require('react');
 
 // Imports
-const {itRenders, lazy, removeSpacing, preventUnhandledRejection} = require('./utils');
+const itRenders = require('./utils/itRenders');
+
+// Init
+require('./utils');
 
 // Globals
 const spy = jest.fn;
 
 // Constants
-const NO_SUSPENSE_ERROR = /^A React component suspended while rendering, but no fallback UI was specified.\n\nAdd a <Suspense fallback=\.\.\.> component higher in the tree to provide a loading indicator or placeholder to display\.$/;
+const NO_SUSPENSE_ERROR = 'A React component suspended while rendering, '
+	+ 'but no fallback UI was specified.\n\n'
+	+ 'Add a <Suspense fallback=...> component higher in the tree to provide '
+	+ 'a loading indicator or placeholder to display.';
 
 // Tests
 
 describe('lazy component', () => {
 	describe('inside Suspense', () => {
 		describe('when promise not marked SSR', () => {
-			let e, Lazy;
-			beforeEach(() => {
-				Lazy = lazy(() => <div>Lazy inner</div>);
-
-				e = (
+			const itRendersThis = itRenders.extend({
+				prep: ({lazy}) => ({
+					Lazy: lazy(() => <div>Lazy inner</div>)
+				}),
+				element: ({Suspense, Lazy}) => (
 					<div>
 						<div>Before Suspense</div>
 						<Suspense fallback={<span>Fallback</span>}>
@@ -37,12 +42,11 @@ describe('lazy component', () => {
 						</Suspense>
 						<div>After Suspense</div>
 					</div>
-				);
+				)
 			});
 
-			itRenders('renders lazily', async ({render, openTag}) => {
-				const h = await render(e);
-				expect(h).toBe(removeSpacing(`
+			itRendersThis('renders lazily', {
+				html: ({openTag}) => (`
 					<div${openTag}>
 						<div>Before Suspense</div>
 						<div>Before Lazy</div>
@@ -50,107 +54,113 @@ describe('lazy component', () => {
 						<div>After Lazy</div>
 						<div>After Suspense</div>
 					</div>
-				`));
+				`)
 			});
 
-			itRenders('calls [ON_MOUNT] on promise with true', async ({render}) => {
-				await render(e);
-				expect(Lazy).toBeMountedWith(true);
+			itRendersThis('calls [ON_MOUNT] on promise with true', {
+				test({Lazy}) {
+					expect(Lazy).toBeMountedWith(true);
+				}
 			});
 		});
 
 		describe('when promise marked no SSR', () => {
 			describe('standard fallback', () => {
-				let e, Lazy;
-				beforeEach(() => {
-					Lazy = lazy(() => <div>Lazy inner</div>, {noSsr: true});
-
-					e = (
+				const itRendersThis = itRenders.extend({
+					prep: ({lazy}) => ({
+						Lazy: lazy(() => <div>Lazy inner</div>, {noSsr: true})
+					}),
+					element: ({Suspended, Lazy}) => (
 						<div>
 							<div>Before Suspense</div>
-							<Suspense fallback={<span>Fallback</span>}>
+							<Suspended fallback={<span>Fallback</span>}>
 								<div>Before Lazy</div>
 								<Lazy />
 								<div>After Lazy</div>
-							</Suspense>
+							</Suspended>
 							<div>After Suspense</div>
 						</div>
-					);
+					)
 				});
 
-				itRenders('renders fallback', async ({render, openTag}) => {
-					const h = await render(e);
-					expect(h).toBe(removeSpacing(`
+				itRendersThis('renders fallback', {
+					html: ({openTag}) => (`
 						<div${openTag}>
 							<div>Before Suspense</div>
 							<span>Fallback</span>
 							<div>After Suspense</div>
 						</div>
-					`));
+					`)
 				});
 
-				itRenders('calls [ON_MOUNT] on promise with false when fallbackFast mode disabled', async ({render}) => {
-					await render(e);
-					expect(Lazy).toBeMountedWith(false);
-				}, {fallbackFast: false});
+				itRendersThis('calls [ON_MOUNT] on promise with false when fallbackFast mode disabled', {
+					fallbackFast: false,
+					test({Lazy}) {
+						expect(Lazy).toBeMountedWith(false);
+					}
+				});
 
-				itRenders('does not call [ON_MOUNT] on promise when fallbackFast mode enabled', async ({render}) => {
-					await render(e);
-					expect(Lazy).not.toBeMounted();
-				}, {fallbackFast: true});
+				itRendersThis('does not call [ON_MOUNT] on promise when fallbackFast mode enabled', {
+					fallbackFast: true,
+					test({Lazy}) {
+						expect(Lazy).not.toBeMounted();
+					}
+				});
 			});
 
-			itRenders('rejects when fallback throws promise and not inside another Suspense', async ({render}) => {
-				const Lazy = lazy(() => <div>Lazy inner</div>, {noSsr: true});
-				const LazyFallback = lazy(() => <div>Fallback</div>);
+			itRenders('rejects when fallback throws promise and not inside another Suspense', {
+				element({Suspended, lazy}) {
+					const Lazy = lazy(() => <div>Lazy inner</div>, {noSsr: true}),
+						LazyFallback = lazy(() => <div>Fallback</div>);
 
-				const e = (
-					<div>
-						<div>Before Suspense</div>
-						<Suspense fallback={<LazyFallback />}>
-							<div>Before Lazy</div>
-							<Lazy />
-							<div>After Lazy</div>
-						</Suspense>
-						<div>After Suspense</div>
-					</div>
-				);
-
-				const p = render(e);
-				await expect(p).rejects.toThrow(NO_SUSPENSE_ERROR);
+					return (
+						<div>
+							<div>Before Suspense</div>
+							<Suspended fallback={<LazyFallback />}>
+								<div>Before Lazy</div>
+								<Lazy />
+								<div>After Lazy</div>
+							</Suspended>
+							<div>After Suspense</div>
+						</div>
+					);
+				},
+				async testPromise({promise}) {
+					await expect(promise).rejects.toThrow(new Error(NO_SUSPENSE_ERROR));
+				}
 			});
 
 			describe('when fallback includes lazy component and inside another Suspense', () => {
-				let e, Lazy, LazyFallback, Fallback;
-				beforeEach(() => {
-					Lazy = lazy(() => <div>Lazy inner</div>, {noSsr: true});
-					LazyFallback = lazy(() => <div>Lazy fallback</div>);
-					Fallback = () => (
-						<div>
-							<div>Before Fallback</div>
-							<LazyFallback />
-							<div>After Fallback</div>
-						</div>
-					);
-
-					e = (
+				const itRendersThis = itRenders.extend({
+					prep({lazy}) {
+						const Lazy = lazy(() => <div>Lazy inner</div>, {noSsr: true}),
+							LazyFallback = lazy(() => <div>Lazy fallback</div>),
+							Fallback = () => (
+								<div>
+									<div>Before Fallback</div>
+									<LazyFallback />
+									<div>After Fallback</div>
+								</div>
+							);
+						return {Lazy, LazyFallback, Fallback};
+					},
+					element: ({Suspense, Suspended, Lazy, Fallback}) => (
 						<Suspense fallback={<span>Fallback outer</span>}>
 							<div>
 								<div>Before Suspense</div>
-								<Suspense fallback={<Fallback />}>
+								<Suspended fallback={<Fallback />}>
 									<div>Before Lazy</div>
 									<Lazy />
 									<div>After Lazy</div>
-								</Suspense>
+								</Suspended>
 								<div>After Suspense</div>
 							</div>
 						</Suspense>
-					);
+					)
 				});
 
-				itRenders('renders fallback', async ({render, openTag}) => {
-					const h = await render(e);
-					expect(h).toBe(removeSpacing(`
+				itRendersThis('renders fallback', {
+					html: ({openTag}) => (`
 						<div${openTag}>
 							<div>Before Suspense</div>
 							<div>
@@ -160,36 +170,42 @@ describe('lazy component', () => {
 							</div>
 							<div>After Suspense</div>
 						</div>
-					`));
+					`)
 				});
 
-				itRenders('calls [ON_MOUNT] on promises when fallbackFast mode disabled', async ({render}) => {
-					await render(e);
-					expect(Lazy).toBeMountedWith(false);
-					expect(LazyFallback).toBeMountedWith(true);
-					expect(Lazy).toBeMountedBefore(LazyFallback);
-				}, {fallbackFast: false});
+				itRendersThis('calls [ON_MOUNT] on promises when fallbackFast mode disabled', {
+					fallbackFast: false,
+					test({Lazy, LazyFallback}) {
+						expect(Lazy).toBeMountedWith(false);
+						expect(LazyFallback).toBeMountedWith(true);
+						expect(Lazy).toBeMountedBefore(LazyFallback);
+					}
+				});
 
-				itRenders('does not call [ON_MOUNT] on lazy promise when fallbackFast mode enabled', async ({render}) => {
-					await render(e);
-					expect(Lazy).not.toBeMounted();
-				}, {fallbackFast: true});
+				itRendersThis('does not call [ON_MOUNT] on lazy promise when fallbackFast mode enabled', {
+					fallbackFast: true,
+					test({Lazy}) {
+						expect(Lazy).not.toBeMounted();
+					}
+				});
 
-				itRenders('calls [ON_MOUNT] on lazy fallback when fallbackFast mode enabled', async ({render}) => {
-					await render(e);
-					expect(LazyFallback).toBeMountedWith(true);
-				}, {fallbackFast: true});
+				itRendersThis('calls [ON_MOUNT] on lazy fallback when fallbackFast mode enabled', {
+					fallbackFast: true,
+					test({LazyFallback}) {
+						expect(LazyFallback).toBeMountedWith(true);
+					}
+				});
 			});
 		});
 	});
 
 	describe('inside nested Suspenses', () => {
 		describe('when promise not marked no SSR', () => {
-			let e, Lazy;
-			beforeEach(() => {
-				Lazy = lazy(() => <div>Lazy inner</div>);
-
-				e = (
+			const itRendersThis = itRenders.extend({
+				prep: ({lazy}) => ({
+					Lazy: lazy(() => <div>Lazy inner</div>)
+				}),
+				element: ({Suspense, Lazy}) => (
 					<div>
 						<div>Before outer Suspense</div>
 						<Suspense fallback={<span>Fallback outer</span>}>
@@ -203,12 +219,11 @@ describe('lazy component', () => {
 						</Suspense>
 						<div>After outer Suspense</div>
 					</div>
-				);
+				)
 			});
 
-			itRenders('renders lazily', async ({render, openTag}) => {
-				const h = await render(e);
-				expect(h).toBe(removeSpacing(`
+			itRendersThis('renders lazily', {
+				html: ({openTag}) => (`
 					<div${openTag}>
 						<div>Before outer Suspense</div>
 						<div>Before inner Suspense</div>
@@ -218,40 +233,40 @@ describe('lazy component', () => {
 						<div>After inner Suspense</div>
 						<div>After outer Suspense</div>
 					</div>
-				`));
+				`)
 			});
 
-			itRenders('calls [ON_MOUNT] on promise with true', async ({render}) => {
-				await render(e);
-				expect(Lazy).toBeMountedWith(true);
+			itRendersThis('calls [ON_MOUNT] on promise with true', {
+				test({Lazy}) {
+					expect(Lazy).toBeMountedWith(true);
+				}
 			});
 		});
 
 		describe('when promise marked no SSR', () => {
-			let e, Lazy;
-			beforeEach(() => {
-				Lazy = lazy(() => <div>Lazy inner</div>, {noSsr: true});
-
-				e = (
+			const itRendersThis = itRenders.extend({
+				prep: ({lazy}) => ({
+					Lazy: lazy(() => <div>Lazy inner</div>, {noSsr: true})
+				}),
+				element: ({Suspense, Suspended, Lazy}) => (
 					<div>
 						<div>Before outer Suspense</div>
 						<Suspense fallback={<span>Fallback outer</span>}>
 							<div>Before inner Suspense</div>
-							<Suspense fallback={<span>Fallback inner</span>}>
+							<Suspended fallback={<span>Fallback inner</span>}>
 								<div>Before Lazy</div>
 								<Lazy />
 								<div>After Lazy</div>
-							</Suspense>
+							</Suspended>
 							<div>After inner Suspense</div>
 						</Suspense>
 						<div>After outer Suspense</div>
 					</div>
-				);
+				)
 			});
 
-			itRenders('renders fallback of inner Suspense', async ({render, openTag}) => {
-				const h = await render(e);
-				expect(h).toBe(removeSpacing(`
+			itRendersThis('renders fallback of inner Suspense', {
+				html: ({openTag}) => (`
 					<div${openTag}>
 						<div>Before outer Suspense</div>
 						<div>Before inner Suspense</div>
@@ -259,32 +274,134 @@ describe('lazy component', () => {
 						<div>After inner Suspense</div>
 						<div>After outer Suspense</div>
 					</div>
-				`));
+				`)
 			});
 
-			itRenders('calls [ON_MOUNT] on promise with false when fallbackFast disabled', async ({render}) => {
-				await render(e);
-				expect(Lazy).toBeMountedWith(false);
-			}, {fallbackFast: false});
+			itRendersThis('calls [ON_MOUNT] on promise with false when fallbackFast disabled', {
+				fallbackFast: false,
+				test({Lazy}) {
+					expect(Lazy).toBeMountedWith(false);
+				}
+			});
 
-			itRenders('does not call [ON_MOUNT] on promise when fallbackFast enabled', async ({render}) => {
-				await render(e);
-				expect(Lazy).not.toBeMounted();
-			}, {fallbackFast: true});
+			itRendersThis('does not call [ON_MOUNT] on promise when fallbackFast enabled', {
+				fallbackFast: true,
+				test({Lazy}) {
+					expect(Lazy).not.toBeMounted();
+				}
+			});
 		});
 
 		describe('when marked no SSR and inner fallback throws promise marked no SSR', () => {
-			let e, Lazy, LazyFallback;
-			beforeEach(() => {
-				Lazy = lazy(() => <div>Lazy inner</div>, {noSsr: true});
-				LazyFallback = lazy(() => <div>Lazy fallback</div>, {noSsr: true});
-
-				e = (
+			const itRendersThis = itRenders.extend({
+				prep: ({lazy}) => ({
+					Lazy: lazy(() => <div>Lazy inner</div>, {noSsr: true}),
+					LazyFallback: lazy(() => <div>Lazy fallback</div>, {noSsr: true})
+				}),
+				element: ({Suspended, Lazy, LazyFallback}) => (
 					<div>
 						<div>Before outer Suspense</div>
-						<Suspense fallback={<span>Fallback outer</span>}>
+						<Suspended fallback={<span>Fallback outer</span>}>
 							<div>Before inner Suspense</div>
-							<Suspense fallback={<LazyFallback />}>
+							<Suspended fallback={<LazyFallback />}>
+								<div>Before Lazy</div>
+								<Lazy />
+								<div>After Lazy</div>
+							</Suspended>
+							<div>After inner Suspense</div>
+						</Suspended>
+						<div>After outer Suspense</div>
+					</div>
+				)
+			});
+
+			itRendersThis('renders fallback', {
+				html: ({openTag}) => (`
+					<div${openTag}>
+						<div>Before outer Suspense</div>
+						<span>Fallback outer</span>
+						<div>After outer Suspense</div>
+					</div>
+				`)
+			});
+
+			itRendersThis('calls [ON_MOUNT] on lazy promise and fallback promise with false when fallbackFast disabled', {
+				fallbackFast: false,
+				test({Lazy, LazyFallback}) {
+					expect(Lazy).toBeMountedWith(false);
+					expect(LazyFallback).toBeMountedWith(false);
+					expect(Lazy).toBeMountedBefore(LazyFallback);
+				}
+			});
+
+			itRendersThis('does not call [ON_MOUNT] on lazy promise or fallback promise when fallbackFast enabled', {
+				fallbackFast: true,
+				test({Lazy, LazyFallback}) {
+					expect(Lazy).not.toBeMounted();
+					expect(LazyFallback).not.toBeMounted();
+				}
+			});
+		});
+
+		describe('when marked no SSR and inner Suspense has no fallback', () => {
+			const itRendersThis = itRenders.extend({
+				prep: ({lazy}) => ({
+					Lazy: lazy(() => <div>Lazy inner</div>, {noSsr: true})
+				}),
+				element: ({Suspense, Suspended, Lazy}) => (
+					<div>
+						<div>Before outer Suspense</div>
+						<Suspended fallback={<span>Fallback outer</span>}>
+							<div>Before inner Suspense</div>
+							<Suspense>
+								<div>Before Lazy</div>
+								<Lazy />
+								<div>After Lazy</div>
+							</Suspense>
+							<div>After inner Suspense</div>
+						</Suspended>
+						<div>After outer Suspense</div>
+					</div>
+				)
+			});
+
+			itRendersThis('renders fallback of outer Suspense', {
+				html: ({openTag}) => (`
+					<div${openTag}>
+						<div>Before outer Suspense</div>
+						<span>Fallback outer</span>
+						<div>After outer Suspense</div>
+					</div>
+				`)
+			});
+
+			itRendersThis('calls [ON_MOUNT] on lazy promise with false when fallbackFast disabled', {
+				fallbackFast: false,
+				test({Lazy}) {
+					expect(Lazy).toBeMountedWith(false);
+				}
+			});
+
+			itRendersThis('does not call [ON_MOUNT] on lazy promise when fallbackFast enabled', {
+				fallbackFast: true,
+				test({Lazy}) {
+					expect(Lazy).not.toBeMounted();
+				}
+			});
+		});
+
+		itRenders('rejects when promise marked no SSR and inner fallback throws promise marked no SSR and outer fallback throws promise', {
+			element({Suspense, lazy}) {
+				const Lazy = lazy(() => <div>Lazy inner</div>, {noSsr: true}),
+					LazyFallbackInner = lazy(() => <div>Fallback inner</div>, {noSsr: true}),
+					LazyFallbackOuter = lazy(() => <div>Fallback outer</div>);
+
+				return (
+					<div>
+						<div>Before outer Suspense</div>
+						<Suspense fallback={<LazyFallbackOuter />}>
+							<div>Before inner Suspense</div>
+							<Suspense fallback={<LazyFallbackInner />}>
 								<div>Before Lazy</div>
 								<Lazy />
 								<div>After Lazy</div>
@@ -294,42 +411,20 @@ describe('lazy component', () => {
 						<div>After outer Suspense</div>
 					</div>
 				);
-			});
-
-			itRenders('renders fallback', async ({render, openTag}) => {
-				const h = await render(e);
-				expect(h).toBe(removeSpacing(`
-					<div${openTag}>
-						<div>Before outer Suspense</div>
-						<span>Fallback outer</span>
-						<div>After outer Suspense</div>
-					</div>
-				`));
-			});
-
-			itRenders('calls [ON_MOUNT] on lazy promise and fallback promise with false when fallbackFast disabled', async ({render}) => {
-				await render(e);
-				expect(Lazy).toBeMountedWith(false);
-				expect(LazyFallback).toBeMountedWith(false);
-				expect(Lazy).toBeMountedBefore(LazyFallback);
-			}, {fallbackFast: false});
-
-			itRenders('does not call [ON_MOUNT] on lazy promise or fallback promise when fallbackFast enabled', async ({render}) => {
-				await render(e);
-				expect(Lazy).not.toBeMounted();
-				expect(LazyFallback).not.toBeMounted();
-			}, {fallbackFast: true});
+			},
+			async testPromise({promise}) {
+				await expect(promise).rejects.toThrow(new Error(NO_SUSPENSE_ERROR));
+			}
 		});
 
-		describe('when marked no SSR and inner Suspense has no fallback', () => {
-			let e, Lazy;
-			beforeEach(() => {
-				Lazy = lazy(() => <div>Lazy inner</div>, {noSsr: true});
+		itRenders('rejects when both Suspense elements have no fallback', {
+			element({Suspense, lazy}) {
+				const Lazy = lazy(() => <div>Lazy inner</div>);
 
-				e = (
+				return (
 					<div>
 						<div>Before outer Suspense</div>
-						<Suspense fallback={<span>Fallback outer</span>}>
+						<Suspense>
 							<div>Before inner Suspense</div>
 							<Suspense>
 								<div>Before Lazy</div>
@@ -341,124 +436,56 @@ describe('lazy component', () => {
 						<div>After outer Suspense</div>
 					</div>
 				);
-			});
-
-			itRenders('renders fallback of outer Suspense', async ({render, openTag}) => {
-				const h = await render(e);
-				expect(h).toBe(removeSpacing(`
-					<div${openTag}>
-						<div>Before outer Suspense</div>
-						<span>Fallback outer</span>
-						<div>After outer Suspense</div>
-					</div>
-				`));
-			});
-
-			itRenders('calls [ON_MOUNT] on lazy promise with false when fallbackFast disabled', async ({render}) => {
-				await render(e);
-				expect(Lazy).toBeMountedWith(false);
-			}, {fallbackFast: false});
-
-			itRenders('does not calls [ON_MOUNT] on lazy promise when fallbackFast enabled', async ({render}) => {
-				await render(e);
-				expect(Lazy).not.toBeMounted();
-			}, {fallbackFast: true});
-		});
-
-		itRenders('rejects when promise marked no SSR and inner fallback throws promise marked no SSR and outer fallback throws promise', async ({render}) => {
-			const Lazy = lazy(() => <div>Lazy inner</div>, {noSsr: true});
-			const LazyFallbackInner = lazy(() => <div>Fallback inner</div>, {noSsr: true});
-			const LazyFallbackOuter = lazy(() => <div>Fallback outer</div>);
-
-			const e = (
-				<div>
-					<div>Before outer Suspense</div>
-					<Suspense fallback={<LazyFallbackOuter />}>
-						<div>Before inner Suspense</div>
-						<Suspense fallback={<LazyFallbackInner />}>
-							<div>Before Lazy</div>
-							<Lazy />
-							<div>After Lazy</div>
-						</Suspense>
-						<div>After inner Suspense</div>
-					</Suspense>
-					<div>After outer Suspense</div>
-				</div>
-			);
-
-			const p = render(e);
-			await expect(p).rejects.toThrow(NO_SUSPENSE_ERROR);
-		});
-
-		itRenders('rejects when both Suspense elements have no fallback', async ({render}) => {
-			const Lazy = lazy(() => <div>Lazy inner</div>);
-
-			const e = (
-				<div>
-					<div>Before outer Suspense</div>
-					<Suspense>
-						<div>Before inner Suspense</div>
-						<Suspense>
-							<div>Before Lazy</div>
-							<Lazy />
-							<div>After Lazy</div>
-						</Suspense>
-						<div>After inner Suspense</div>
-					</Suspense>
-					<div>After outer Suspense</div>
-				</div>
-			);
-
-			const p = render(e);
-			await expect(p).rejects.toThrow(NO_SUSPENSE_ERROR);
+			},
+			async testPromise({promise}) {
+				await expect(promise).rejects.toThrow(new Error(NO_SUSPENSE_ERROR));
+			}
 		});
 	});
 
 	describe('inside Suspense with peer nested Suspense', () => {
 		describe('does not trigger inner Suspense fallbacks if promise not marked no SSR', () => {
-			itRenders('and lazy before Suspense', async ({render, openTag}) => {
-				const Lazy = lazy(() => <div>Lazy</div>);
-				const Fallback1 = spy(() => <span>Fallback 1</span>);
-				const Fallback2 = spy(() => <span>Fallback 2</span>);
-				const Fallback3 = spy(() => <span>Fallback 2</span>);
-
-				const e = (
-					<div>
-						<Suspense fallback={<span>Fallback outer</span>}>
-							<Lazy />
-							<Suspense fallback={<Fallback1 />}>
-								<Suspense fallback={<Fallback2 />}>
-									<div>Inside Suspense 1</div>
-								</Suspense>
-							</Suspense>
-							<Suspense fallback={<Fallback3 />}>
-								<div>Inside Suspense 2</div>
-							</Suspense>
-						</Suspense>
-					</div>
-				);
-
-				const h = await render(e);
-				expect(h).toBe(removeSpacing(`
-					<div${openTag}>
-						<div>Lazy</div>
-						<div>Inside Suspense 1</div>
-						<div>Inside Suspense 2</div>
-					</div>
-				`));
-
-				expect(Fallback1).not.toHaveBeenCalled();
-				expect(Fallback2).not.toHaveBeenCalled();
-				expect(Fallback3).not.toHaveBeenCalled();
+			const itRendersThis = itRenders.extend({
+				prep: ({lazy}) => ({
+					Lazy: lazy(() => <div>Lazy</div>),
+					Fallback1: spy(() => <span>Fallback 1</span>),
+					Fallback2: spy(() => <span>Fallback 2</span>),
+					Fallback3: spy(() => <span>Fallback 2</span>)
+				})
 			});
 
-			itRenders('and lazy after Suspense', async ({render, openTag}) => {
-				const Lazy = lazy(() => <div>Lazy</div>);
-				const Fallback1 = spy(() => <span>Fallback 1</span>);
-				const Fallback2 = spy(() => <span>Fallback 2</span>);
-				const Fallback3 = spy(() => <span>Fallback 2</span>);
+			itRendersThis('and lazy before Suspense', {
+				element: ({Suspense, Lazy, Fallback1, Fallback2, Fallback3}) => (
+					<div>
+						<Suspense fallback={<span>Fallback outer</span>}>
+							<Lazy />
+							<Suspense fallback={<Fallback1 />}>
+								<Suspense fallback={<Fallback2 />}>
+									<div>Inside Suspense 1</div>
+								</Suspense>
+							</Suspense>
+							<Suspense fallback={<Fallback3 />}>
+								<div>Inside Suspense 2</div>
+							</Suspense>
+						</Suspense>
+					</div>
+				),
+				html: ({openTag}) => (`
+					<div${openTag}>
+						<div>Lazy</div>
+						<div>Inside Suspense 1</div>
+						<div>Inside Suspense 2</div>
+					</div>
+				`),
+				test({Fallback1, Fallback2, Fallback3}) {
+					expect(Fallback1).not.toHaveBeenCalled();
+					expect(Fallback2).not.toHaveBeenCalled();
+					expect(Fallback3).not.toHaveBeenCalled();
+				}
+			});
 
-				const e = (
+			itRendersThis('and lazy after Suspense', {
+				element: ({Suspense, Lazy, Fallback1, Fallback2, Fallback3}) => (
 					<div>
 						<Suspense fallback={<span>Fallback outer</span>}>
 							<Suspense fallback={<Fallback1 />}>
@@ -472,67 +499,37 @@ describe('lazy component', () => {
 							<Lazy />
 						</Suspense>
 					</div>
-				);
-
-				const h = await render(e);
-				expect(h).toBe(removeSpacing(`
+				),
+				html: ({openTag}) => (`
 					<div${openTag}>
 						<div>Inside Suspense 1</div>
 						<div>Inside Suspense 2</div>
 						<div>Lazy</div>
 					</div>
-				`));
-
-				expect(Fallback1).not.toHaveBeenCalled();
-				expect(Fallback2).not.toHaveBeenCalled();
-				expect(Fallback3).not.toHaveBeenCalled();
+				`),
+				test({Fallback1, Fallback2, Fallback3}) {
+					expect(Fallback1).not.toHaveBeenCalled();
+					expect(Fallback2).not.toHaveBeenCalled();
+					expect(Fallback3).not.toHaveBeenCalled();
+				}
 			});
 		});
 
 		describe('does not trigger inner Suspense fallbacks if promise marked no SSR but no lazy elements within Suspenses', () => {
-			itRenders('and lazy before Suspense', async ({render, openTag}) => {
-				const Lazy = lazy(() => <div>Lazy</div>, {noSsr: true});
-				const Fallback1 = spy(() => <span>Fallback 1</span>);
-				const Fallback2 = spy(() => <span>Fallback 2</span>);
-				const Fallback3 = spy(() => <span>Fallback 2</span>);
-
-				const e = (
-					<div>
-						<Suspense fallback={<span>Fallback outer</span>}>
-							<Lazy />
-							<Suspense fallback={<Fallback1 />}>
-								<Suspense fallback={<Fallback2 />}>
-									<div>Inside Suspense 1</div>
-								</Suspense>
-							</Suspense>
-							<Suspense fallback={<Fallback3 />}>
-								<div>Inside Suspense 2</div>
-							</Suspense>
-						</Suspense>
-					</div>
-				);
-
-				const h = await render(e);
-				expect(h).toBe(removeSpacing(`
-					<div${openTag}>
-						<span>Fallback outer</span>
-					</div>
-				`));
-
-				expect(Fallback1).not.toHaveBeenCalled();
-				expect(Fallback2).not.toHaveBeenCalled();
-				expect(Fallback3).not.toHaveBeenCalled();
+			const itRendersThis = itRenders.extend({
+				prep: ({lazy}) => ({
+					Lazy: lazy(() => <div>Lazy</div>, {noSsr: true}),
+					Fallback1: spy(() => <span>Fallback 1</span>),
+					Fallback2: spy(() => <span>Fallback 2</span>),
+					Fallback3: spy(() => <span>Fallback 2</span>)
+				})
 			});
 
-			itRenders('and lazy after Suspense', async ({render, openTag}) => {
-				const Lazy = lazy(() => <div>Lazy</div>, {noSsr: true});
-				const Fallback1 = spy(() => <span>Fallback 1</span>);
-				const Fallback2 = spy(() => <span>Fallback 2</span>);
-				const Fallback3 = spy(() => <span>Fallback 2</span>);
-
-				const e = (
+			itRendersThis('and lazy before Suspense', {
+				element: ({Suspense, Suspended, Lazy, Fallback1, Fallback2, Fallback3}) => (
 					<div>
-						<Suspense fallback={<span>Fallback outer</span>}>
+						<Suspended fallback={<span>Fallback outer</span>}>
+							<Lazy />
 							<Suspense fallback={<Fallback1 />}>
 								<Suspense fallback={<Fallback2 />}>
 									<div>Inside Suspense 1</div>
@@ -541,33 +538,61 @@ describe('lazy component', () => {
 							<Suspense fallback={<Fallback3 />}>
 								<div>Inside Suspense 2</div>
 							</Suspense>
-							<Lazy />
-						</Suspense>
+						</Suspended>
 					</div>
-				);
-
-				const h = await render(e);
-				expect(h).toBe(removeSpacing(`
+				),
+				html: ({openTag}) => (`
 					<div${openTag}>
 						<span>Fallback outer</span>
 					</div>
-				`));
-
-				expect(Fallback1).not.toHaveBeenCalled();
-				expect(Fallback2).not.toHaveBeenCalled();
-				expect(Fallback3).not.toHaveBeenCalled();
+				`),
+				test({Fallback1, Fallback2, Fallback3}) {
+					expect(Fallback1).not.toHaveBeenCalled();
+					expect(Fallback2).not.toHaveBeenCalled();
+					expect(Fallback3).not.toHaveBeenCalled();
+				}
 			});
 
-			itRenders('and nested lazy', async ({render, openTag}) => {
-				const LazyInner = lazy(() => <div>Lazy</div>, {noSsr: true});
-				const Lazy = lazy(() => <LazyInner />);
-				const Fallback1 = spy(() => <span>Fallback 1</span>);
-				const Fallback2 = spy(() => <span>Fallback 2</span>);
-				const Fallback3 = spy(() => <span>Fallback 2</span>);
-
-				const e = (
+			itRendersThis('and lazy after Suspense', {
+				element: ({Suspense, Suspended, Lazy, Fallback1, Fallback2, Fallback3}) => (
 					<div>
-						<Suspense fallback={<span>Fallback outer</span>}>
+						<Suspended fallback={<span>Fallback outer</span>}>
+							<Suspense fallback={<Fallback1 />}>
+								<Suspense fallback={<Fallback2 />}>
+									<div>Inside Suspense 1</div>
+								</Suspense>
+							</Suspense>
+							<Suspense fallback={<Fallback3 />}>
+								<div>Inside Suspense 2</div>
+							</Suspense>
+							<Lazy />
+						</Suspended>
+					</div>
+				),
+				html: ({openTag}) => (`
+					<div${openTag}>
+						<span>Fallback outer</span>
+					</div>
+				`),
+				test({Fallback1, Fallback2, Fallback3}) {
+					expect(Fallback1).not.toHaveBeenCalled();
+					expect(Fallback2).not.toHaveBeenCalled();
+					expect(Fallback3).not.toHaveBeenCalled();
+				}
+			});
+
+			itRenders('and nested lazy', {
+				prep({lazy}) {
+					const LazyInner = lazy(() => <div>Lazy</div>, {noSsr: true}),
+						Lazy = lazy(() => <LazyInner />),
+						Fallback1 = spy(() => <span>Fallback 1</span>),
+						Fallback2 = spy(() => <span>Fallback 2</span>),
+						Fallback3 = spy(() => <span>Fallback 2</span>);
+					return {LazyInner, Lazy, Fallback1, Fallback2, Fallback3};
+				},
+				element: ({Suspense, Suspended, Lazy, Fallback1, Fallback2, Fallback3}) => (
+					<div>
+						<Suspended fallback={<span>Fallback outer</span>}>
 							<Lazy />
 							<Suspense fallback={<Fallback1 />}>
 								<Suspense fallback={<Fallback2 />}>
@@ -577,20 +602,19 @@ describe('lazy component', () => {
 							<Suspense fallback={<Fallback3 />}>
 								<div>Inside Suspense 2</div>
 							</Suspense>
-						</Suspense>
+						</Suspended>
 					</div>
-				);
-
-				const h = await render(e);
-				expect(h).toBe(removeSpacing(`
+				),
+				html: ({openTag}) => (`
 					<div${openTag}>
 						<span>Fallback outer</span>
 					</div>
-				`));
-
-				expect(Fallback1).not.toHaveBeenCalled();
-				expect(Fallback2).not.toHaveBeenCalled();
-				expect(Fallback3).not.toHaveBeenCalled();
+				`),
+				test({Fallback1, Fallback2, Fallback3}) {
+					expect(Fallback1).not.toHaveBeenCalled();
+					expect(Fallback2).not.toHaveBeenCalled();
+					expect(Fallback3).not.toHaveBeenCalled();
+				}
 			});
 		});
 
@@ -598,235 +622,267 @@ describe('lazy component', () => {
 			describe('and fallbackFast mode disabled', () => {
 				describe('nested 1 deep', () => {
 					describe('and lazy before Suspense', () => {
-						let e, Lazy, Lazy2, Fallback;
-						beforeEach(() => {
-							Lazy = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy2 = lazy(() => <div>Lazy 2</div>);
-							Fallback = spy(() => <span>Fallback 1</span>);
-
-							e = (
+						const itRendersThis = itRenders.extend({
+							prep: ({lazy}) => ({
+								Lazy: lazy(() => <div>Lazy</div>, {noSsr: true}),
+								Lazy2: lazy(() => <div>Lazy 2</div>),
+								Fallback: spy(() => <span>Fallback 1</span>)
+							}),
+							element: ({Suspense, Suspended, Lazy, Lazy2, Fallback}) => (
 								<div>
-									<Suspense fallback={<span>Fallback outer</span>}>
+									<Suspended fallback={<span>Fallback outer</span>}>
 										<Lazy />
 										<Suspense fallback={<Fallback />}>
 											<Lazy2 />
 										</Suspense>
-									</Suspense>
+									</Suspended>
 								</div>
-							);
+							)
 						});
 
-						itRenders('triggers inner Suspense fallback', async ({render, openTag}) => {
-							const h = await render(e);
-							expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
-							expect(Fallback).toHaveBeenCalledTimes(1);
-						}, {fallbackFast: false});
+						itRendersThis('triggers inner Suspense fallback', {
+							fallbackFast: false,
+							html: ({openTag}) => `<div${openTag}><span>Fallback outer</span></div>`,
+							test({Fallback}) {
+								expect(Fallback).toHaveBeenCalledTimes(1);
+							}
+						});
 
-						itRenders('calls [ON_MOUNT] on lazy promises with false', async ({render}) => {
-							await render(e);
-							expect(Lazy).toBeMountedWith(false);
-							expect(Lazy2).toBeMountedWith(false);
-							expect(Lazy).toBeMountedBefore(Lazy2);
-						}, {fallbackFast: false});
+						itRendersThis('calls [ON_MOUNT] on lazy promises with false', {
+							fallbackFast: false,
+							html: ({openTag}) => `<div${openTag}><span>Fallback outer</span></div>`,
+							test({Lazy, Lazy2}) {
+								expect(Lazy).toBeMountedWith(false);
+								expect(Lazy2).toBeMountedWith(false);
+								expect(Lazy).toBeMountedBefore(Lazy2);
+							}
+						});
 					});
 
 					describe('and lazy after Suspense', () => {
-						let e, Lazy, Lazy2, Fallback;
-						beforeEach(() => {
-							Lazy = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy2 = lazy(() => <div>Lazy 2</div>);
-							Fallback = spy(() => <span>Fallback 1</span>);
-
-							e = (
+						const itRendersThis = itRenders.extend({
+							prep: ({lazy}) => ({
+								Lazy: lazy(() => <div>Lazy</div>, {noSsr: true}),
+								Lazy2: lazy(() => <div>Lazy 2</div>),
+								Fallback: spy(() => <span>Fallback 1</span>)
+							}),
+							element: ({Suspense, Suspended, Lazy, Lazy2, Fallback}) => (
 								<div>
-									<Suspense fallback={<span>Fallback outer</span>}>
+									<Suspended fallback={<span>Fallback outer</span>}>
 										<Suspense fallback={<Fallback />}>
 											<Lazy2 />
 										</Suspense>
 										<Lazy />
-									</Suspense>
+									</Suspended>
 								</div>
-							);
+							)
 						});
 
-						itRenders('triggers inner Suspense fallback', async ({render, openTag}) => {
-							const h = await render(e);
-							expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
-							expect(Fallback).toHaveBeenCalledTimes(1);
-						}, {fallbackFast: false});
+						itRendersThis('triggers inner Suspense fallback', {
+							fallbackFast: false,
+							html: ({openTag}) => `<div${openTag}><span>Fallback outer</span></div>`,
+							test({Fallback}) {
+								expect(Fallback).toHaveBeenCalledTimes(1);
+							}
+						});
 
-						itRenders('calls [ON_MOUNT] on lazy promises with false', async ({render}) => {
-							await render(e);
-							expect(Lazy).toBeMountedWith(false);
-							expect(Lazy2).toBeMountedWith(false);
-							expect(Lazy2).toBeMountedBefore(Lazy);
-						}, {fallbackFast: false});
+						itRendersThis('calls [ON_MOUNT] on lazy promises with false', {
+							fallbackFast: false,
+							test({Lazy, Lazy2}) {
+								expect(Lazy).toBeMountedWith(false);
+								expect(Lazy2).toBeMountedWith(false);
+								expect(Lazy2).toBeMountedBefore(Lazy);
+							}
+						});
 					});
 
 					describe('and nested lazy', () => {
-						let e, LazyInner, Lazy, Lazy2, Fallback;
-						beforeEach(() => {
-							LazyInner = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy = lazy(() => <LazyInner />);
-							Lazy2 = lazy(() => <div>Lazy 2</div>);
-							Fallback = spy(() => <span>Fallback 1</span>);
-
-							e = (
+						const itRendersThis = itRenders.extend({
+							prep({lazy}) {
+								const LazyInner = lazy(() => <div>Lazy</div>, {noSsr: true}),
+									Lazy = lazy(() => <LazyInner />),
+									Lazy2 = lazy(() => <div>Lazy 2</div>),
+									Fallback = spy(() => <span>Fallback 1</span>);
+								return {LazyInner, Lazy, Lazy2, Fallback};
+							},
+							element: ({Suspense, Suspended, Lazy, Lazy2, Fallback}) => (
 								<div>
-									<Suspense fallback={<span>Fallback outer</span>}>
+									<Suspended fallback={<span>Fallback outer</span>}>
 										<Lazy />
 										<Suspense fallback={<Fallback />}>
 											<Lazy2 />
 										</Suspense>
-									</Suspense>
+									</Suspended>
 								</div>
-							);
+							)
 						});
 
-						itRenders('triggers inner Suspense fallback', async ({render, openTag}) => {
-							const h = await render(e);
-							expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
-							expect(Fallback).toHaveBeenCalledTimes(1);
-						}, {fallbackFast: false});
+						itRendersThis('triggers inner Suspense fallback', {
+							fallbackFast: false,
+							html: ({openTag}) => `<div${openTag}><span>Fallback outer</span></div>`,
+							test({Fallback}) {
+								expect(Fallback).toHaveBeenCalledTimes(1);
+							}
+						});
 
-						itRenders('calls [ON_MOUNT] on lazy promises with false', async ({render}) => {
-							await render(e);
-							expect(LazyInner).not.toBeMounted();
-							expect(Lazy).toBeMountedWith(false);
-							expect(Lazy2).toBeMountedWith(false);
-							expect(Lazy).toBeMountedBefore(Lazy2);
-						}, {fallbackFast: false});
+						itRendersThis('calls [ON_MOUNT] on lazy promises with false', {
+							fallbackFast: false,
+							test({LazyInner, Lazy, Lazy2}) {
+								expect(LazyInner).not.toBeMounted();
+								expect(Lazy).toBeMountedWith(false);
+								expect(Lazy2).toBeMountedWith(false);
+								expect(Lazy).toBeMountedBefore(Lazy2);
+							}
+						});
 					});
 				});
 
 				describe('nested 2 deep', () => {
 					describe('and lazy before Suspense', () => {
-						let e, Lazy, Lazy2, Fallback, Fallback2;
-						beforeEach(() => {
-							Lazy = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy2 = lazy(() => <div>Lazy 2</div>);
-							Fallback = spy(() => <span>Fallback 1</span>);
-							Fallback2 = spy(() => <span>Fallback 2</span>);
-
-							e = (
+						const itRendersThis = itRenders.extend({
+							prep({lazy}) {
+								const Lazy = lazy(() => <div>Lazy</div>, {noSsr: true}),
+									Lazy2 = lazy(() => <div>Lazy 2</div>),
+									Fallback = spy(() => <span>Fallback 1</span>),
+									Fallback2 = spy(() => <span>Fallback 2</span>);
+								return {Lazy, Lazy2, Fallback, Fallback2};
+							},
+							element: ({Suspense, Suspended, Lazy, Lazy2, Fallback, Fallback2}) => (
 								<div>
-									<Suspense fallback={<span>Fallback outer</span>}>
+									<Suspended fallback={<span>Fallback outer</span>}>
 										<Lazy />
 										<Suspense fallback={<Fallback />}>
 											<Suspense fallback={<Fallback2 />}>
 												<Lazy2 />
 											</Suspense>
 										</Suspense>
-									</Suspense>
+									</Suspended>
 								</div>
-							);
+							)
 						});
 
-						itRenders('triggers inner Suspense fallback', async ({render, openTag}) => {
-							const h = await render(e);
-							expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
-							expect(Fallback).not.toHaveBeenCalled();
-							expect(Fallback2).toHaveBeenCalledTimes(1);
-						}, {fallbackFast: false});
+						itRendersThis('triggers inner Suspense fallback', {
+							fallbackFast: false,
+							html: ({openTag}) => `<div${openTag}><span>Fallback outer</span></div>`,
+							test({Fallback, Fallback2}) {
+								expect(Fallback).not.toHaveBeenCalled();
+								expect(Fallback2).toHaveBeenCalledTimes(1);
+							}
+						});
 
-						itRenders('calls [ON_MOUNT] on lazy promises with false', async ({render}) => {
-							await render(e);
-							expect(Lazy).toBeMountedWith(false);
-							expect(Lazy2).toBeMountedWith(false);
-							expect(Lazy).toBeMountedBefore(Lazy2);
-						}, {fallbackFast: false});
+						itRendersThis('calls [ON_MOUNT] on lazy promises with false', {
+							fallbackFast: false,
+							test({Lazy, Lazy2}) {
+								expect(Lazy).toBeMountedWith(false);
+								expect(Lazy2).toBeMountedWith(false);
+								expect(Lazy).toBeMountedBefore(Lazy2);
+							}
+						});
 					});
 
 					describe('and lazy after Suspense', () => {
-						let e, Lazy, Lazy2, Fallback, Fallback2;
-						beforeEach(() => {
-							Lazy = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy2 = lazy(() => <div>Lazy 2</div>);
-							Fallback = spy(() => <span>Fallback 1</span>);
-							Fallback2 = spy(() => <span>Fallback 2</span>);
-
-							e = (
+						const itRendersThis = itRenders.extend({
+							prep({lazy}) {
+								const Lazy = lazy(() => <div>Lazy</div>, {noSsr: true}),
+									Lazy2 = lazy(() => <div>Lazy 2</div>),
+									Fallback = spy(() => <span>Fallback 1</span>),
+									Fallback2 = spy(() => <span>Fallback 2</span>);
+								return {Lazy, Lazy2, Fallback, Fallback2};
+							},
+							element: ({Suspense, Suspended, Lazy, Lazy2, Fallback, Fallback2}) => (
 								<div>
-									<Suspense fallback={<span>Fallback outer</span>}>
+									<Suspended fallback={<span>Fallback outer</span>}>
 										<Suspense fallback={<Fallback />}>
 											<Suspense fallback={<Fallback2 />}>
 												<Lazy2 />
 											</Suspense>
 										</Suspense>
 										<Lazy />
-									</Suspense>
+									</Suspended>
 								</div>
-							);
+							)
 						});
 
-						itRenders('triggers inner Suspense fallback', async ({render, openTag}) => {
-							const h = await render(e);
-							expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
-							expect(Fallback).not.toHaveBeenCalled();
-							expect(Fallback2).toHaveBeenCalledTimes(1);
-						}, {fallbackFast: false});
+						itRendersThis('triggers inner Suspense fallback', {
+							fallbackFast: false,
+							html: ({openTag}) => `<div${openTag}><span>Fallback outer</span></div>`,
+							test({Fallback, Fallback2}) {
+								expect(Fallback).not.toHaveBeenCalled();
+								expect(Fallback2).toHaveBeenCalledTimes(1);
+							}
+						});
 
-						itRenders('calls [ON_MOUNT] on lazy promises with false', async ({render}) => {
-							await render(e);
-							expect(Lazy).toBeMountedWith(false);
-							expect(Lazy2).toBeMountedWith(false);
-							expect(Lazy2).toBeMountedBefore(Lazy);
-						}, {fallbackFast: false});
+						itRendersThis('calls [ON_MOUNT] on lazy promises with false', {
+							fallbackFast: false,
+							test({Lazy, Lazy2}) {
+								expect(Lazy).toBeMountedWith(false);
+								expect(Lazy2).toBeMountedWith(false);
+								expect(Lazy2).toBeMountedBefore(Lazy);
+							}
+						});
 					});
 
 					describe('and nested lazy', () => {
-						let e, LazyInner, Lazy, Lazy2, Fallback, Fallback2;
-						beforeEach(() => {
-							LazyInner = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy = lazy(() => <LazyInner />);
-							Lazy2 = lazy(() => <div>Lazy 2</div>);
-							Fallback = spy(() => <span>Fallback 1</span>);
-							Fallback2 = spy(() => <span>Fallback 2</span>);
-
-							e = (
+						const itRendersThis = itRenders.extend({
+							prep({lazy}) {
+								const LazyInner = lazy(() => <div>Lazy</div>, {noSsr: true}),
+									Lazy = lazy(() => <LazyInner />),
+									Lazy2 = lazy(() => <div>Lazy 2</div>),
+									Fallback = spy(() => <span>Fallback 1</span>),
+									Fallback2 = spy(() => <span>Fallback 2</span>);
+								return {LazyInner, Lazy, Lazy2, Fallback, Fallback2};
+							},
+							element: ({Suspense, Suspended, Lazy, Lazy2, Fallback, Fallback2}) => (
 								<div>
-									<Suspense fallback={<span>Fallback outer</span>}>
+									<Suspended fallback={<span>Fallback outer</span>}>
 										<Lazy />
 										<Suspense fallback={<Fallback />}>
 											<Suspense fallback={<Fallback2 />}>
 												<Lazy2 />
 											</Suspense>
 										</Suspense>
-									</Suspense>
+									</Suspended>
 								</div>
-							);
+							)
 						});
 
-						itRenders('triggers inner Suspense fallback', async ({render, openTag}) => {
-							const h = await render(e);
-							expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
-							expect(Fallback).not.toHaveBeenCalled();
-							expect(Fallback2).toHaveBeenCalledTimes(1);
-						}, {fallbackFast: false});
+						itRendersThis('triggers inner Suspense fallback', {
+							fallbackFast: false,
+							html: ({openTag}) => `<div${openTag}><span>Fallback outer</span></div>`,
+							test({Fallback, Fallback2}) {
+								expect(Fallback).not.toHaveBeenCalled();
+								expect(Fallback2).toHaveBeenCalledTimes(1);
+							}
+						});
 
-						itRenders('calls [ON_MOUNT] on lazy promises with false', async ({render}) => {
-							await render(e);
-							expect(LazyInner).not.toBeMounted();
-							expect(Lazy).toBeMountedWith(false);
-							expect(Lazy2).toBeMountedWith(false);
-							expect(Lazy).toBeMountedBefore(Lazy2);
-						}, {fallbackFast: false});
+						itRendersThis('calls [ON_MOUNT] on lazy promises with false', {
+							fallbackFast: false,
+							test({LazyInner, Lazy, Lazy2}) {
+								expect(LazyInner).not.toBeMounted();
+								expect(Lazy).toBeMountedWith(false);
+								expect(Lazy2).toBeMountedWith(false);
+								expect(Lazy).toBeMountedBefore(Lazy2);
+							}
+						});
 					});
 				});
 
 				describe('nested 2 deep with both suspenses containing lazy elements', () => {
 					describe('and lazy before Suspense', () => {
-						let e, Lazy, Lazy2, Lazy3, Fallback, Fallback2;
-						beforeEach(() => {
-							Lazy = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy2 = lazy(() => <div>Lazy 2</div>);
-							Lazy3 = lazy(() => <div>Lazy 3</div>);
-							Fallback = spy(() => <span>Fallback 1</span>);
-							Fallback2 = spy(() => <span>Fallback 2</span>);
-
-							e = (
+						const itRendersThis = itRenders.extend({
+							prep({lazy}) {
+								const Lazy = lazy(() => <div>Lazy</div>, {noSsr: true}),
+									Lazy2 = lazy(() => <div>Lazy 2</div>),
+									Lazy3 = lazy(() => <div>Lazy 3</div>),
+									Fallback = spy(() => <span>Fallback 1</span>),
+									Fallback2 = spy(() => <span>Fallback 2</span>);
+								return {Lazy, Lazy2, Lazy3, Fallback, Fallback2};
+							},
+							element: (
+								{Suspense, Suspended, Lazy, Lazy2, Lazy3, Fallback, Fallback2}
+							) => (
 								<div>
-									<Suspense fallback={<span>Fallback outer</span>}>
+									<Suspended fallback={<span>Fallback outer</span>}>
 										<Lazy />
 										<Suspense fallback={<Fallback />}>
 											<Suspense fallback={<Fallback2 />}>
@@ -834,40 +890,47 @@ describe('lazy component', () => {
 											</Suspense>
 											<Lazy3 />
 										</Suspense>
-									</Suspense>
+									</Suspended>
 								</div>
-							);
+							)
 						});
 
-						itRenders('triggers both inner Suspense fallbacks', async ({render, openTag}) => {
-							const h = await render(e);
-							expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
-							expect(Fallback).toHaveBeenCalledTimes(1);
-							expect(Fallback2).toHaveBeenCalledTimes(1);
-						}, {fallbackFast: false});
+						itRendersThis('triggers both inner Suspense fallbacks', {
+							fallbackFast: false,
+							html: ({openTag}) => `<div${openTag}><span>Fallback outer</span></div>`,
+							test({Fallback, Fallback2}) {
+								expect(Fallback).toHaveBeenCalledTimes(1);
+								expect(Fallback2).toHaveBeenCalledTimes(1);
+							}
+						});
 
-						itRenders('calls [ON_MOUNT] on lazy promises with false', async ({render}) => {
-							await render(e);
-							expect(Lazy).toBeMountedWith(false);
-							expect(Lazy2).toBeMountedWith(false);
-							expect(Lazy3).toBeMountedWith(false);
-							expect(Lazy).toBeMountedBefore(Lazy2);
-							expect(Lazy2).toBeMountedBefore(Lazy3);
-						}, {fallbackFast: false});
+						itRendersThis('calls [ON_MOUNT] on lazy promises with false', {
+							fallbackFast: false,
+							test({Lazy, Lazy2, Lazy3}) {
+								expect(Lazy).toBeMountedWith(false);
+								expect(Lazy2).toBeMountedWith(false);
+								expect(Lazy3).toBeMountedWith(false);
+								expect(Lazy).toBeMountedBefore(Lazy2);
+								expect(Lazy2).toBeMountedBefore(Lazy3);
+							}
+						});
 					});
 
 					describe('and lazy after Suspense', () => {
-						let e, Lazy, Lazy2, Lazy3, Fallback, Fallback2;
-						beforeEach(() => {
-							Lazy = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy2 = lazy(() => <div>Lazy 2</div>);
-							Lazy3 = lazy(() => <div>Lazy 3</div>);
-							Fallback = spy(() => <span>Fallback 1</span>);
-							Fallback2 = spy(() => <span>Fallback 2</span>);
-
-							e = (
+						const itRendersThis = itRenders.extend({
+							prep({lazy}) {
+								const Lazy = lazy(() => <div>Lazy</div>, {noSsr: true}),
+									Lazy2 = lazy(() => <div>Lazy 2</div>),
+									Lazy3 = lazy(() => <div>Lazy 3</div>),
+									Fallback = spy(() => <span>Fallback 1</span>),
+									Fallback2 = spy(() => <span>Fallback 2</span>);
+								return {Lazy, Lazy2, Lazy3, Fallback, Fallback2};
+							},
+							element: (
+								{Suspense, Suspended, Lazy, Lazy2, Lazy3, Fallback, Fallback2}
+							) => (
 								<div>
-									<Suspense fallback={<span>Fallback outer</span>}>
+									<Suspended fallback={<span>Fallback outer</span>}>
 										<Suspense fallback={<Fallback />}>
 											<Suspense fallback={<Fallback2 />}>
 												<Lazy2 />
@@ -875,41 +938,48 @@ describe('lazy component', () => {
 											<Lazy3 />
 										</Suspense>
 										<Lazy />
-									</Suspense>
+									</Suspended>
 								</div>
-							);
+							)
 						});
 
-						itRenders('triggers both inner Suspense fallbacks', async ({render, openTag}) => {
-							const h = await render(e);
-							expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
-							expect(Fallback).toHaveBeenCalledTimes(1);
-							expect(Fallback2).toHaveBeenCalledTimes(1);
-						}, {fallbackFast: false});
+						itRendersThis('triggers both inner Suspense fallbacks', {
+							fallbackFast: false,
+							html: ({openTag}) => `<div${openTag}><span>Fallback outer</span></div>`,
+							test({Fallback, Fallback2}) {
+								expect(Fallback).toHaveBeenCalledTimes(1);
+								expect(Fallback2).toHaveBeenCalledTimes(1);
+							}
+						});
 
-						itRenders('calls [ON_MOUNT] on lazy promises with false', async ({render}) => {
-							await render(e);
-							expect(Lazy).toBeMountedWith(false);
-							expect(Lazy2).toBeMountedWith(false);
-							expect(Lazy3).toBeMountedWith(false);
-							expect(Lazy2).toBeMountedBefore(Lazy3);
-							expect(Lazy3).toBeMountedBefore(Lazy);
-						}, {fallbackFast: false});
+						itRendersThis('calls [ON_MOUNT] on lazy promises with false', {
+							fallbackFast: false,
+							test({Lazy, Lazy2, Lazy3}) {
+								expect(Lazy).toBeMountedWith(false);
+								expect(Lazy2).toBeMountedWith(false);
+								expect(Lazy3).toBeMountedWith(false);
+								expect(Lazy2).toBeMountedBefore(Lazy3);
+								expect(Lazy3).toBeMountedBefore(Lazy);
+							}
+						});
 					});
 
 					describe('and nested lazy', () => {
-						let e, LazyInner, Lazy, Lazy2, Lazy3, Fallback, Fallback2;
-						beforeEach(() => {
-							LazyInner = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy = lazy(() => <LazyInner />);
-							Lazy2 = lazy(() => <div>Lazy 2</div>);
-							Lazy3 = lazy(() => <div>Lazy 3</div>);
-							Fallback = spy(() => <span>Fallback 1</span>);
-							Fallback2 = spy(() => <span>Fallback 2</span>);
-
-							e = (
+						const itRendersThis = itRenders.extend({
+							prep({lazy}) {
+								const LazyInner = lazy(() => <div>Lazy</div>, {noSsr: true}),
+									Lazy = lazy(() => <LazyInner />),
+									Lazy2 = lazy(() => <div>Lazy 2</div>),
+									Lazy3 = lazy(() => <div>Lazy 3</div>),
+									Fallback = spy(() => <span>Fallback 1</span>),
+									Fallback2 = spy(() => <span>Fallback 2</span>);
+								return {LazyInner, Lazy, Lazy2, Lazy3, Fallback, Fallback2};
+							},
+							element: (
+								{Suspense, Suspended, Lazy, Lazy2, Lazy3, Fallback, Fallback2}
+							) => (
 								<div>
-									<Suspense fallback={<span>Fallback outer</span>}>
+									<Suspended fallback={<span>Fallback outer</span>}>
 										<Lazy />
 										<Suspense fallback={<Fallback />}>
 											<Suspense fallback={<Fallback2 />}>
@@ -917,257 +987,287 @@ describe('lazy component', () => {
 											</Suspense>
 											<Lazy3 />
 										</Suspense>
-									</Suspense>
+									</Suspended>
 								</div>
-							);
+							)
 						});
 
-						itRenders('triggers both inner Suspense fallbacks', async ({render, openTag}) => {
-							const h = await render(e);
-							expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
-							expect(Fallback).toHaveBeenCalledTimes(1);
-							expect(Fallback2).toHaveBeenCalledTimes(1);
-						}, {fallbackFast: false});
+						itRendersThis('triggers both inner Suspense fallbacks', {
+							fallbackFast: false,
+							html: ({openTag}) => `<div${openTag}><span>Fallback outer</span></div>`,
+							test({Fallback, Fallback2}) {
+								expect(Fallback).toHaveBeenCalledTimes(1);
+								expect(Fallback2).toHaveBeenCalledTimes(1);
+							}
+						});
 
-						itRenders('calls [ON_MOUNT] on lazy promises with false', async ({render}) => {
-							await render(e);
-							expect(LazyInner).not.toBeMounted();
-							expect(Lazy).toBeMountedWith(false);
-							expect(Lazy2).toBeMountedWith(false);
-							expect(Lazy3).toBeMountedWith(false);
-							expect(Lazy).toBeMountedBefore(Lazy2);
-							expect(Lazy2).toBeMountedBefore(Lazy3);
-						}, {fallbackFast: false});
+						itRendersThis('calls [ON_MOUNT] on lazy promises with false', {
+							fallbackFast: false,
+							test({LazyInner, Lazy, Lazy2, Lazy3}) {
+								expect(LazyInner).not.toBeMounted();
+								expect(Lazy).toBeMountedWith(false);
+								expect(Lazy2).toBeMountedWith(false);
+								expect(Lazy3).toBeMountedWith(false);
+								expect(Lazy).toBeMountedBefore(Lazy2);
+								expect(Lazy2).toBeMountedBefore(Lazy3);
+							}
+						});
 					});
 				});
 			});
 
 			describe('and fallbackFast mode enabled', () => {
 				describe('nested 1 deep', () => {
-					describe('and lazy before Suspense', () => {
-						let e, Lazy, Lazy2, Fallback;
-						beforeEach(() => {
-							Lazy = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy2 = lazy(() => <div>Lazy 2</div>);
-							Fallback = spy(() => <span>Fallback 1</span>);
+					const itRendersWithTwoLazy = itRenders.extend({
+						prep: ({lazy}) => ({
+							Lazy: lazy(() => <div>Lazy</div>, {noSsr: true}),
+							Lazy2: lazy(() => <div>Lazy 2</div>),
+							Fallback: spy(() => <span>Fallback 1</span>)
+						})
+					});
 
-							e = (
+					describe('and lazy before Suspense', () => {
+						const itRendersThis = itRendersWithTwoLazy.extend({
+							element: ({Suspense, Suspended, Lazy, Lazy2, Fallback}) => (
 								<div>
-									<Suspense fallback={<span>Fallback outer</span>}>
+									<Suspended fallback={<span>Fallback outer</span>}>
 										<Lazy />
 										<Suspense fallback={<Fallback />}>
 											<Lazy2 />
 										</Suspense>
-									</Suspense>
+									</Suspended>
 								</div>
-							);
+							)
 						});
 
-						itRenders('does not trigger inner Suspense fallbacks', async ({render, openTag}) => {
-							const h = await render(e);
-							expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
-							expect(Fallback).not.toHaveBeenCalled();
-						}, {fallbackFast: true});
+						itRendersThis('does not trigger inner Suspense fallbacks', {
+							fallbackFast: true,
+							html: ({openTag}) => `<div${openTag}><span>Fallback outer</span></div>`,
+							test({Fallback}) {
+								expect(Fallback).not.toHaveBeenCalled();
+							}
+						});
 
-						itRenders('does not call [ON_MOUNT] on lazy promises', async ({render}) => {
-							await render(e);
-							expect(Lazy).not.toBeMounted();
-							expect(Lazy2).not.toHaveBeenCalled();
-						}, {fallbackFast: true});
+						itRendersThis('does not call [ON_MOUNT] on lazy promises', {
+							fallbackFast: true,
+							test({Lazy, Lazy2}) {
+								expect(Lazy).not.toBeMounted();
+								expect(Lazy2).not.toHaveBeenCalled();
+							}
+						});
 					});
 
 					describe('and lazy after Suspense', () => {
-						let e, Lazy, Lazy2, Fallback;
-						beforeEach(() => {
-							Lazy = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy2 = lazy(() => <div>Lazy 2</div>);
-							Fallback = spy(() => <span>Fallback 1</span>);
-
-							e = (
+						const itRendersThis = itRendersWithTwoLazy.extend({
+							element: ({Suspense, Suspended, Lazy, Lazy2, Fallback}) => (
 								<div>
-									<Suspense fallback={<span>Fallback outer</span>}>
+									<Suspended fallback={<span>Fallback outer</span>}>
 										<Suspense fallback={<Fallback />}>
 											<Lazy2 />
 										</Suspense>
 										<Lazy />
-									</Suspense>
+									</Suspended>
 								</div>
-							);
+							)
 						});
 
-						itRenders('does not trigger inner Suspense fallbacks', async ({render, openTag}) => {
-							const h = await render(e);
-							expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
-							expect(Fallback).not.toHaveBeenCalled();
-						}, {fallbackFast: true});
+						itRendersThis('does not trigger inner Suspense fallbacks', {
+							fallbackFast: true,
+							html: ({openTag}) => `<div${openTag}><span>Fallback outer</span></div>`,
+							test({Fallback}) {
+								expect(Fallback).not.toHaveBeenCalled();
+							}
+						});
 
-						itRenders('does not call [ON_MOUNT] on lazy promises', async ({render}) => {
-							await render(e);
-							expect(Lazy).not.toBeMounted();
-							expect(Lazy2).not.toBeMounted();
-						}, {fallbackFast: true});
+						itRendersThis('does not call [ON_MOUNT] on lazy promises', {
+							fallbackFast: true,
+							test({Lazy, Lazy2}) {
+								expect(Lazy).not.toBeMounted();
+								expect(Lazy2).not.toBeMounted();
+							}
+						});
 					});
 
 					describe('and nested lazy', () => {
-						let e, LazyInner, Lazy, Lazy2, Fallback;
-						beforeEach(() => {
-							LazyInner = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy = lazy(() => <LazyInner />);
-							Lazy2 = lazy(() => <div>Lazy 2</div>);
-							Fallback = spy(() => <span>Fallback 1</span>);
-
-							e = (
+						const itRendersThis = itRenders.extend({
+							prep({lazy}) {
+								const LazyInner = lazy(() => <div>Lazy</div>, {noSsr: true}),
+									Lazy = lazy(() => <LazyInner />),
+									Lazy2 = lazy(() => <div>Lazy 2</div>),
+									Fallback = spy(() => <span>Fallback 1</span>);
+								return {LazyInner, Lazy, Lazy2, Fallback};
+							},
+							element: ({Suspense, Suspended, Lazy, Lazy2, Fallback}) => (
 								<div>
-									<Suspense fallback={<span>Fallback outer</span>}>
+									<Suspended fallback={<span>Fallback outer</span>}>
 										<Lazy />
 										<Suspense fallback={<Fallback />}>
 											<Lazy2 />
 										</Suspense>
-									</Suspense>
+									</Suspended>
 								</div>
-							);
+							)
 						});
 
-						itRenders('does not trigger inner Suspense fallbacks', async ({render, openTag}) => {
-							const h = await render(e);
-							expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
-							expect(Fallback).not.toHaveBeenCalled();
-						}, {fallbackFast: true});
+						itRendersThis('does not trigger inner Suspense fallbacks', {
+							fallbackFast: true,
+							html: ({openTag}) => `<div${openTag}><span>Fallback outer</span></div>`,
+							test({Fallback}) {
+								expect(Fallback).not.toHaveBeenCalled();
+							}
+						});
 
-						itRenders('does not call [ON_MOUNT] on lazy promises', async ({render}) => {
-							await render(e);
-							expect(LazyInner).not.toBeMounted();
-							expect(Lazy).not.toBeMounted();
-							expect(Lazy2).not.toBeMounted();
-						}, {fallbackFast: true});
+						itRendersThis('does not call [ON_MOUNT] on lazy promises', {
+							fallbackFast: true,
+							test({LazyInner, Lazy, Lazy2}) {
+								expect(LazyInner).not.toBeMounted();
+								expect(Lazy).not.toBeMounted();
+								expect(Lazy2).not.toBeMounted();
+							}
+						});
 					});
 				});
 
 				describe('nested 2 deep', () => {
-					describe('and lazy before Suspense', () => {
-						let e, Lazy, Lazy2, Fallback, Fallback2;
-						beforeEach(() => {
-							Lazy = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy2 = lazy(() => <div>Lazy 2</div>);
-							Fallback = spy(() => <span>Fallback 1</span>);
-							Fallback2 = spy(() => <span>Fallback 2</span>);
+					const itRendersWithTwoLazy = itRenders.extend({
+						prep: ({lazy}) => ({
+							Lazy: lazy(() => <div>Lazy</div>, {noSsr: true}),
+							Lazy2: lazy(() => <div>Lazy 2</div>),
+							Fallback: spy(() => <span>Fallback 1</span>),
+							Fallback2: spy(() => <span>Fallback 2</span>)
+						})
+					});
 
-							e = (
+					describe('and lazy before Suspense', () => {
+						const itRendersThis = itRendersWithTwoLazy.extend({
+							element: ({Suspense, Suspended, Lazy, Lazy2, Fallback, Fallback2}) => (
 								<div>
-									<Suspense fallback={<span>Fallback outer</span>}>
+									<Suspended fallback={<span>Fallback outer</span>}>
 										<Lazy />
 										<Suspense fallback={<Fallback />}>
 											<Suspense fallback={<Fallback2 />}>
 												<Lazy2 />
 											</Suspense>
 										</Suspense>
-									</Suspense>
+									</Suspended>
 								</div>
-							);
+							)
 						});
 
-						itRenders('does not trigger inner Suspense fallbacks', async ({render, openTag}) => {
-							const h = await render(e);
-							expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
-							expect(Fallback).not.toHaveBeenCalled();
-							expect(Fallback2).not.toHaveBeenCalled();
-						}, {fallbackFast: true});
+						itRendersThis('does not trigger inner Suspense fallbacks', {
+							fallbackFast: true,
+							html: ({openTag}) => `<div${openTag}><span>Fallback outer</span></div>`,
+							test({Fallback, Fallback2}) {
+								expect(Fallback).not.toHaveBeenCalled();
+								expect(Fallback2).not.toHaveBeenCalled();
+							}
+						});
 
-						itRenders('does not call [ON_MOUNT] on lazy promises', async ({render}) => {
-							await render(e);
-							expect(Lazy).not.toBeMounted();
-							expect(Lazy2).not.toHaveBeenCalled();
-						}, {fallbackFast: true});
+						itRendersThis('does not call [ON_MOUNT] on lazy promises', {
+							fallbackFast: true,
+							test({Lazy, Lazy2}) {
+								expect(Lazy).not.toBeMounted();
+								expect(Lazy2).not.toHaveBeenCalled();
+							}
+						});
 					});
 
 					describe('and lazy after Suspense', () => {
-						let e, Lazy, Lazy2, Fallback, Fallback2;
-						beforeEach(() => {
-							Lazy = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy2 = lazy(() => <div>Lazy 2</div>);
-							Fallback = spy(() => <span>Fallback 1</span>);
-							Fallback2 = spy(() => <span>Fallback 2</span>);
-
-							e = (
+						const itRendersThis = itRendersWithTwoLazy.extend({
+							element: ({Suspense, Suspended, Lazy, Lazy2, Fallback, Fallback2}) => (
 								<div>
-									<Suspense fallback={<span>Fallback outer</span>}>
+									<Suspended fallback={<span>Fallback outer</span>}>
 										<Suspense fallback={<Fallback />}>
 											<Suspense fallback={<Fallback2 />}>
 												<Lazy2 />
 											</Suspense>
 										</Suspense>
 										<Lazy />
-									</Suspense>
+									</Suspended>
 								</div>
-							);
+							)
 						});
 
-						itRenders('does not trigger inner Suspense fallbacks', async ({render, openTag}) => {
-							const h = await render(e);
-							expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
-							expect(Fallback).not.toHaveBeenCalled();
-							expect(Fallback2).not.toHaveBeenCalled();
-						}, {fallbackFast: true});
+						itRendersThis('does not trigger inner Suspense fallbacks', {
+							fallbackFast: true,
+							html: ({openTag}) => `<div${openTag}><span>Fallback outer</span></div>`,
+							test({Fallback, Fallback2}) {
+								expect(Fallback).not.toHaveBeenCalled();
+								expect(Fallback2).not.toHaveBeenCalled();
+							}
+						});
 
-						itRenders('does not call [ON_MOUNT] on lazy promises', async ({render}) => {
-							await render(e);
-							expect(Lazy).not.toBeMounted();
-							expect(Lazy2).not.toBeMounted();
-						}, {fallbackFast: true});
+						itRendersThis('does not call [ON_MOUNT] on lazy promises', {
+							fallbackFast: true,
+							test({Lazy, Lazy2}) {
+								expect(Lazy).not.toBeMounted();
+								expect(Lazy2).not.toBeMounted();
+							}
+						});
 					});
 
 					describe('and nested lazy', () => {
-						let e, LazyInner, Lazy, Lazy2, Fallback, Fallback2;
-						beforeEach(() => {
-							LazyInner = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy = lazy(() => <LazyInner />);
-							Lazy2 = lazy(() => <div>Lazy 2</div>);
-							Fallback = spy(() => <span>Fallback 1</span>);
-							Fallback2 = spy(() => <span>Fallback 2</span>);
-
-							e = (
+						const itRendersThis = itRenders.extend({
+							prep({lazy}) {
+								const LazyInner = lazy(() => <div>Lazy</div>, {noSsr: true}),
+									Lazy = lazy(() => <LazyInner />),
+									Lazy2 = lazy(() => <div>Lazy 2</div>),
+									Fallback = spy(() => <span>Fallback 1</span>),
+									Fallback2 = spy(() => <span>Fallback 2</span>);
+								return {LazyInner, Lazy, Lazy2, Fallback, Fallback2};
+							},
+							element: ({Suspense, Suspended, Lazy, Lazy2, Fallback, Fallback2}) => (
 								<div>
-									<Suspense fallback={<span>Fallback outer</span>}>
+									<Suspended fallback={<span>Fallback outer</span>}>
 										<Lazy />
 										<Suspense fallback={<Fallback />}>
 											<Suspense fallback={<Fallback2 />}>
 												<Lazy2 />
 											</Suspense>
 										</Suspense>
-									</Suspense>
+									</Suspended>
 								</div>
-							);
+							)
 						});
 
-						itRenders('does not trigger inner Suspense fallbacks', async ({render, openTag}) => {
-							const h = await render(e);
-							expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
-							expect(Fallback).not.toHaveBeenCalled();
-							expect(Fallback2).not.toHaveBeenCalled();
-						}, {fallbackFast: true});
+						itRendersThis('does not trigger inner Suspense fallbacks', {
+							fallbackFast: true,
+							html: ({openTag}) => `<div${openTag}><span>Fallback outer</span></div>`,
+							test({Fallback, Fallback2}) {
+								expect(Fallback).not.toHaveBeenCalled();
+								expect(Fallback2).not.toHaveBeenCalled();
+							}
+						});
 
-						itRenders('does not call [ON_MOUNT] on lazy promises', async ({render}) => {
-							await render(e);
-							expect(LazyInner).not.toBeMounted();
-							expect(Lazy).not.toBeMounted();
-							expect(Lazy2).not.toBeMounted();
-						}, {fallbackFast: true});
+						itRendersThis('does not call [ON_MOUNT] on lazy promises', {
+							fallbackFast: true,
+							test({LazyInner, Lazy, Lazy2}) {
+								expect(LazyInner).not.toBeMounted();
+								expect(Lazy).not.toBeMounted();
+								expect(Lazy2).not.toBeMounted();
+							}
+						});
 					});
 				});
 
 				describe('nested 2 deep with both suspenses containing lazy elements', () => {
-					describe('and lazy before Suspense', () => {
-						let e, Lazy, Lazy2, Lazy3, Fallback, Fallback2;
-						beforeEach(() => {
-							Lazy = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy2 = lazy(() => <div>Lazy 2</div>);
-							Lazy3 = lazy(() => <div>Lazy 2</div>);
-							Fallback = spy(() => <span>Fallback 1</span>);
-							Fallback2 = spy(() => <span>Fallback 2</span>);
+					const itRendersWithThreeLazy = itRenders.extend({
+						prep: ({lazy}) => ({
+							Lazy: lazy(() => <div>Lazy</div>, {noSsr: true}),
+							Lazy2: lazy(() => <div>Lazy 2</div>),
+							Lazy3: lazy(() => <div>Lazy 3</div>),
+							Fallback: spy(() => <span>Fallback 1</span>),
+							Fallback2: spy(() => <span>Fallback 2</span>)
+						})
+					});
 
-							e = (
+					describe('and lazy before Suspense', () => {
+						const itRendersThis = itRendersWithThreeLazy.extend({
+							element: (
+								{Suspense, Suspended, Lazy, Lazy2, Lazy3, Fallback, Fallback2}
+							) => (
 								<div>
-									<Suspense fallback={<span>Fallback outer</span>}>
+									<Suspended fallback={<span>Fallback outer</span>}>
 										<Lazy />
 										<Suspense fallback={<Fallback />}>
 											<Suspense fallback={<Fallback2 />}>
@@ -1175,38 +1275,37 @@ describe('lazy component', () => {
 											</Suspense>
 											<Lazy3 />
 										</Suspense>
-									</Suspense>
+									</Suspended>
 								</div>
-							);
+							)
 						});
 
-						itRenders('does not trigger inner Suspense fallbacks', async ({render, openTag}) => {
-							const h = await render(e);
-							expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
-							expect(Fallback).not.toHaveBeenCalled();
-							expect(Fallback2).not.toHaveBeenCalled();
-						}, {fallbackFast: true});
+						itRendersThis('does not trigger inner Suspense fallbacks', {
+							fallbackFast: true,
+							html: ({openTag}) => `<div${openTag}><span>Fallback outer</span></div>`,
+							test({Fallback, Fallback2}) {
+								expect(Fallback).not.toHaveBeenCalled();
+								expect(Fallback2).not.toHaveBeenCalled();
+							}
+						});
 
-						itRenders('does not call [ON_MOUNT] on lazy promises', async ({render}) => {
-							await render(e);
-							expect(Lazy).not.toBeMounted();
-							expect(Lazy2).not.toHaveBeenCalled();
-							expect(Lazy3).not.toHaveBeenCalled();
-						}, {fallbackFast: true});
+						itRendersThis('does not call [ON_MOUNT] on lazy promises', {
+							fallbackFast: true,
+							test({Lazy, Lazy2, Lazy3}) {
+								expect(Lazy).not.toBeMounted();
+								expect(Lazy2).not.toHaveBeenCalled();
+								expect(Lazy3).not.toHaveBeenCalled();
+							}
+						});
 					});
 
 					describe('and lazy after Suspense', () => {
-						let e, Lazy, Lazy2, Lazy3, Fallback, Fallback2;
-						beforeEach(() => {
-							Lazy = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy2 = lazy(() => <div>Lazy 2</div>);
-							Lazy3 = lazy(() => <div>Lazy 2</div>);
-							Fallback = spy(() => <span>Fallback 1</span>);
-							Fallback2 = spy(() => <span>Fallback 2</span>);
-
-							e = (
+						const itRendersThis = itRendersWithThreeLazy.extend({
+							element: (
+								{Suspense, Suspended, Lazy, Lazy2, Lazy3, Fallback, Fallback2}
+							) => (
 								<div>
-									<Suspense fallback={<span>Fallback outer</span>}>
+									<Suspended fallback={<span>Fallback outer</span>}>
 										<Suspense fallback={<Fallback />}>
 											<Suspense fallback={<Fallback2 />}>
 												<Lazy2 />
@@ -1214,39 +1313,46 @@ describe('lazy component', () => {
 											<Lazy3 />
 										</Suspense>
 										<Lazy />
-									</Suspense>
+									</Suspended>
 								</div>
-							);
+							)
 						});
 
-						itRenders('does not trigger inner Suspense fallbacks', async ({render, openTag}) => {
-							const h = await render(e);
-							expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
-							expect(Fallback).not.toHaveBeenCalled();
-							expect(Fallback2).not.toHaveBeenCalled();
-						}, {fallbackFast: true});
+						itRendersThis('does not trigger inner Suspense fallbacks', {
+							fallbackFast: true,
+							html: ({openTag}) => `<div${openTag}><span>Fallback outer</span></div>`,
+							test({Fallback, Fallback2}) {
+								expect(Fallback).not.toHaveBeenCalled();
+								expect(Fallback2).not.toHaveBeenCalled();
+							}
+						});
 
-						itRenders('does not call [ON_MOUNT] on lazy promises', async ({render}) => {
-							await render(e);
-							expect(Lazy).not.toBeMounted();
-							expect(Lazy2).not.toBeMounted();
-							expect(Lazy3).not.toBeMounted();
-						}, {fallbackFast: true});
+						itRendersThis('does not call [ON_MOUNT] on lazy promises', {
+							fallbackFast: true,
+							test({Lazy, Lazy2, Lazy3}) {
+								expect(Lazy).not.toBeMounted();
+								expect(Lazy2).not.toBeMounted();
+								expect(Lazy3).not.toBeMounted();
+							}
+						});
 					});
 
 					describe('and nested lazy', () => {
-						let e, LazyInner, Lazy, Lazy2, Lazy3, Fallback, Fallback2;
-						beforeEach(() => {
-							LazyInner = lazy(() => <div>Lazy</div>, {noSsr: true});
-							Lazy = lazy(() => <LazyInner />);
-							Lazy2 = lazy(() => <div>Lazy 2</div>);
-							Lazy3 = lazy(() => <div>Lazy 2</div>);
-							Fallback = spy(() => <span>Fallback 1</span>);
-							Fallback2 = spy(() => <span>Fallback 2</span>);
-
-							e = (
+						const itRendersThis = itRenders.extend({
+							prep({lazy}) {
+								const LazyInner = lazy(() => <div>Lazy</div>, {noSsr: true}),
+									Lazy = lazy(() => <LazyInner />),
+									Lazy2 = lazy(() => <div>Lazy 2</div>),
+									Lazy3 = lazy(() => <div>Lazy 2</div>),
+									Fallback = spy(() => <span>Fallback 1</span>),
+									Fallback2 = spy(() => <span>Fallback 2</span>);
+								return {LazyInner, Lazy, Lazy2, Lazy3, Fallback, Fallback2};
+							},
+							element: (
+								{Suspense, Suspended, Lazy, Lazy2, Lazy3, Fallback, Fallback2}
+							) => (
 								<div>
-									<Suspense fallback={<span>Fallback outer</span>}>
+									<Suspended fallback={<span>Fallback outer</span>}>
 										<Lazy />
 										<Suspense fallback={<Fallback />}>
 											<Suspense fallback={<Fallback2 />}>
@@ -1254,25 +1360,29 @@ describe('lazy component', () => {
 											</Suspense>
 											<Lazy3 />
 										</Suspense>
-									</Suspense>
+									</Suspended>
 								</div>
-							);
+							)
 						});
 
-						itRenders('does not trigger inner Suspense fallbacks', async ({render, openTag}) => {
-							const h = await render(e);
-							expect(h).toBe(`<div${openTag}><span>Fallback outer</span></div>`);
-							expect(Fallback).not.toHaveBeenCalled();
-							expect(Fallback2).not.toHaveBeenCalled();
-						}, {fallbackFast: true});
+						itRendersThis('does not trigger inner Suspense fallbacks', {
+							fallbackFast: true,
+							html: ({openTag}) => `<div${openTag}><span>Fallback outer</span></div>`,
+							test({Fallback, Fallback2}) {
+								expect(Fallback).not.toHaveBeenCalled();
+								expect(Fallback2).not.toHaveBeenCalled();
+							}
+						});
 
-						itRenders('does not call [ON_MOUNT] on lazy promises', async ({render}) => {
-							await render(e);
-							expect(LazyInner).not.toBeMounted();
-							expect(Lazy).not.toBeMounted();
-							expect(Lazy2).not.toBeMounted();
-							expect(Lazy3).not.toBeMounted();
-						}, {fallbackFast: true});
+						itRendersThis('does not call [ON_MOUNT] on lazy promises', {
+							fallbackFast: true,
+							test({LazyInner, Lazy, Lazy2, Lazy3}) {
+								expect(LazyInner).not.toBeMounted();
+								expect(Lazy).not.toBeMounted();
+								expect(Lazy2).not.toBeMounted();
+								expect(Lazy3).not.toBeMounted();
+							}
+						});
 					});
 				});
 			});
@@ -1280,75 +1390,65 @@ describe('lazy component', () => {
 	});
 
 	describe('not inside Suspense', () => {
-		itRenders('rejects', async ({render}) => {
-			const Lazy = lazy(() => <div>Lazy inner</div>);
-
-			const e = <div><Lazy /></div>;
-
-			const p = render(e);
-			await expect(p).rejects.toThrow(NO_SUSPENSE_ERROR);
+		const itRendersThis = itRenders.extend({
+			prep: ({lazy}) => ({
+				Lazy: lazy(() => <div>Lazy inner</div>)
+			}),
+			element: ({Lazy}) => (
+				<div><Lazy /></div>
+			)
 		});
 
-		itRenders('calls `[ABORT]()` on promise', async ({render}) => {
-			const Lazy = lazy(() => <div>Lazy inner</div>);
+		itRendersThis('rejects', {
+			async testPromise({promise}) {
+				await expect(promise).rejects.toThrow(new Error(NO_SUSPENSE_ERROR));
+			}
+		});
 
-			const e = <div><Lazy /></div>;
-
-			const p = render(e);
-			preventUnhandledRejection(p);
-
-			expect(Lazy).toBeAborted();
-
-			await expect(p).rejects.toThrow(NO_SUSPENSE_ERROR);
+		itRendersThis('calls `[ABORT]()` on promise', {
+			testPromise({Lazy}) {
+				expect(Lazy).toBeAborted();
+			}
 		});
 	});
 
 	describe('inside Suspense with no fallback', () => {
-		itRenders('rejects', async ({render}) => {
-			const Lazy = lazy(() => <div>Lazy inner</div>);
-
-			const e = (
+		const itRendersThis = itRenders.extend({
+			prep: ({lazy}) => ({
+				Lazy: lazy(() => <div>Lazy inner</div>)
+			}),
+			element: ({Suspense, Lazy}) => (
 				<div>
 					<Suspense>
 						<Lazy />
 					</Suspense>
 				</div>
-			);
-
-			const p = render(e);
-			await expect(p).rejects.toThrow(NO_SUSPENSE_ERROR);
+			)
 		});
 
-		itRenders('calls `[ABORT]()` on promise', async ({render}) => {
-			const Lazy = lazy(() => <div>Lazy inner</div>);
+		itRendersThis('rejects', {
+			async testPromise({promise}) {
+				await expect(promise).rejects.toThrow(new Error(NO_SUSPENSE_ERROR));
+			}
+		});
 
-			const e = (
-				<div>
-					<Suspense>
-						<Lazy />
-					</Suspense>
-				</div>
-			);
-
-			const p = render(e);
-			preventUnhandledRejection(p);
-
-			expect(Lazy).toBeAborted();
-
-			await expect(p).rejects.toThrow(NO_SUSPENSE_ERROR);
+		itRendersThis('calls `[ABORT]()` on promise', {
+			testPromise({Lazy}) {
+				expect(Lazy).toBeAborted();
+			}
 		});
 	});
 });
 
 describe('multiple lazy components', () => {
 	describe('with no no-SSR promises', () => {
-		let e, Lazy1, Lazy2, Lazy3;
-		beforeEach(() => {
-			Lazy1 = lazy(() => <div>Lazy inner 1</div>);
-			Lazy2 = lazy(() => <div>Lazy inner 2</div>);
-			Lazy3 = lazy(() => <div>Lazy inner 3</div>);
-
-			e = (
+		const itRendersThis = itRenders.extend({
+			prep: ({lazy}) => ({
+				Lazy1: lazy(() => <div>Lazy inner 1</div>),
+				Lazy2: lazy(() => <div>Lazy inner 2</div>),
+				Lazy3: lazy(() => <div>Lazy inner 3</div>)
+			}),
+			element: ({Suspense, Lazy1, Lazy2, Lazy3}) => (
 				<div>
 					<Suspense fallback={<span>Fallback</span>}>
 						<Lazy1 />
@@ -1356,307 +1456,246 @@ describe('multiple lazy components', () => {
 						<Lazy3 />
 					</Suspense>
 				</div>
-			);
+			)
 		});
 
-		itRenders('renders all lazily', async ({render, openTag}) => {
-			const h = await render(e);
-			expect(h).toBe(removeSpacing(`
+		itRendersThis('renders all lazily', {
+			html: ({openTag}) => (`
 				<div${openTag}>
 					<div>Lazy inner 1</div>
 					<div>Lazy inner 2</div>
 					<div>Lazy inner 3</div>
 				</div>
-			`));
+			`)
 		});
 
-		itRenders('renders all in parallel', async ({render}) => {
-			const p = render(e);
-			preventUnhandledRejection(p);
-			expect(Lazy1).toHaveBeenCalled();
-			expect(Lazy2).toHaveBeenCalled();
-			expect(Lazy3).toHaveBeenCalled();
-			await p;
+		itRendersThis('renders all in parallel', {
+			testPromise({Lazy1, Lazy2, Lazy3}) {
+				expect(Lazy1).toHaveBeenCalled();
+				expect(Lazy2).toHaveBeenCalled();
+				expect(Lazy3).toHaveBeenCalled();
+			}
 		});
 
-		itRenders('calls [ON_MOUNT] on all promises', async ({render}) => {
-			await render(e);
-			expect(Lazy1).toBeMountedWith(true);
-			expect(Lazy2).toBeMountedWith(true);
-			expect(Lazy3).toBeMountedWith(true);
-			expect(Lazy1).toBeMountedBefore(Lazy2);
-			expect(Lazy2).toBeMountedBefore(Lazy3);
+		itRendersThis('calls [ON_MOUNT] on all promises', {
+			test({Lazy1, Lazy2, Lazy3}) {
+				expect(Lazy1).toBeMountedWith(true);
+				expect(Lazy2).toBeMountedWith(true);
+				expect(Lazy3).toBeMountedWith(true);
+				expect(Lazy1).toBeMountedBefore(Lazy2);
+				expect(Lazy2).toBeMountedBefore(Lazy3);
+			}
 		});
 	});
 
 	describe('any one throwing no SSR promise aborts render and', () => {
-		itRenders('renders fallback', async ({render, openTag}) => {
-			const Lazy1 = lazy(() => <div>Lazy inner 1</div>);
-			const Lazy2 = lazy(() => <div>Lazy inner 2</div>, {noSsr: true});
-			const Lazy3 = lazy(() => <div>Lazy inner 3</div>);
+		itRenders('renders fallback', {
+			element({Suspended, lazy}) {
+				const Lazy1 = lazy(() => <div>Lazy inner 1</div>),
+					Lazy2 = lazy(() => <div>Lazy inner 2</div>, {noSsr: true}),
+					Lazy3 = lazy(() => <div>Lazy inner 3</div>);
 
-			const e = (
-				<div>
-					<div>Before Suspense</div>
-					<Suspense fallback={<span>Fallback</span>}>
-						<div>Before Lazy</div>
-						<Lazy1 />
-						<Lazy2 />
-						<Lazy3 />
-						<div>After Lazy</div>
-					</Suspense>
-					<div>After Suspense</div>
-				</div>
-			);
-
-			const h = await render(e);
-			expect(h).toBe(removeSpacing(`
+				return (
+					<div>
+						<div>Before Suspense</div>
+						<Suspended fallback={<span>Fallback</span>}>
+							<div>Before Lazy</div>
+							<Lazy1 />
+							<Lazy2 />
+							<Lazy3 />
+							<div>After Lazy</div>
+						</Suspended>
+						<div>After Suspense</div>
+					</div>
+				);
+			},
+			html: ({openTag}) => (`
 				<div${openTag}>
 					<div>Before Suspense</div>
 					<span>Fallback</span>
 					<div>After Suspense</div>
 				</div>
-			`));
+			`)
 		});
 
-		describe('with fallbackFast mode disabled', () => {
-			let e, Lazy1, Lazy2, Lazy3, Lazy4;
-			beforeEach(() => {
-				Lazy1 = lazy(() => <div>Lazy inner 1</div>);
-				Lazy2 = lazy(() => <div>Lazy inner 2</div>, {noSsr: true});
-				Lazy3 = lazy(() => <div>Lazy inner 3</div>);
-				Lazy4 = lazy(() => <div>Lazy inner 4</div>);
-
-				e = (
-					<div>
-						<Suspense fallback={<span>Fallback outer</span>}>
-							<Suspense fallback={<span>Fallback</span>}>
-								<Lazy1 />
-								<Lazy2 />
-								<Lazy3 />
-							</Suspense>
-							<Lazy4 />
-						</Suspense>
-					</div>
-				);
-			});
-
-			itRenders('still renders later elements', async ({render, openTag}) => {
-				const h = await render(e);
-
-				expect(Lazy1).toHaveBeenCalled();
-				expect(Lazy2).toHaveBeenCalled();
-				expect(Lazy3).toHaveBeenCalled();
-				expect(Lazy4).toHaveBeenCalled();
-
-				expect(h).toBe(removeSpacing(`
-					<div${openTag}>
-						<span>Fallback</span>
-						<div>Lazy inner 4</div>
-					</div>
-				`));
-			}, {fallbackFast: false});
-
-			itRenders('calls [ON_MOUNT] with false on promises inside suspense', async ({render}) => {
-				await render(e);
-				expect(Lazy1).toBeMountedWith(false);
-				expect(Lazy2).toBeMountedWith(false);
-				expect(Lazy3).toBeMountedWith(false);
-				expect(Lazy1).toBeMountedBefore(Lazy2);
-				expect(Lazy2).toBeMountedBefore(Lazy3);
-			}, {fallbackFast: false});
-
-			itRenders('calls [ON_MOUNT] with true on promises outside suspense', async ({render}) => {
-				await render(e);
-				expect(Lazy4).toBeMountedWith(true);
-				expect(Lazy3).toBeMountedBefore(Lazy4);
-			}, {fallbackFast: false});
-		});
-
-		describe('with fallbackFast mode enabled', () => {
-			let e, Lazy1, Lazy2, Lazy3, Lazy4;
-			beforeEach(() => {
-				Lazy1 = lazy(() => <div>Lazy inner 1</div>);
-				Lazy2 = lazy(() => <div>Lazy inner 2</div>, {noSsr: true});
-				Lazy3 = lazy(() => <div>Lazy inner 3</div>);
-				Lazy4 = lazy(() => <div>Lazy inner 4</div>);
-
-				e = (
-					<div>
-						<Suspense fallback={<span>Fallback outer</span>}>
-							<Suspense fallback={<span>Fallback</span>}>
-								<Lazy1 />
-								<Lazy2 />
-								<Lazy3 />
-							</Suspense>
-							<Lazy4 />
-						</Suspense>
-					</div>
-				);
-			});
-
-			itRenders('does not render later elements', async ({render, openTag}) => {
-				const h = await render(e);
-
-				expect(Lazy1).toHaveBeenCalled();
-				expect(Lazy2).toHaveBeenCalled();
-				expect(Lazy3).not.toHaveBeenCalled();
-				expect(Lazy4).toHaveBeenCalled();
-
-				expect(h).toBe(removeSpacing(`
-					<div${openTag}>
-						<span>Fallback</span>
-						<div>Lazy inner 4</div>
-					</div>
-				`));
-			}, {fallbackFast: true});
-
-			itRenders('does not call [ON_MOUNT] on promises inside suspense', async ({render}) => {
-				await render(e);
-				expect(Lazy1).not.toBeMounted();
-				expect(Lazy2).not.toBeMounted();
-				expect(Lazy3).not.toBeMounted();
-			}, {fallbackFast: true});
-
-			itRenders('calls [ON_MOUNT] with true on promises outside suspense', async ({render}) => {
-				await render(e);
-				expect(Lazy4).toBeMountedWith(true);
-			}, {fallbackFast: true});
-		});
-
-		itRenders('does not await previous promises', async ({render, openTag}) => {
-			// Lazy1 + Lazy2 throw promises which never resolve
-			const Lazy1 = () => {throw new Promise(() => {});}; // eslint-disable-line block-spacing
-			const Lazy2 = () => {throw new Promise(() => {});}; // eslint-disable-line block-spacing
-			const Lazy3 = lazy(() => <div>Lazy inner 3</div>, {noSsr: true});
-			const Lazy4 = lazy(() => <div>Lazy inner 4</div>);
-
-			const e = (
+		const itRendersThis = itRenders.extend({
+			prep: ({lazy}) => ({
+				Lazy1: lazy(() => <div>Lazy inner 1</div>),
+				Lazy2: lazy(() => <div>Lazy inner 2</div>, {noSsr: true}),
+				Lazy3: lazy(() => <div>Lazy inner 3</div>),
+				Lazy4: lazy(() => <div>Lazy inner 4</div>)
+			}),
+			element: ({Suspense, Suspended, Lazy1, Lazy2, Lazy3, Lazy4}) => (
 				<div>
 					<Suspense fallback={<span>Fallback outer</span>}>
-						<Suspense fallback={<span>Fallback</span>}>
+						<Suspended fallback={<span>Fallback</span>}>
 							<Lazy1 />
 							<Lazy2 />
 							<Lazy3 />
-						</Suspense>
+						</Suspended>
 						<Lazy4 />
 					</Suspense>
 				</div>
-			);
+			)
+		});
 
-			const h = await render(e);
+		describe('with fallbackFast mode disabled', () => {
+			itRendersThis('still renders later elements', {
+				fallbackFast: false,
+				html: ({openTag}) => (`
+					<div${openTag}>
+						<span>Fallback</span>
+						<div>Lazy inner 4</div>
+					</div>
+				`),
+				test({Lazy1, Lazy2, Lazy3, Lazy4}) {
+					expect(Lazy1).toHaveBeenCalled();
+					expect(Lazy2).toHaveBeenCalled();
+					expect(Lazy3).toHaveBeenCalled();
+					expect(Lazy4).toHaveBeenCalled();
+				}
+			});
 
-			expect(h).toBe(removeSpacing(`
+			itRendersThis('calls [ON_MOUNT] with false on promises inside suspense', {
+				fallbackFast: false,
+				test({Lazy1, Lazy2, Lazy3}) {
+					expect(Lazy1).toBeMountedWith(false);
+					expect(Lazy2).toBeMountedWith(false);
+					expect(Lazy3).toBeMountedWith(false);
+					expect(Lazy1).toBeMountedBefore(Lazy2);
+					expect(Lazy2).toBeMountedBefore(Lazy3);
+				}
+			});
+
+			itRendersThis('calls [ON_MOUNT] with true on promises outside suspense', {
+				fallbackFast: false,
+				test({Lazy3, Lazy4}) {
+					expect(Lazy4).toBeMountedWith(true);
+					expect(Lazy3).toBeMountedBefore(Lazy4);
+				}
+			});
+		});
+
+		describe('with fallbackFast mode enabled', () => {
+			itRendersThis('does not render later elements', {
+				fallbackFast: true,
+				html: ({openTag}) => (`
+					<div${openTag}>
+						<span>Fallback</span>
+						<div>Lazy inner 4</div>
+					</div>
+				`),
+				test({Lazy1, Lazy2, Lazy3, Lazy4}) {
+					expect(Lazy1).toHaveBeenCalled();
+					expect(Lazy2).toHaveBeenCalled();
+					expect(Lazy3).not.toHaveBeenCalled();
+					expect(Lazy4).toHaveBeenCalled();
+				}
+			});
+
+			itRendersThis('does not call [ON_MOUNT] on promises inside suspense', {
+				fallbackFast: true,
+				test({Lazy1, Lazy2, Lazy3}) {
+					expect(Lazy1).not.toBeMounted();
+					expect(Lazy2).not.toBeMounted();
+					expect(Lazy3).not.toBeMounted();
+				}
+			});
+
+			itRendersThis('calls [ON_MOUNT] with true on promises outside suspense', {
+				fallbackFast: true,
+				test({Lazy4}) {
+					expect(Lazy4).toBeMountedWith(true);
+				}
+			});
+		});
+
+		itRendersThis('does not await previous promises', {
+			prep: ({lazy}) => ({
+				// Lazy1 + Lazy2 throw promises which never resolve
+				Lazy1: lazy(() => null, {noResolve: true}),
+				Lazy2: lazy(() => null, {noResolve: true}),
+				Lazy3: lazy(() => <div>Lazy inner 3</div>, {noSsr: true}),
+				Lazy4: lazy(() => <div>Lazy inner 4</div>)
+			}),
+			html: ({openTag}) => (`
 				<div${openTag}>
 					<span>Fallback</span>
 					<div>Lazy inner 4</div>
 				</div>
-			`));
+			`)
 		});
 
-		itRenders(
-			'calls `[ABORT]()` on all promises inside suspense',
-			async ({render, fallbackFast, openTag}) => {
-				const Lazy1 = lazy(() => <div>Lazy inner 1</div>);
-				const Lazy2 = lazy(() => <div>Lazy inner 2</div>, {noSsr: true});
-				const Lazy3 = lazy(() => <div>Lazy inner 3</div>);
-				const Lazy4 = lazy(() => <div>Lazy inner 4</div>);
-
-				const e = (
-					<div>
-						<Suspense fallback={<span>Fallback outer</span>}>
-							<Suspense fallback={<span>Fallback</span>}>
-								<Lazy1 />
-								<Lazy2 />
-								<Lazy3 />
-							</Suspense>
-							<Lazy4 />
-						</Suspense>
-					</div>
-				);
-
-				const p = render(e);
-				preventUnhandledRejection(p);
-
+		itRendersThis('calls `[ABORT]()` on all promises inside suspense', {
+			async testPromise({promise, fallbackFast, Lazy1, Lazy2, Lazy3, Lazy4}) {
 				expect(Lazy1).toBeAborted();
 				expect(Lazy2).toBeAborted();
-				if (fallbackFast) {
-					expect(Lazy3).not.toHaveBeenCalled();
-				} else {
-					expect(Lazy3).toBeAborted();
-				}
-				expect(Lazy4).not.toBeAborted();
+				if (!fallbackFast) expect(Lazy3).toBeAborted();
 
-				const h = await p;
-				expect(h).toBe(`<div${openTag}><span>Fallback</span><div>Lazy inner 4</div></div>`);
+				await promise;
+				if (fallbackFast) expect(Lazy3).not.toHaveBeenCalled();
+				expect(Lazy4).not.toBeAborted();
 			}
-		);
+		});
 	});
 
 	describe('outside suspense', () => {
-		itRenders('rejects promise', async ({render}) => {
-			const Lazy1 = lazy(() => <div>Lazy inner 1</div>);
-			const Lazy2 = lazy(() => <div>Lazy inner 2</div>);
-			const Lazy3 = lazy(() => <div>Lazy inner 3</div>);
-
-			const e = (
+		const itRendersThis = itRenders.extend({
+			prep: ({lazy}) => ({
+				Lazy1: lazy(() => <div>Lazy inner 1</div>),
+				Lazy2: lazy(() => <div>Lazy inner 2</div>),
+				Lazy3: lazy(() => <div>Lazy inner 3</div>)
+			}),
+			element: ({Lazy1, Lazy2, Lazy3}) => (
 				<div>
 					<Lazy1 />
 					<Lazy2 />
 					<Lazy3 />
 				</div>
-			);
-
-			const p = render(e);
-			await expect(p).rejects.toThrow(NO_SUSPENSE_ERROR);
+			)
 		});
 
-		itRenders('prevents later elements being rendered', async ({render}) => {
-			const Lazy1 = lazy(() => <div>Lazy inner 1</div>);
-			const Lazy2 = lazy(() => <div>Lazy inner 2</div>);
-			const Lazy3 = lazy(() => <div>Lazy inner 3</div>);
+		itRendersThis('rejects promise', {
+			async testPromise({promise}) {
+				await expect(promise).rejects.toThrow(new Error(NO_SUSPENSE_ERROR));
+			}
+		});
 
-			const e = (
-				<div>
-					<Lazy1 />
-					<Lazy2 />
-					<Lazy3 />
-				</div>
-			);
+		itRendersThis('prevents later elements being rendered', {
+			async testPromise({promise, Lazy1, Lazy2, Lazy3}) {
+				expect(Lazy1).toHaveBeenCalled();
 
-			const p = render(e);
-			preventUnhandledRejection(p);
+				await promise.catch(() => {});
 
-			expect(Lazy1).toHaveBeenCalled();
-			expect(Lazy2).not.toHaveBeenCalled();
-			expect(Lazy3).not.toHaveBeenCalled();
-
-			await expect(p).rejects.toThrow(NO_SUSPENSE_ERROR);
+				expect(Lazy2).not.toHaveBeenCalled();
+				expect(Lazy3).not.toHaveBeenCalled();
+			}
 		});
 	});
 });
 
 describe('nested lazy components', () => {
 	describe('with no no-SSR promises', () => {
-		let e, Lazy, Lazy2, Lazy3;
-		beforeEach(() => {
-			Lazy3 = lazy(() => <div>Lazy inner</div>);
-			Lazy2 = lazy(() => (
-				<div>
-					Before Lazy Layer 2
-					<Lazy3 />
-					After Lazy Layer 2
-				</div>
-			));
-			Lazy = lazy(() => (
-				<div>
-					Before Lazy Layer 1
-					<Lazy2 />
-					After Lazy Layer 1
-				</div>
-			));
-
-			e = (
+		const itRendersThis = itRenders.extend({
+			prep({lazy}) {
+				const Lazy3 = lazy(() => <div>Lazy inner</div>),
+					Lazy2 = lazy(() => (
+						<div>
+							Before Lazy Layer 2
+							<Lazy3 />
+							After Lazy Layer 2
+						</div>
+					)),
+					Lazy = lazy(() => (
+						<div>
+							Before Lazy Layer 1
+							<Lazy2 />
+							After Lazy Layer 1
+						</div>
+					));
+				return {Lazy, Lazy2, Lazy3};
+			},
+			element: ({Suspense, Lazy}) => (
 				<div>
 					<div>Before Suspense</div>
 					<Suspense fallback={<span>Fallback</span>}>
@@ -1666,12 +1705,11 @@ describe('nested lazy components', () => {
 					</Suspense>
 					<div>After Suspense</div>
 				</div>
-			);
+			)
 		});
 
-		itRenders('renders lazily', async ({render, openTag}) => {
-			const h = await render(e);
-			expect(h).toBe(removeSpacing(`
+		itRendersThis('renders lazily', {
+			html: ({openTag}) => (`
 				<div${openTag}>
 					<div>Before Suspense</div>
 					<div>Before Lazy</div>
@@ -1687,213 +1725,221 @@ describe('nested lazy components', () => {
 					<div>After Lazy</div>
 					<div>After Suspense</div>
 				</div>
-			`));
+			`)
 		});
 
-		itRenders('calls [ON_MOUNT] on all promises with true', async ({render}) => {
-			await render(e);
-			expect(Lazy).toBeMountedWith(true);
-			expect(Lazy2).toBeMountedWith(true);
-			expect(Lazy3).toBeMountedWith(true);
-			expect(Lazy).toBeMountedBefore(Lazy2);
-			expect(Lazy2).toBeMountedBefore(Lazy3);
+		itRendersThis('calls [ON_MOUNT] on all promises with true', {
+			test({Lazy, Lazy2, Lazy3}) {
+				expect(Lazy).toBeMountedWith(true);
+				expect(Lazy2).toBeMountedWith(true);
+				expect(Lazy3).toBeMountedWith(true);
+				expect(Lazy).toBeMountedBefore(Lazy2);
+				expect(Lazy2).toBeMountedBefore(Lazy3);
+			}
 		});
 	});
 
 	describe('when promise marked no SSR', () => {
 		describe('nested 1 deep', () => {
-			let e, Lazy, LazyInner;
-			beforeEach(() => {
-				LazyInner = lazy(() => <div>Lazy inner</div>, {noSsr: true});
-				Lazy = lazy(() => (
-					<div>
-						Before Lazy Layer 1
-						<LazyInner />
-						After Lazy Layer 1
-					</div>
-				));
-
-				e = (
+			const itRendersThis = itRenders.extend({
+				prep({lazy}) {
+					const LazyInner = lazy(() => <div>Lazy inner</div>, {noSsr: true}),
+						Lazy = lazy(() => (
+							<div>
+								Before Lazy Layer 1
+								<LazyInner />
+								After Lazy Layer 1
+							</div>
+						));
+					return {Lazy, LazyInner};
+				},
+				element: ({Suspended, Lazy}) => (
 					<div>
 						<div>Before Suspense</div>
-						<Suspense fallback={<span>Fallback</span>}>
+						<Suspended fallback={<span>Fallback</span>}>
 							<div>Before Lazy</div>
 							<Lazy />
 							<div>After Lazy</div>
-						</Suspense>
+						</Suspended>
 						<div>After Suspense</div>
 					</div>
-				);
+				)
 			});
 
-			itRenders('renders fallback', async ({render, openTag}) => {
-				const h = await render(e);
-				expect(h).toBe(removeSpacing(`
+			itRendersThis('renders fallback', {
+				html: ({openTag}) => (`
 					<div${openTag}>
 						<div>Before Suspense</div>
 						<span>Fallback</span>
 						<div>After Suspense</div>
 					</div>
-				`));
+				`)
 			});
 
-			itRenders('calls [ON_MOUNT] with false on outer promise only when fallbackFast mode disabled', async ({render}) => {
-				await render(e);
-				expect(Lazy).toBeMountedWith(false);
-				expect(LazyInner).not.toBeMounted();
-			}, {fallbackFast: false});
+			itRendersThis('calls [ON_MOUNT] with false on outer promise only when fallbackFast mode disabled', {
+				fallbackFast: false,
+				test({Lazy, LazyInner}) {
+					expect(Lazy).toBeMountedWith(false);
+					expect(LazyInner).not.toBeMounted();
+				}
+			});
 
-			itRenders('does not call [ON_MOUNT] on promises when fallbackFast mode enabled', async ({render}) => {
-				await render(e);
-				expect(Lazy).not.toBeMounted();
-				expect(LazyInner).not.toBeMounted();
-			}, {fallbackFast: true});
+			itRendersThis('does not call [ON_MOUNT] on promises when fallbackFast mode enabled', {
+				fallbackFast: true,
+				test({Lazy, LazyInner}) {
+					expect(Lazy).not.toBeMounted();
+					expect(LazyInner).not.toBeMounted();
+				}
+			});
 		});
 
 		describe('nested 2 deep', () => {
-			let e, Lazy, LazyInner, LazyInnerInner;
-			beforeEach(() => {
-				LazyInnerInner = lazy(() => <div>Lazy inner</div>, {noSsr: true});
-				LazyInner = lazy(() => (
-					<div>
-						Before Lazy Layer 2
-						<LazyInnerInner />
-						After Lazy Layer 2
-					</div>
-				));
-				Lazy = lazy(() => (
-					<div>
-						Before Lazy Layer 1
-						<LazyInner />
-						After Lazy Layer 1
-					</div>
-				));
-
-				e = (
+			const itRendersThis = itRenders.extend({
+				prep({lazy}) {
+					const LazyInnerInner = lazy(() => <div>Lazy inner</div>, {noSsr: true}),
+						LazyInner = lazy(() => (
+							<div>
+								Before Lazy Layer 2
+								<LazyInnerInner />
+								After Lazy Layer 2
+							</div>
+						)),
+						Lazy = lazy(() => (
+							<div>
+								Before Lazy Layer 1
+								<LazyInner />
+								After Lazy Layer 1
+							</div>
+						));
+					return {Lazy, LazyInner, LazyInnerInner};
+				},
+				element: ({Suspended, Lazy}) => (
 					<div>
 						<div>Before Suspense</div>
-						<Suspense fallback={<span>Fallback</span>}>
+						<Suspended fallback={<span>Fallback</span>}>
 							<div>Before Lazy</div>
 							<Lazy />
 							<div>After Lazy</div>
-						</Suspense>
+						</Suspended>
 						<div>After Suspense</div>
 					</div>
-				);
+				)
 			});
 
-			itRenders('renders fallback', async ({render, openTag}) => {
-				const h = await render(e);
-				expect(h).toBe(removeSpacing(`
+			itRendersThis('renders fallback', {
+				html: ({openTag}) => (`
 					<div${openTag}>
 						<div>Before Suspense</div>
 						<span>Fallback</span>
 						<div>After Suspense</div>
 					</div>
-				`));
+				`)
 			});
 
-			itRenders('calls [ON_MOUNT] with false on outer promise only when fallbackFast mode disabled', async ({render}) => {
-				await render(e);
-				expect(Lazy).toBeMountedWith(false);
-				expect(LazyInner).not.toBeMounted();
-				expect(LazyInnerInner).not.toBeMounted();
-			}, {fallbackFast: false});
+			itRendersThis('calls [ON_MOUNT] with false on outer promise only when fallbackFast mode disabled', {
+				fallbackFast: false,
+				test({Lazy, LazyInner, LazyInnerInner}) {
+					expect(Lazy).toBeMountedWith(false);
+					expect(LazyInner).not.toBeMounted();
+					expect(LazyInnerInner).not.toBeMounted();
+				}
+			});
 
-			itRenders('does not call [ON_MOUNT] on promises when fallbackFast mode enabled', async ({render}) => {
-				await render(e);
-				expect(Lazy).not.toBeMounted();
-				expect(LazyInner).not.toBeMounted();
-				expect(LazyInnerInner).not.toBeMounted();
-			}, {fallbackFast: true});
+			itRendersThis('does not call [ON_MOUNT] on promises when fallbackFast mode enabled', {
+				fallbackFast: true,
+				test({Lazy, LazyInner, LazyInnerInner}) {
+					expect(Lazy).not.toBeMounted();
+					expect(LazyInner).not.toBeMounted();
+					expect(LazyInnerInner).not.toBeMounted();
+				}
+			});
 		});
 	});
 
 	describe('any one throwing promise aborts render and', () => {
 		describe('calls `[ABORT]()` on all promises inside suspense', () => {
-			itRenders('when triggered from inside nested lazy element', async ({render, openTag}) => {
-				const Lazy1 = lazy(() => <div>Lazy inner 1</div>, {delay: 500});
-				const Lazy2 = lazy(() => <div>Lazy inner 2</div>, {delay: 500});
-				const Lazy3Inner = lazy(() => <div>Lazy inner 3</div>, {noSsr: true});
-				const Lazy3 = lazy(() => <Lazy3Inner />);
-
-				const e = (
+			itRenders('when triggered from inside nested lazy element', {
+				prep({lazy}) {
+					const Lazy1 = lazy(() => <div>Lazy inner 1</div>, {delay: 500}),
+						Lazy2 = lazy(() => <div>Lazy inner 2</div>, {delay: 500}),
+						Lazy3Inner = lazy(() => <div>Lazy inner 3</div>, {noSsr: true}),
+						Lazy3 = lazy(() => <Lazy3Inner />);
+					return {Lazy1, Lazy2, Lazy3Inner, Lazy3};
+				},
+				element: ({Suspended, Lazy1, Lazy2, Lazy3}) => (
 					<div>
-						<Suspense fallback={<span>Fallback</span>}>
+						<Suspended fallback={<span>Fallback</span>}>
 							<Lazy1 />
 							<Lazy2 />
 							<Lazy3 />
-						</Suspense>
+						</Suspended>
 					</div>
-				);
+				),
+				async testPromise({promise, Lazy1, Lazy2, Lazy3Inner, Lazy3}) {
+					await Lazy3.promise;
 
-				const p = render(e);
-				preventUnhandledRejection(p);
+					expect(Lazy1).toBeAborted();
+					expect(Lazy2).toBeAborted();
+					expect(Lazy3Inner).toBeAborted();
 
-				await Lazy3.promise;
+					await promise;
 
-				expect(Lazy1).toBeAborted();
-				expect(Lazy2).toBeAborted();
-				expect(Lazy3).not.toBeAborted();
-				expect(Lazy3Inner).toBeAborted();
-
-				const h = await p;
-
-				expect(h).toBe(`<div${openTag}><span>Fallback</span></div>`);
+					expect(Lazy3).not.toBeAborted();
+				},
+				html: ({openTag}) => `<div${openTag}><span>Fallback</span></div>`
 			});
 
-			itRenders('including inside nested lazy element', async ({render, openTag}) => {
-				const Lazy1Inner = lazy(() => <div>Lazy inner 1</div>, {delay: 500});
-				const Lazy1 = lazy(() => <Lazy1Inner />);
-				const Lazy2Inner = lazy(() => <div>Lazy inner 2</div>, {noSsr: true});
-				const Lazy2 = lazy(() => <Lazy2Inner />);
-
-				const e = (
+			itRenders('including inside nested lazy element', {
+				prep({lazy}) {
+					const Lazy1Inner = lazy(() => <div>Lazy inner 1</div>, {delay: 500}),
+						Lazy1 = lazy(() => <Lazy1Inner />),
+						Lazy2Inner = lazy(() => <div>Lazy inner 2</div>, {noSsr: true}),
+						Lazy2 = lazy(() => <Lazy2Inner />);
+					return {Lazy1, Lazy1Inner, Lazy2, Lazy2Inner};
+				},
+				element: ({Suspended, Lazy1, Lazy2}) => (
 					<div>
-						<Suspense fallback={<span>Fallback</span>}>
+						<Suspended fallback={<span>Fallback</span>}>
 							<Lazy1 />
 							<Lazy2 />
-						</Suspense>
+						</Suspended>
 					</div>
-				);
+				),
+				async testPromise({promise, Lazy1, Lazy1Inner, Lazy2, Lazy2Inner}) {
+					await Lazy1.promise;
+					await Lazy2.promise;
 
-				const p = render(e);
-				preventUnhandledRejection(p);
+					expect(Lazy1Inner).toBeAborted();
+					expect(Lazy2Inner).toBeAborted();
 
-				await Lazy1.promise;
-				await Lazy2.promise;
+					await promise;
 
-				expect(Lazy1).not.toBeAborted();
-				expect(Lazy1Inner).toBeAborted();
-				expect(Lazy2).not.toBeAborted();
-				expect(Lazy2Inner).toBeAborted();
-
-				const h = await p;
-
-				expect(h).toBe(`<div${openTag}><span>Fallback</span></div>`);
+					expect(Lazy1).not.toBeAborted();
+					expect(Lazy2).not.toBeAborted();
+				},
+				html: ({openTag}) => `<div${openTag}><span>Fallback</span></div>`
 			});
 		});
 
-		itRenders('does not await previous promises', async ({render, openTag}) => {
-			// Lazy1 + Lazy2 throw promises which never resolve
-			const Lazy1 = () => {throw new Promise(() => {});}; // eslint-disable-line block-spacing
-			const Lazy2 = () => {throw new Promise(() => {});}; // eslint-disable-line block-spacing
-			const Lazy3Inner = lazy(() => <div>Lazy inner 3</div>, {noSsr: true});
-			const Lazy3 = lazy(() => <Lazy3Inner />);
+		itRenders('does not await previous promises', {
+			element({Suspended, lazy}) {
+				// Lazy1 + Lazy2 throw promises which never resolve
+				const Lazy1 = lazy(() => null, {noResolve: true}),
+					Lazy2 = lazy(() => null, {noResolve: true}),
+					Lazy3Inner = lazy(() => <div>Lazy inner 3</div>, {noSsr: true}),
+					Lazy3 = lazy(() => <Lazy3Inner />);
 
-			const e = (
-				<div>
-					<Suspense fallback={<span>Fallback</span>}>
-						<Lazy1 />
-						<Lazy2 />
-						<Lazy3 />
-					</Suspense>
-				</div>
-			);
-
-			const h = await render(e);
-
-			expect(h).toBe(`<div${openTag}><span>Fallback</span></div>`);
+				return (
+					<div>
+						<Suspended fallback={<span>Fallback</span>}>
+							<Lazy1 />
+							<Lazy2 />
+							<Lazy3 />
+						</Suspended>
+					</div>
+				);
+			},
+			html: ({openTag}) => `<div${openTag}><span>Fallback</span></div>`
 		});
 	});
 });

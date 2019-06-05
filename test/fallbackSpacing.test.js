@@ -9,354 +9,307 @@
 const React = require('react');
 
 // Imports
-const {itRendersWithSyncCompare, lazy} = require('./utils');
+const itRenders = require('./utils/itRenders');
+
+// Init
+require('./utils');
 
 // Tests
 
 describe('suspense fallback spaces correctly', () => {
-	let Lazy;
-	beforeEach(() => {
-		Lazy = lazy(() => <div>Lazy inner</div>, {noSsr: true});
+	const itRendersWithLazy = itRenders.extend({
+		prep: ({lazy}) => ({
+			Lazy: lazy(() => <div>Lazy inner</div>, {noSsr: true})
+		})
 	});
 
 	describe('with string inside fallback', () => {
 		describe('only', () => {
-			itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback}) => {
-				const e = (
-					<Fallback fallback="Fallback">
+			itRendersWithLazy('and nothing before lazy', {
+				element: ({Lazy, Suspended}) => (
+					<Suspended fallback="Fallback">
 						<Lazy />
-					</Fallback>
-				);
-
-				const h = await render(e);
-				expect(h).toBe('Fallback');
+					</Suspended>
+				),
+				html: 'Fallback'
 			});
 
-			itRendersWithSyncCompare('and string before lazy', async ({render, Fallback}) => {
-				const e = (
-					<Fallback fallback="Fallback">
+			itRendersWithLazy('and string before lazy', {
+				element: ({Lazy, Suspended}) => (
+					<Suspended fallback="Fallback">
 						Before Lazy
 						<Lazy />
-					</Fallback>
-				);
-
-				const h = await render(e);
-				expect(h).toBe('Fallback');
+					</Suspended>
+				),
+				html: 'Fallback'
 			});
 
-			itRendersWithSyncCompare('and div before lazy', async ({render, Fallback}) => {
-				const e = (
-					<Fallback fallback="Fallback">
+			itRendersWithLazy('and div before lazy', {
+				element: ({Lazy, Suspended}) => (
+					<Suspended fallback="Fallback">
 						<div>Before Lazy</div>
 						<Lazy />
-					</Fallback>
-				);
-
-				const h = await render(e);
-				expect(h).toBe('Fallback');
+					</Suspended>
+				),
+				html: 'Fallback'
 			});
 		});
 
 		describe('and string(s)', () => {
 			describe('before', () => {
-				itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback, isStatic}) => {
-					const e = (
+				itRendersWithLazy('and nothing before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							Before
-							<Fallback fallback="Fallback">
+							<Suspended fallback="Fallback">
 								<Lazy />
-							</Fallback>
+							</Suspended>
 						</div>
-					);
-
-					const h = await render(e);
-					expect(h).toBe(isStatic
-						? '<div>BeforeFallback</div>'
-						: '<div data-reactroot="">Before<!-- -->Fallback</div>');
+					),
+					htmlStatic: '<div>BeforeFallback</div>',
+					htmlNonStatic: '<div data-reactroot="">Before<!-- -->Fallback</div>'
 				});
 
-				itRendersWithSyncCompare('and string before lazy', async ({render, Fallback, isStatic}) => {
-					const e = (
+				itRendersWithLazy('and string before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							Before
-							<Fallback fallback="Fallback">
+							<Suspended fallback="Fallback">
 								Before Lazy
 								<Lazy />
-							</Fallback>
+							</Suspended>
 						</div>
-					);
-
-					const h = await render(e);
-					expect(h).toBe(isStatic
-						? '<div>BeforeFallback</div>'
-						: '<div data-reactroot="">Before<!-- -->Fallback</div>');
+					),
+					htmlStatic: '<div>BeforeFallback</div>',
+					htmlNonStatic: '<div data-reactroot="">Before<!-- -->Fallback</div>'
 				});
 
-				itRendersWithSyncCompare('and div before lazy', async ({render, Fallback, isStatic}) => {
-					const e = (
+				itRendersWithLazy('and div before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							Before
-							<Fallback fallback="Fallback">
+							<Suspended fallback="Fallback">
 								<div>Before Lazy</div>
 								<Lazy />
-							</Fallback>
+							</Suspended>
 						</div>
-					);
-
-					const h = await render(e);
-					expect(h).toBe(isStatic
-						? '<div>BeforeFallback</div>'
-						: '<div data-reactroot="">Before<!-- -->Fallback</div>');
+					),
+					htmlStatic: '<div>BeforeFallback</div>',
+					htmlNonStatic: '<div data-reactroot="">Before<!-- -->Fallback</div>'
 				});
 			});
 
 			describe('after', () => {
-				itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback, isStatic}) => {
-					const e = (
+				itRendersWithLazy('and nothing before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
-							<Fallback fallback="Fallback">
+							<Suspended fallback="Fallback">
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							After
 						</div>
-					);
-
-					const h = await render(e);
-					expect(h).toBe(isStatic
-						? '<div>FallbackAfter</div>'
-						: '<div data-reactroot="">Fallback<!-- -->After</div>');
+					),
+					htmlStatic: '<div>FallbackAfter</div>',
+					htmlNonStatic: '<div data-reactroot="">Fallback<!-- -->After</div>'
 				});
 
-				itRendersWithSyncCompare('and string before lazy', async ({render, Fallback, isStatic}) => {
-					const e = (
+				itRendersWithLazy('and string before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
-							<Fallback fallback="Fallback">
+							<Suspended fallback="Fallback">
 								Before Lazy
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							After
 						</div>
-					);
-
-					const h = await render(e);
-					expect(h).toBe(isStatic
-						? '<div>FallbackAfter</div>'
-						: '<div data-reactroot="">Fallback<!-- -->After</div>');
+					),
+					htmlStatic: '<div>FallbackAfter</div>',
+					htmlNonStatic: '<div data-reactroot="">Fallback<!-- -->After</div>'
 				});
 
-				itRendersWithSyncCompare('and div before lazy', async ({render, Fallback, isStatic}) => {
-					const e = (
+				itRendersWithLazy('and div before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
-							<Fallback fallback="Fallback">
+							<Suspended fallback="Fallback">
 								<div>Before Lazy</div>
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							After
 						</div>
-					);
-
-					const h = await render(e);
-					expect(h).toBe(isStatic
-						? '<div>FallbackAfter</div>'
-						: '<div data-reactroot="">Fallback<!-- -->After</div>');
+					),
+					htmlStatic: '<div>FallbackAfter</div>',
+					htmlNonStatic: '<div data-reactroot="">Fallback<!-- -->After</div>'
 				});
 			});
 
 			describe('before and after', () => {
-				itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback, isStatic}) => {
-					const e = (
+				itRendersWithLazy('and nothing before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							Before
-							<Fallback fallback="Fallback">
+							<Suspended fallback="Fallback">
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							After
 						</div>
-					);
-
-					const h = await render(e);
-					expect(h).toBe(isStatic
-						? '<div>BeforeFallbackAfter</div>'
-						: '<div data-reactroot="">Before<!-- -->Fallback<!-- -->After</div>');
+					),
+					htmlStatic: '<div>BeforeFallbackAfter</div>',
+					htmlNonStatic: '<div data-reactroot="">Before<!-- -->Fallback<!-- -->After</div>'
 				});
 
-				itRendersWithSyncCompare('and string before lazy', async ({render, Fallback, isStatic}) => {
-					const e = (
+				itRendersWithLazy('and string before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							Before
-							<Fallback fallback="Fallback">
+							<Suspended fallback="Fallback">
 								Before Lazy
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							After
 						</div>
-					);
-
-					const h = await render(e);
-					expect(h).toBe(isStatic
-						? '<div>BeforeFallbackAfter</div>'
-						: '<div data-reactroot="">Before<!-- -->Fallback<!-- -->After</div>');
+					),
+					htmlStatic: '<div>BeforeFallbackAfter</div>',
+					htmlNonStatic: '<div data-reactroot="">Before<!-- -->Fallback<!-- -->After</div>'
 				});
 
-				itRendersWithSyncCompare('and div before lazy', async ({render, Fallback, isStatic}) => {
-					const e = (
+				itRendersWithLazy('and div before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							Before
-							<Fallback fallback="Fallback">
+							<Suspended fallback="Fallback">
 								<div>Before Lazy</div>
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							After
 						</div>
-					);
-
-					const h = await render(e);
-					expect(h).toBe(isStatic
-						? '<div>BeforeFallbackAfter</div>'
-						: '<div data-reactroot="">Before<!-- -->Fallback<!-- -->After</div>');
+					),
+					htmlStatic: '<div>BeforeFallbackAfter</div>',
+					htmlNonStatic: '<div data-reactroot="">Before<!-- -->Fallback<!-- -->After</div>'
 				});
 			});
 		});
 
 		describe('and div(s)', () => {
 			describe('before', () => {
-				itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and nothing before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							<div>Before</div>
-							<Fallback fallback="Fallback">
+							<Suspended fallback="Fallback">
 								<Lazy />
-							</Fallback>
+							</Suspended>
 						</div>
-					);
-
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>Before</div>Fallback</div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>Before</div>Fallback</div>`
 				});
 
-				itRendersWithSyncCompare('and string before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and string before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							<div>Before</div>
-							<Fallback fallback="Fallback">
+							<Suspended fallback="Fallback">
 								Before Lazy
 								<Lazy />
-							</Fallback>
+							</Suspended>
 						</div>
-					);
-
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>Before</div>Fallback</div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>Before</div>Fallback</div>`
 				});
 
-				itRendersWithSyncCompare('and div before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and div before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							<div>Before</div>
-							<Fallback fallback="Fallback">
+							<Suspended fallback="Fallback">
 								<div>Before Lazy</div>
 								<Lazy />
-							</Fallback>
+							</Suspended>
 						</div>
-					);
-
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>Before</div>Fallback</div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>Before</div>Fallback</div>`
 				});
 			});
 
 			describe('after', () => {
-				itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and nothing before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
-							<Fallback fallback="Fallback">
+							<Suspended fallback="Fallback">
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							<div>After</div>
 						</div>
-					);
-
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}>Fallback<div>After</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}>Fallback<div>After</div></div>`
 				});
 
-				itRendersWithSyncCompare('and string before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and string before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
-							<Fallback fallback="Fallback">
+							<Suspended fallback="Fallback">
 								Before Lazy
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							<div>After</div>
 						</div>
-					);
-
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}>Fallback<div>After</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}>Fallback<div>After</div></div>`
 				});
 
-				itRendersWithSyncCompare('and div before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and div before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
-							<Fallback fallback="Fallback">
+							<Suspended fallback="Fallback">
 								<div>Before Lazy</div>
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							<div>After</div>
 						</div>
-					);
-
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}>Fallback<div>After</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}>Fallback<div>After</div></div>`
 				});
 			});
 
 			describe('before and after', () => {
-				itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and nothing before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							<div>Before</div>
-							<Fallback fallback="Fallback">
+							<Suspended fallback="Fallback">
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							<div>After</div>
 						</div>
-					);
-
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>Before</div>Fallback<div>After</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>Before</div>Fallback<div>After</div></div>`
 				});
 
-				itRendersWithSyncCompare('and string before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and string before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							<div>Before</div>
-							<Fallback fallback="Fallback">
+							<Suspended fallback="Fallback">
 								Before Lazy
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							<div>After</div>
 						</div>
-					);
-
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>Before</div>Fallback<div>After</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>Before</div>Fallback<div>After</div></div>`
 				});
 
-				itRendersWithSyncCompare('and div before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and div before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							<div>Before</div>
-							<Fallback fallback="Fallback">
+							<Suspended fallback="Fallback">
 								<div>Before Lazy</div>
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							<div>After</div>
 						</div>
-					);
-
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>Before</div>Fallback<div>After</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>Before</div>Fallback<div>After</div></div>`
 				});
 			});
 		});
@@ -364,293 +317,271 @@ describe('suspense fallback spaces correctly', () => {
 
 	describe('with null fallback', () => {
 		describe('only', () => {
-			itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback}) => {
-				const e = <Fallback fallback={null}><Lazy /></Fallback>;
-				const h = await render(e);
-				expect(h).toBe('');
+			itRendersWithLazy('and nothing before lazy', {
+				element: ({Lazy, Suspended}) => (
+					<Suspended fallback={null}><Lazy /></Suspended>
+				),
+				html: ''
 			});
 
-			itRendersWithSyncCompare('and string before lazy', async ({render, Fallback}) => {
-				const e = (
-					<Fallback fallback={null}>
+			itRendersWithLazy('and string before lazy', {
+				element: ({Lazy, Suspended}) => (
+					<Suspended fallback={null}>
 						Before Lazy
 						<Lazy />
-					</Fallback>
-				);
-				const h = await render(e);
-				expect(h).toBe('');
+					</Suspended>
+				),
+				html: ''
 			});
 
-			itRendersWithSyncCompare('and div before lazy', async ({render, Fallback}) => {
-				const e = (
-					<Fallback fallback={null}>
+			itRendersWithLazy('and div before lazy', {
+				element: ({Lazy, Suspended}) => (
+					<Suspended fallback={null}>
 						<div>Before Lazy</div>
 						<Lazy />
-					</Fallback>
-				);
-				const h = await render(e);
-				expect(h).toBe('');
+					</Suspended>
+				),
+				html: ''
 			});
 		});
 
 		describe('and string(s)', () => {
 			describe('before', () => {
-				itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and nothing before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							Before
-							<Fallback fallback={null}><Lazy /></Fallback>
+							<Suspended fallback={null}><Lazy /></Suspended>
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}>Before</div>`);
+					),
+					html: ({openTag}) => `<div${openTag}>Before</div>`
 				});
 
-				itRendersWithSyncCompare('and string before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and string before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							Before
-							<Fallback fallback={null}>
+							<Suspended fallback={null}>
 								Before Lazy
 								<Lazy />
-							</Fallback>
+							</Suspended>
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}>Before</div>`);
+					),
+					html: ({openTag}) => `<div${openTag}>Before</div>`
 				});
 
-				itRendersWithSyncCompare('and div before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and div before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							Before
-							<Fallback fallback={null}>
+							<Suspended fallback={null}>
 								<div>Before Lazy</div>
 								<Lazy />
-							</Fallback>
+							</Suspended>
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}>Before</div>`);
+					),
+					html: ({openTag}) => `<div${openTag}>Before</div>`
 				});
 			});
 
 			describe('after', () => {
-				itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and nothing before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
-							<Fallback fallback={null}><Lazy /></Fallback>
+							<Suspended fallback={null}><Lazy /></Suspended>
 							After
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}>After</div>`);
+					),
+					html: ({openTag}) => `<div${openTag}>After</div>`
 				});
 
-				itRendersWithSyncCompare('and string before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and string before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
-							<Fallback fallback={null}>
+							<Suspended fallback={null}>
 								Before Lazy
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							After
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}>After</div>`);
+					),
+					html: ({openTag}) => `<div${openTag}>After</div>`
 				});
 
-				itRendersWithSyncCompare('and div before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and div before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
-							<Fallback fallback={null}>
+							<Suspended fallback={null}>
 								<div>Before Lazy</div>
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							After
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}>After</div>`);
+					),
+					html: ({openTag}) => `<div${openTag}>After</div>`
 				});
 			});
 
 			describe('before and after', () => {
-				itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback, isStatic}) => {
-					const e = (
+				itRendersWithLazy('and nothing before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							Before
-							<Fallback fallback={null}><Lazy /></Fallback>
+							<Suspended fallback={null}><Lazy /></Suspended>
 							After
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(isStatic
-						? '<div>BeforeAfter</div>'
-						: '<div data-reactroot="">Before<!-- -->After</div>');
+					),
+					htmlStatic: '<div>BeforeAfter</div>',
+					htmlNonStatic: '<div data-reactroot="">Before<!-- -->After</div>'
 				});
 
-				itRendersWithSyncCompare('and string before lazy', async ({render, Fallback, isStatic}) => {
-					const e = (
+				itRendersWithLazy('and string before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							Before
-							<Fallback fallback={null}>
+							<Suspended fallback={null}>
 								Before Lazy
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							After
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(isStatic
-						? '<div>BeforeAfter</div>'
-						: '<div data-reactroot="">Before<!-- -->After</div>');
+					),
+					htmlStatic: '<div>BeforeAfter</div>',
+					htmlNonStatic: '<div data-reactroot="">Before<!-- -->After</div>'
 				});
 
-				itRendersWithSyncCompare('and div before lazy', async ({render, Fallback, isStatic}) => {
-					const e = (
+				itRendersWithLazy('and div before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							Before
-							<Fallback fallback={null}>
+							<Suspended fallback={null}>
 								<div>Before Lazy</div>
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							After
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(isStatic
-						? '<div>BeforeAfter</div>'
-						: '<div data-reactroot="">Before<!-- -->After</div>');
+					),
+					htmlStatic: '<div>BeforeAfter</div>',
+					htmlNonStatic: '<div data-reactroot="">Before<!-- -->After</div>'
 				});
 			});
 		});
 
 		describe('and div(s)', () => {
 			describe('before', () => {
-				itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and nothing before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							<div>Before</div>
-							<Fallback fallback={null}><Lazy /></Fallback>
+							<Suspended fallback={null}><Lazy /></Suspended>
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>Before</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>Before</div></div>`
 				});
 
-				itRendersWithSyncCompare('and string before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and string before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							<div>Before</div>
-							<Fallback fallback={null}>
+							<Suspended fallback={null}>
 								Before Lazy
 								<Lazy />
-							</Fallback>
+							</Suspended>
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>Before</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>Before</div></div>`
 				});
 
-				itRendersWithSyncCompare('and div before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and div before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							<div>Before</div>
-							<Fallback fallback={null}>
+							<Suspended fallback={null}>
 								<div>Before Lazy</div>
 								<Lazy />
-							</Fallback>
+							</Suspended>
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>Before</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>Before</div></div>`
 				});
 			});
 
 			describe('after', () => {
-				itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and nothing before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
-							<Fallback fallback={null}><Lazy /></Fallback>
+							<Suspended fallback={null}><Lazy /></Suspended>
 							<div>After</div>
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>After</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>After</div></div>`
 				});
 
-				itRendersWithSyncCompare('and string before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and string before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
-							<Fallback fallback={null}>
+							<Suspended fallback={null}>
 								Before Lazy
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							<div>After</div>
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>After</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>After</div></div>`
 				});
 
-				itRendersWithSyncCompare('and div before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and div before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
-							<Fallback fallback={null}>
+							<Suspended fallback={null}>
 								<div>Before Lazy</div>
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							<div>After</div>
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>After</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>After</div></div>`
 				});
 			});
 
 			describe('before and after', () => {
-				itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and nothing before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							<div>Before</div>
-							<Fallback fallback={null}><Lazy /></Fallback>
+							<Suspended fallback={null}><Lazy /></Suspended>
 							<div>After</div>
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>Before</div><div>After</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>Before</div><div>After</div></div>`
 				});
 
-				itRendersWithSyncCompare('and string before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and string before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							<div>Before</div>
-							<Fallback fallback={null}>
+							<Suspended fallback={null}>
 								Before Lazy
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							<div>After</div>
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>Before</div><div>After</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>Before</div><div>After</div></div>`
 				});
 
-				itRendersWithSyncCompare('and div before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and div before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							<div>Before</div>
-							<Fallback fallback={null}>
+							<Suspended fallback={null}>
 								<div>Before Lazy</div>
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							<div>After</div>
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>Before</div><div>After</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>Before</div><div>After</div></div>`
 				});
 			});
 		});
@@ -658,289 +589,270 @@ describe('suspense fallback spaces correctly', () => {
 
 	describe('with div inside fallback', () => {
 		describe('only', () => {
-			itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback, openTag}) => {
-				const e = <Fallback fallback={<div>Fallback</div>}><Lazy /></Fallback>;
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}>Fallback</div>`);
+			itRendersWithLazy('and nothing before lazy', {
+				element: ({Lazy, Suspended}) => (
+					<Suspended fallback={<div>Fallback</div>}><Lazy /></Suspended>
+				),
+				html: ({openTag}) => `<div${openTag}>Fallback</div>`
 			});
 
-			itRendersWithSyncCompare('and string before lazy', async ({render, Fallback, openTag}) => {
-				const e = (
-					<Fallback fallback={<div>Fallback</div>}>
+			itRendersWithLazy('and string before lazy', {
+				element: ({Lazy, Suspended}) => (
+					<Suspended fallback={<div>Fallback</div>}>
 						Before Lazy
 						<Lazy />
-					</Fallback>
-				);
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}>Fallback</div>`);
+					</Suspended>
+				),
+				html: ({openTag}) => `<div${openTag}>Fallback</div>`
 			});
 
-			itRendersWithSyncCompare('and div before lazy', async ({render, Fallback, openTag}) => {
-				const e = (
-					<Fallback fallback={<div>Fallback</div>}>
+			itRendersWithLazy('and div before lazy', {
+				element: ({Lazy, Suspended}) => (
+					<Suspended fallback={<div>Fallback</div>}>
 						<div>Before Lazy</div>
 						<Lazy />
-					</Fallback>
-				);
-				const h = await render(e);
-				expect(h).toBe(`<div${openTag}>Fallback</div>`);
+					</Suspended>
+				),
+				html: ({openTag}) => `<div${openTag}>Fallback</div>`
 			});
 		});
 
 		describe('and string(s)', () => {
 			describe('before', () => {
-				itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and nothing before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							Before
-							<Fallback fallback={<div>Fallback</div>}>
+							<Suspended fallback={<div>Fallback</div>}>
 								<Lazy />
-							</Fallback>
+							</Suspended>
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}>Before<div>Fallback</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}>Before<div>Fallback</div></div>`
 				});
 
-				itRendersWithSyncCompare('and string before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and string before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							Before
-							<Fallback fallback={<div>Fallback</div>}>
+							<Suspended fallback={<div>Fallback</div>}>
 								Before Lazy
 								<Lazy />
-							</Fallback>
+							</Suspended>
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}>Before<div>Fallback</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}>Before<div>Fallback</div></div>`
 				});
 
-				itRendersWithSyncCompare('and div before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and div before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							Before
-							<Fallback fallback={<div>Fallback</div>}>
+							<Suspended fallback={<div>Fallback</div>}>
 								<div>Before Lazy</div>
 								<Lazy />
-							</Fallback>
+							</Suspended>
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}>Before<div>Fallback</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}>Before<div>Fallback</div></div>`
 				});
 			});
 
 			describe('after', () => {
-				itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and nothing before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
-							<Fallback fallback={<div>Fallback</div>}><Lazy /></Fallback>
+							<Suspended fallback={<div>Fallback</div>}><Lazy /></Suspended>
 							After
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>Fallback</div>After</div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>Fallback</div>After</div>`
 				});
 
-				itRendersWithSyncCompare('and string before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and string before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
-							<Fallback fallback={<div>Fallback</div>}>
+							<Suspended fallback={<div>Fallback</div>}>
 								Before Lazy
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							After
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>Fallback</div>After</div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>Fallback</div>After</div>`
 				});
 
-				itRendersWithSyncCompare('and div before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and div before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
-							<Fallback fallback={<div>Fallback</div>}>
+							<Suspended fallback={<div>Fallback</div>}>
 								<div>Before Lazy</div>
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							After
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>Fallback</div>After</div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>Fallback</div>After</div>`
 				});
 			});
 
 			describe('before and after', () => {
-				itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and nothing before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							Before
-							<Fallback fallback={<div>Fallback</div>}><Lazy /></Fallback>
+							<Suspended fallback={<div>Fallback</div>}><Lazy /></Suspended>
 							After
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}>Before<div>Fallback</div>After</div>`);
+					),
+					html: ({openTag}) => `<div${openTag}>Before<div>Fallback</div>After</div>`
 				});
 
-				itRendersWithSyncCompare('and string before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and string before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							Before
-							<Fallback fallback={<div>Fallback</div>}>
+							<Suspended fallback={<div>Fallback</div>}>
 								Before Lazy
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							After
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}>Before<div>Fallback</div>After</div>`);
+					),
+					html: ({openTag}) => `<div${openTag}>Before<div>Fallback</div>After</div>`
 				});
 
-				itRendersWithSyncCompare('and div before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and div before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							Before
-							<Fallback fallback={<div>Fallback</div>}>
+							<Suspended fallback={<div>Fallback</div>}>
 								<div>Before Lazy</div>
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							After
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}>Before<div>Fallback</div>After</div>`);
+					),
+					html: ({openTag}) => `<div${openTag}>Before<div>Fallback</div>After</div>`
 				});
 			});
 		});
 
 		describe('and div(s)', () => {
 			describe('before', () => {
-				itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and nothing before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							<div>Before</div>
-							<Fallback fallback={<div>Fallback</div>}><Lazy /></Fallback>
+							<Suspended fallback={<div>Fallback</div>}><Lazy /></Suspended>
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>Before</div><div>Fallback</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>Before</div><div>Fallback</div></div>`
 				});
 
-				itRendersWithSyncCompare('and string before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and string before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							<div>Before</div>
-							<Fallback fallback={<div>Fallback</div>}>
+							<Suspended fallback={<div>Fallback</div>}>
 								Before Lazy
 								<Lazy />
-							</Fallback>
+							</Suspended>
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>Before</div><div>Fallback</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>Before</div><div>Fallback</div></div>`
 				});
 
-				itRendersWithSyncCompare('and div before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and div before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							<div>Before</div>
-							<Fallback fallback={<div>Fallback</div>}>
+							<Suspended fallback={<div>Fallback</div>}>
 								<div>Before Lazy</div>
 								<Lazy />
-							</Fallback>
+							</Suspended>
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>Before</div><div>Fallback</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>Before</div><div>Fallback</div></div>`
 				});
 			});
 
 			describe('after', () => {
-				itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and nothing before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
-							<Fallback fallback={<div>Fallback</div>}><Lazy /></Fallback>
+							<Suspended fallback={<div>Fallback</div>}><Lazy /></Suspended>
 							<div>After</div>
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>Fallback</div><div>After</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>Fallback</div><div>After</div></div>`
 				});
 
-				itRendersWithSyncCompare('and string before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and string before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
-							<Fallback fallback={<div>Fallback</div>}>
+							<Suspended fallback={<div>Fallback</div>}>
 								Before Lazy
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							<div>After</div>
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>Fallback</div><div>After</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>Fallback</div><div>After</div></div>`
 				});
 
-				itRendersWithSyncCompare('and div before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and div before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
-							<Fallback fallback={<div>Fallback</div>}>
+							<Suspended fallback={<div>Fallback</div>}>
 								<div>Before Lazy</div>
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							<div>After</div>
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>Fallback</div><div>After</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>Fallback</div><div>After</div></div>`
 				});
 			});
 
 			describe('before and after', () => {
-				itRendersWithSyncCompare('and nothing before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and nothing before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							<div>Before</div>
-							<Fallback fallback={<div>Fallback</div>}><Lazy /></Fallback>
+							<Suspended fallback={<div>Fallback</div>}><Lazy /></Suspended>
 							<div>After</div>
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>Before</div><div>Fallback</div><div>After</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>Before</div><div>Fallback</div><div>After</div></div>`
 				});
 
-				itRendersWithSyncCompare('and string before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and string before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							<div>Before</div>
-							<Fallback fallback={<div>Fallback</div>}>
+							<Suspended fallback={<div>Fallback</div>}>
 								Before Lazy
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							<div>After</div>
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>Before</div><div>Fallback</div><div>After</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>Before</div><div>Fallback</div><div>After</div></div>`
 				});
 
-				itRendersWithSyncCompare('and div before lazy', async ({render, Fallback, openTag}) => {
-					const e = (
+				itRendersWithLazy('and div before lazy', {
+					element: ({Lazy, Suspended}) => (
 						<div>
 							<div>Before</div>
-							<Fallback fallback={<div>Fallback</div>}>
+							<Suspended fallback={<div>Fallback</div>}>
 								<div>Before Lazy</div>
 								<Lazy />
-							</Fallback>
+							</Suspended>
 							<div>After</div>
 						</div>
-					);
-					const h = await render(e);
-					expect(h).toBe(`<div${openTag}><div>Before</div><div>Fallback</div><div>After</div></div>`);
+					),
+					html: ({openTag}) => `<div${openTag}><div>Before</div><div>Fallback</div><div>After</div></div>`
 				});
 			});
 		});

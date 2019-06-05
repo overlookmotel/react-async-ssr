@@ -10,7 +10,10 @@ const React = require('react'),
 	{ABORT, ON_MOUNT} = require('../../symbols');
 
 // Imports
-const {lazy} = require('./index');
+const {lazy} = require('./lazy');
+
+// Init
+require('./index');
 
 // Tests
 
@@ -808,9 +811,10 @@ describe('jest expect extensions (used in tests only)', () => {
 	});
 });
 
-function tryCatch(fn) { // eslint-disable-line consistent-return
+function tryCatch(fn) {
 	try {
 		fn();
+		return undefined;
 	} catch (err) {
 		return err;
 	}
