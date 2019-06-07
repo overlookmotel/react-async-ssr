@@ -12,9 +12,10 @@ const React = require('react'),
 	{renderToStringAsync, renderToStaticMarkupAsync} = require('../../index');
 
 // Imports
-const {lazy, lazySync} = require('./lazy'),
+const {lazy, lazySync, lazyClient} = require('./lazy'),
 	{SuspenseSync, SuspendedSync} = require('./suspense'),
-	wrapItRenders = require('./wrapItRenders');
+	wrapItRenders = require('./wrapItRenders'),
+	renderClient = require('./renderClient');
 
 // Exports
 
@@ -69,9 +70,10 @@ module.exports = wrapItRenders(itRenders, describe);
  * Any of above options can be either a string or function.
  * If a function, function will be called with `context` object and expected to return HTML.
  *
- * Testing HTML output will be done twice:
+ * Testing HTML output will be done 3 times:
  *   1. Test HTML matches expected (provided by `html` / `htmlStatic` / `htmlNonStatic`)
  *   2. Test HTML from async render is same as from sync render using `ReactDOM.renderToString()`
+ *   3. Test HTML hydrates correctly on client
  *
  * TESTING OTHER THINGS
  * Provide a `test` or `testPromise` function.
@@ -159,6 +161,32 @@ function itRendersExpectedHtml(props, options, htmlFn) {
 		// Check async + sync HTML output match
 		expect(html).toBe(syncHtml);
 	});
+
+	if (!props.isStatic) {
+		it('rehydrates correctly on client', async () => { // eslint-disable-line jest/expect-expect
+			// Render element on server
+			const html = await renderAsync(props, options).promise;
+
+			// Render final HTML expected after loading of all lazy components
+			const contextFinal = makeElement(props, options, {
+				Suspense: SuspenseSync,
+				Suspended: SuspenseSync,
+				lazy: lazySync
+			});
+
+			const {renderSync} = props;
+			const finalHtml = renderSync(contextFinal.element);
+
+			// Render in JSDOM client (`renderClient()` throws if HTML mismatch)
+			await renderClient(html, finalHtml, loadCounter => (
+				makeElement(props, options, {
+					Suspense: React.Suspense,
+					Suspended: React.Suspense,
+					lazy: (component, lazyOptions) => lazyClient(component, lazyOptions, loadCounter)
+				}).element
+			));
+		});
+	}
 }
 
 function itHasBehavior(testName, props, options) {

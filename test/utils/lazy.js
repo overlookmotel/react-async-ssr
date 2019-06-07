@@ -16,7 +16,8 @@ const {TEST_LAZY} = require('./symbols');
 // Exports
 module.exports = {
 	lazy,
-	lazySync
+	lazySync,
+	lazyClient
 };
 
 /**
@@ -87,5 +88,45 @@ function lazy(component, options) {
 function lazySync(component) {
 	return function LazyComponent(props) {
 		return React.createElement(component, props);
+	};
+}
+
+/**
+ * Client-side version of `lazy()`.
+ * Return a component which:
+ *   - If no-SSR mode, throw Promise which never resolves.
+ *   - Otherwise, renders input component.
+ *
+ * @param {Function} component - Component to render
+ * @param {Object} [options] - Options object
+ * @param {Object} loadCounter - Load counter object - used in client-side render
+ * @returns {Function} - React component
+ */
+function lazyClient(component, options, loadCounter) {
+	if (!options) options = {};
+	if (options.noResolve) throw new Error('Cannot render on client with `noResolve` option');
+
+	// If not No SSR, return component which renders input component immediately
+	if (!options.noSsr) return lazySync(component);
+
+	// Return component which loads async
+	let loaded = false,
+		promise;
+	return function LazyComponent(props) {
+		if (loaded) return React.createElement(component, props);
+
+		if (!promise) {
+			loadCounter.loading();
+
+			promise = new Promise((resolve) => {
+				setTimeout(() => {
+					loaded = true;
+					resolve();
+					loadCounter.loaded();
+				}, 0);
+			});
+		}
+
+		throw promise;
 	};
 }

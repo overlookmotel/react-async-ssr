@@ -286,7 +286,7 @@ function tests(makeContext) {
 		// Extend itRenders to add Lazy
 		const itRendersWithLazy = itRendersWithContext.extend({
 			prep: ({lazy}) => ({
-				Lazy: lazy(() => {}, {noSsr: true})
+				Lazy: lazy(() => <div>Lazy inner</div>, {noSsr: true})
 			})
 		});
 

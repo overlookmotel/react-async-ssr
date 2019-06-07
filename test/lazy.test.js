@@ -1618,12 +1618,12 @@ describe('multiple lazy components', () => {
 				Lazy3: lazy(() => <div>Lazy inner 3</div>, {noSsr: true}),
 				Lazy4: lazy(() => <div>Lazy inner 4</div>)
 			}),
-			html: ({openTag}) => (`
-				<div${openTag}>
-					<span>Fallback</span>
-					<div>Lazy inner 4</div>
-				</div>
-			`)
+			// Use `test` rather than `html` here to avoid testing client-side render.
+			// The lazy components will never resolve and so `Suspense` will forever
+			// be stuck in fallback mode.
+			test({html, openTag}) {
+				expect(html).toBe(`<div${openTag}><span>Fallback</span><div>Lazy inner 4</div></div>`);
+			}
 		});
 
 		itRendersThis('calls `[ABORT]()` on all promises inside suspense', {
@@ -1939,7 +1939,12 @@ describe('nested lazy components', () => {
 					</div>
 				);
 			},
-			html: ({openTag}) => `<div${openTag}><span>Fallback</span></div>`
+			// Use `test` rather than `html` here to avoid testing client-side render.
+			// The lazy components will never resolve and so `Suspense` will forever
+			// be stuck in fallback mode.
+			test({html, openTag}) {
+				expect(html).toBe(`<div${openTag}><span>Fallback</span></div>`);
+			}
 		});
 	});
 });
