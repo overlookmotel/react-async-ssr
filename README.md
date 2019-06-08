@@ -61,8 +61,6 @@ function App() {
     </div>
   );
 }
-
-const html = await ReactDOMServer.renderToStringAsync(<App />);
 ```
 
 `<Suspense>` behaves exactly the same on the server as it does on the client.
@@ -81,7 +79,7 @@ No! `React.lazy()` doesn't make sense to use on the server side. It doesn't have
 
 `.renderToStringAsync()` supports any component which fits within React's convention for suspendable components.
 
-In it's `render()` method, the component should throw a Promise which will resolve when the data is loaded. When the promise resolves, the renderer will re-render the component and add it into the markup.
+In its `render()` method, the component should throw a Promise which will resolve when the data is loaded. When the promise resolves, the renderer will re-render the component and add it into the markup.
 
 #### Basic example
 
@@ -111,6 +109,10 @@ function App() {
     </div>
   );
 }
+
+const html = await ReactDOMServer.renderToStringAsync(<App />);
+
+// html === '<div>bar</div>'
 ```
 
 #### react-cache example
@@ -128,7 +130,7 @@ const PokemonResource = createResource(
 
 function Pokemon(props) {
   const data = PokemonResource.read(props.id);
-  return <div>My name is {data.name}</div>;
+  return <div>My name is {data.name}.</div>;
 }
 
 function App() {
@@ -144,16 +146,17 @@ function App() {
 }
 
 const html = await ReactDOMServer.renderToStringAsync(<App />);
+
+// html === `
+//   <div>
+//     <div>My name is bulbasaur.</div>
+//     <div>My name is ivysaur.</div>
+//     <div>My name is venusaur.</div>
+//   </div>
+// `
 ```
 
 The above example makes 3 async fetch requests, which are made in parallel. They are awaited, and the HTML markup rendered only once all the data is ready.
-
-### Complicated cases
-
-`.renderToStringAsync()` supports:
-
-* Async components which themselves load more async components/data
-* Suspense fallbacks which load async components/data
 
 ### Hydrating the render on client side
 
@@ -183,21 +186,32 @@ However, some mechanism is required to gather the data loaded on the server in o
 
 There are many solutions, for example using a [Redux](https://redux.js.org/) store, or a [Context](https://reactjs.org/docs/context.html) Provider at the root of the app. This package does not make any assumptions about how the user wants to handle this, and no doubt solutions will emerge from the community. All that this package requires is that components follow React's convention that components wishing to do async loading throw promises.
 
+### Complicated cases
+
+`.renderToStringAsync()` supports:
+
+* Async components which themselves load more async components/data
+* Suspense fallbacks which load async components/data
+
 ### Tracking components being used
 
 If promises thrown have an `[ON_MOUNT]()` method, they are called.
 
 `[ON_MOUNT]` is a symbol which can be imported from `react-async-ssr/symbols`.
 
-`[ON_MOUNT]()` is called in the order components will be rendered on the client during hydration. This may not be the same order as the components are rendered on the server, if lazy components are nested within each other. In some cases, a component may render on the server, but not at all on the client during hydration, due to a Suspense fallback being triggered (see below).
+```js
+const {ON_MOUNT} = require('react-async-ssr/symbols');
+```
+
+`[ON_MOUNT]()` is called in the order components will be rendered on the client during hydration. This may not be the same order as the components are rendered on the server, if lazy components are nested within each other. In some cases, a component may render on the server, but not at all on the client during hydration, due to a Suspense fallback being triggered (see [below](#preventing-server-side-rendering-of-components)).
 
 `[ON_MOUNT]()` is called with `true` if the element will be rendered on client, or `false` if it will not. `false` happens if the promise was thrown by a component which ends up being inside a Suspense boundary whose fallback is triggered, so the component is not rendered.
 
-Only components whose promise's `[ON_MOUNT]()` method has been called with `true` should have their imported file/data provided on client side so they can be rehydrated synchronously. Those called with `false` should be allowed to load file/data asynchronously.
+Only components whose promise's `[ON_MOUNT]()` method has been called with `true` should have their imported file/data provided to client so they can be rehydrated synchronously. Those called with `false` should be allowed to load file/data asynchronously.
 
 This is to prevent unnecessary files/data being loaded on the client prior to hydration, when they won't actually be used in hydration. Doing that would increase the time user has to wait before hydration.
 
-### Preventing components rendering on server side
+### Preventing server-side rendering of components
 
 Sometimes you might want to prevent a component rendering on server side. For example, it might be a low-priority part of the page, "below the fold", or a heavy component which will take a long time to load on client side and increase the delay before hydration.
 
@@ -227,9 +241,17 @@ function App() {
 }
 ```
 
-When rendered on server, this will output `<div>Loading...</div>`.
+When rendered on server, this will output `<div>Loading...</div>`. The content can then be loaded client side after hydration.
 
-On client side, to ensure no hydration mismatch errors, the component must throw a promise which then resolves to the required component/data, and not render the output synchronously.
+On client side, to ensure hydration completes correctly, the component must throw a promise which then resolves to the required component/data, and not render the content synchronously.
+
+#### Warning: Hydration errors
+
+If you leave some content to be rendered on client, `ReactDOM.hydrate()` will log warnings to console.error "Text content did not match". The cause is that React does not officially support using `Suspense` on server side, and so does not expect to encounter `Suspense` in hydrate.
+
+However, aside from the console output, it's not a problem. The page *will* hydrate and then load correctly. This case is covered by this module's tests, and it does work.
+
+There is no console output in production mode, only development, so your users should not see anything. It's just annoying in development.
 
 #### Optimization: Bail out of rendering when suspended
 
@@ -287,9 +309,9 @@ Stream rendering (`.renderToNodeStream()`) is not yet supported by this package.
 
 #### No double-rendering
 
-Many other solutions achieve something like this by "double-rendering" the app.
+Many other solutions achieve some form of server-side rendering by "double-rendering" the app.
 
-In the first render pass, all the promises for async-loaded data are collected. Once all the promises resolve, a 2nd render pass produces the actual HTML markup which is sent to the client. Obviously, this is resource-intensive. And if async components themselves make further async requests, 3rd or 4th or more render passes can be required.
+In the first render pass, all the promises for async-loaded data are collected. Once all the promises resolve, a 2nd render pass produces the actual HTML markup which is sent to the client. Obviously, it's resource-intensive to render twice. And if async components themselves make further async requests, 3rd or 4th or more render passes can be required.
 
 The `.renderToStringAsync()` method provided by this package renders in a single pass. The render is interrupted when awaiting an async resource and resumed once it has loaded.
 
