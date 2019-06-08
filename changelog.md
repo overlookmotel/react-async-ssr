@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.5.0
+
+Breaking changes:
+
+* Drop support for Node v6
+* Symbols are actual Symbols
+
+Refactor:
+
+* ESLint comments
+
+Tests:
+
+* Major refactor and test all against sync HTML
+* Client-side hydration
+
+Dev:
+
+* Travis CI run tests on Node v12
+* Jest config coverage blacklist
+* Update dev dependencies
+* Add `package-lock.json`
+
+Docs:
+
+* Readme update
+
 ## 0.4.6
 
 Other:
