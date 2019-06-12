@@ -150,6 +150,7 @@ function itRendersExpectedHtml(props, options, htmlFn) {
 
 		// Render element sync
 		const contextSync = makeElement(props, options, {
+			React,
 			Suspense: SuspenseSync,
 			Suspended: SuspendedSync,
 			lazy: lazySync
@@ -169,6 +170,7 @@ function itRendersExpectedHtml(props, options, htmlFn) {
 
 			// Render final HTML expected after loading of all lazy components
 			const contextFinal = makeElement(props, options, {
+				React,
 				Suspense: SuspenseSync,
 				Suspended: SuspenseSync,
 				lazy: lazySync
@@ -178,10 +180,11 @@ function itRendersExpectedHtml(props, options, htmlFn) {
 			const finalHtml = renderSync(contextFinal.element);
 
 			// Render in JSDOM client (`renderClient()` throws if HTML mismatch)
-			await renderClient(html, finalHtml, loadCounter => (
+			await renderClient(html, finalHtml, (ReactClient, loadCounter) => (
 				makeElement(props, options, {
-					Suspense: React.Suspense,
-					Suspended: React.Suspense,
+					React: ReactClient,
+					Suspense: ReactClient.Suspense,
+					Suspended: ReactClient.Suspense,
 					lazy: (component, lazyOptions) => lazyClient(component, lazyOptions, loadCounter)
 				}).element
 			));
@@ -222,6 +225,7 @@ function itHasBehavior(testName, props, options) {
 function renderAsync(props, options) {
 	// Make element
 	const context = makeElement(props, options, {
+		React,
 		Suspense: React.Suspense,
 		Suspended: React.Suspense,
 		lazy

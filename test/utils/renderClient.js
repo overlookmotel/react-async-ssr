@@ -90,7 +90,7 @@ async function renderClient(html, finalHtml, makeElement) {
 
 	window.eval(reactScript);
 	window.eval(reactDomScript);
-	window._element = makeElement(loadCounter);
+	window._element = makeElement(window.React, loadCounter);
 
 	// Hydrate
 	await new Promise((resolve) => {
