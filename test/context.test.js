@@ -19,12 +19,12 @@ require('./utils');
 
 describe('context propogates with', () => {
 	describe('new Context API', () => {
-		tests(() => React.createContext('default'));
+		tests(ReactLocal => ReactLocal.createContext('default'));
 	});
 
 	describe('new Context API with class prop consumer', () => {
-		tests(() => {
-			const Context = React.createContext('default');
+		tests((ReactLocal) => {
+			const Context = ReactLocal.createContext('default');
 
 			class Consumer extends React.Component {
 				render() {
@@ -37,8 +37,21 @@ describe('context propogates with', () => {
 		});
 	});
 
+	describe('new Context API with `useContext()` consumer', () => {
+		tests((ReactLocal) => {
+			const Context = ReactLocal.createContext('default');
+
+			function Consumer(props) {
+				const context = ReactLocal.useContext(Context);
+				return props.children(context);
+			}
+
+			return {Provider: Context.Provider, Consumer};
+		});
+	});
+
 	describe('legacy Context API', () => {
-		tests((num) => {
+		tests((ReactLocal, num) => {
 			const key = `ctx${num}`;
 
 			class Provider extends React.Component {
@@ -64,13 +77,14 @@ describe('context propogates with', () => {
 	});
 });
 
-function tests(makeContext) {
+function tests(makeContextGivenReact) {
 	// Extend itRenders to add Context and fallback
 	const itRendersWithContext = itRenders.extend({
-		prep() {
+		prep({React: ReactLocal}) {
+			const makeContext = num => makeContextGivenReact(ReactLocal, num);
 			const {Provider, Consumer} = makeContext(1);
 			const fallback = <div>Loading...</div>;
-			return {Provider, Consumer, fallback};
+			return {makeContext, Provider, Consumer, fallback};
 		}
 	});
 
@@ -105,7 +119,7 @@ function tests(makeContext) {
 
 		describe('multiple contexts', () => {
 			const itRendersWithMultipleContexts = itRendersWithContext.extend({
-				prep() {
+				prep({makeContext}) {
 					const {Provider: Provider2, Consumer: Consumer2} = makeContext(2),
 						{Provider: Provider3, Consumer: Consumer3} = makeContext(3);
 					return {Provider2, Consumer2, Provider3, Consumer3};
@@ -209,7 +223,7 @@ function tests(makeContext) {
 
 		describe('multiple contexts', () => {
 			const itRendersWithMultipleContexts = itRendersWithContext.extend({
-				prep({lazy, Consumer}) {
+				prep({lazy, makeContext, Consumer}) {
 					const {Provider: Provider2, Consumer: Consumer2} = makeContext(2),
 						{Provider: Provider3, Consumer: Consumer3} = makeContext(3);
 
@@ -326,7 +340,7 @@ function tests(makeContext) {
 		describe('multiple contexts', () => {
 			// Extend itRenders to add fallback containing Consumers
 			const itRendersWithContextsFallback = itRendersWithLazy.extend({
-				prep({Consumer}) {
+				prep({makeContext, Consumer}) {
 					const {Provider: Provider2, Consumer: Consumer2} = makeContext(2),
 						{Provider: Provider3, Consumer: Consumer3} = makeContext(3);
 
