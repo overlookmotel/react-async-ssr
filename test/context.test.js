@@ -104,14 +104,15 @@ function tests(makeContext) {
 		});
 
 		describe('multiple contexts', () => {
-			function prep() {
-				const {Provider: Provider2, Consumer: Consumer2} = makeContext(2),
-					{Provider: Provider3, Consumer: Consumer3} = makeContext(3);
-				return {Provider2, Consumer2, Provider3, Consumer3};
-			}
+			const itRendersWithMultipleContexts = itRendersWithContext.extend({
+				prep() {
+					const {Provider: Provider2, Consumer: Consumer2} = makeContext(2),
+						{Provider: Provider3, Consumer: Consumer3} = makeContext(3);
+					return {Provider2, Consumer2, Provider3, Consumer3};
+				}
+			});
 
-			itRendersWithContext('single boundary', {
-				prep,
+			itRendersWithMultipleContexts('single boundary', {
 				element: (
 					{Suspense, Provider, Consumer, Provider2, Consumer2, Provider3, Consumer3, fallback}
 				) => (
@@ -138,8 +139,7 @@ function tests(makeContext) {
 				`)
 			});
 
-			itRendersWithContext('multiple boundaries', {
-				prep,
+			itRendersWithMultipleContexts('multiple boundaries', {
 				element: (
 					{Suspense, Provider, Consumer, Provider2, Consumer2, Provider3, Consumer3, fallback}
 				) => (
@@ -208,23 +208,24 @@ function tests(makeContext) {
 		});
 
 		describe('multiple contexts', () => {
-			function prep({lazy, Consumer}) {
-				const {Provider: Provider2, Consumer: Consumer2} = makeContext(2),
-					{Provider: Provider3, Consumer: Consumer3} = makeContext(3);
+			const itRendersWithMultipleContexts = itRendersWithContext.extend({
+				prep({lazy, Consumer}) {
+					const {Provider: Provider2, Consumer: Consumer2} = makeContext(2),
+						{Provider: Provider3, Consumer: Consumer3} = makeContext(3);
 
-				const Lazy = lazy(() => (
-					<div>
-						<div><Consumer>{ctx => ctx}</Consumer></div>
-						<div><Consumer2>{ctx => ctx}</Consumer2></div>
-						<div><Consumer3>{ctx => ctx}</Consumer3></div>
-					</div>
-				));
+					const Lazy = lazy(() => (
+						<div>
+							<div><Consumer>{ctx => ctx}</Consumer></div>
+							<div><Consumer2>{ctx => ctx}</Consumer2></div>
+							<div><Consumer3>{ctx => ctx}</Consumer3></div>
+						</div>
+					));
 
-				return {Provider2, Consumer2, Provider3, Consumer3, Lazy};
-			}
+					return {Provider2, Consumer2, Provider3, Consumer3, Lazy};
+				}
+			});
 
-			itRendersWithContext('single lazy component', {
-				prep,
+			itRendersWithMultipleContexts('single lazy component', {
 				element: ({Suspense, Provider, Provider2, Provider3, Lazy, fallback}) => (
 					<Suspense fallback={fallback}>
 						<div>
@@ -249,8 +250,7 @@ function tests(makeContext) {
 				`)
 			});
 
-			itRendersWithContext('multiple lazy components', {
-				prep,
+			itRendersWithMultipleContexts('multiple lazy components', {
 				element({Suspense, lazy, Provider, Provider2, Provider3, Lazy, fallback}) {
 					const Lazy2 = lazy(() => <Lazy />),
 						Lazy3 = lazy(() => <Lazy2 />);
