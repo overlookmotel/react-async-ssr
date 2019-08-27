@@ -1,5 +1,11 @@
 # Changelog
 
+## Next
+
+Bug fixes:
+
+* Lock React version to 16.8.x
+
 ## 0.5.0
 
 Breaking changes:
