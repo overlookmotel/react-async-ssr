@@ -1,6 +1,6 @@
 # Changelog
 
-## Next
+## 0.5.1
 
 Bug fixes:
 
