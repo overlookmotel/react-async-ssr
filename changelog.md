@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.2
+
+Bug fixes:
+
+* Update `react-dom` to 16.9.x
+
 ## 0.5.1
 
 Bug fixes:
