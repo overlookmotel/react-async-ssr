@@ -40,12 +40,18 @@ class LoadCounter {
 
 	loaded() {
 		this._numPending--;
-		if (this._numPending === 0) this._resolve();
+		if (this._numPending === 0) this.resolve();
 	}
 
 	await() {
-		if (this._numPending === 0) return Promise.resolve();
+		if (this._numPending === 0) this._resolve();
 		return this._promise;
+	}
+
+	resolve() {
+		// Wait a short time for render to complete.
+		// Necessary with React 16.9.0.
+		setTimeout(() => this._resolve(), 50);
 	}
 }
 

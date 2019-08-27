@@ -14,10 +14,10 @@
     "url": "https://github.com/overlookmotel/react-async-ssr/issues"
   },
   "dependencies": {
-    "react-dom": "16.8.x"
+    "react-dom": "^16.9.0"
   },
   "peerDependencies": {
-    "react": "16.6.0 - 16.8.x"
+    "react": "^16.6.0"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",
@@ -47,7 +47,7 @@
     "jest-each-object": "^1.0.0",
     "jsdom": "^15.1.1",
     "prop-types": "^15.7.2",
-    "react": "16.6.0 - 16.8.x"
+    "react": "^16.6.0"
   },
   "keywords": [
     "react",

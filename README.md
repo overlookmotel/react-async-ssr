@@ -21,7 +21,7 @@ It provides async versions of `.renderToString()` and `.renderToStaticMarkup()` 
 npm install react-async-ssr
 ```
 
-Also requires React 16.6.0 - 16.8.x. React 16.9.x is not supported at present.
+Also requires React >= 16.6.0.
 
 ### Moving to async server-side rendering
 
