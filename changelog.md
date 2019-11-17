@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.5.3
+
+Bug fixes:
+
+* Exclude React v16.10.x
+
+Dev:
+
+* Update dev dependencies
+* Travis CI run tests on Node v13
+* Travis CI run coverage on Node v12
+
 ## 0.5.2
 
 Bug fixes:
