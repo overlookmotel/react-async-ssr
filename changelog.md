@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.4
+
+No code:
+
+* NPM ignore `.DS_Store` files
+
 ## 0.5.3
 
 Bug fixes:
