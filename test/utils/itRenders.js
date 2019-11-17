@@ -20,7 +20,7 @@ const {lazy, lazySync, lazyClient} = require('./lazy'),
 // Exports
 
 // Wrap `itRenders` to add `.only`, `.skip` and `.extend` methods
-module.exports = wrapItRenders(itRenders, describe);
+module.exports = wrapItRenders(itRenders, describe); // eslint-disable-line jest/no-export
 
 /**
  * Render a React element
@@ -114,7 +114,7 @@ function itRenders(testName, options, _describe) {
 		// If expected HTML provided, check for it.
 		// Either way, run any `test` or `testPromise` functions.
 		if (htmlFn != null) {
-			describe(props.methodName, () => { // eslint-disable-line jest/valid-describe
+			describe(props.methodName, () => {
 				if (options.test || options.testPromise) {
 					itHasBehavior('has expected behavior', props, options);
 				}
