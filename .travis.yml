@@ -16,7 +16,7 @@ branches:
 matrix:
   fast_finish: true
   include:
-    - node_js: "10"
+    - node_js: "12"
       env: COVERAGE=true
   allow_failures:
     - env: COVERAGE=true
