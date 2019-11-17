@@ -9,3 +9,4 @@ coverage
 .travis.yml
 jest.config.js
 npm-debug.log
+.DS_Store
