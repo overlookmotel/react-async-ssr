@@ -120,7 +120,7 @@ async function renderClient(html, finalHtml, makeElement) {
 
 	// Output console errors
 	// Ignore console output as ReactDOM erroneously warns when it shouldn't
-	// TODO Try to fix this is ReactDOM!
+	// TODO Try to fix this in ReactDOM!
 
 	// expect(output).toEqual([]);
 
