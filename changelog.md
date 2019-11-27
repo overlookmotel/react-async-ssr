@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.6.0
+
+Breaking changes:
+
+* Drop support for React 16.11.0+
+* Use strings in place of Symbols
+
+Dev:
+
+* Update dev dependencies
+
+No code:
+
+* Fix comment typo
+
 ## 0.5.4
 
 No code:
