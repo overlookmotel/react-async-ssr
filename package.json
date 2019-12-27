@@ -23,7 +23,7 @@
     "@babel/core": "^7.7.4",
     "@babel/preset-env": "^7.7.4",
     "@babel/preset-react": "^7.7.4",
-    "@overlookmotel/eslint-config": "^5.0.1",
+    "@overlookmotel/eslint-config": "^6.0.0",
     "@overlookmotel/eslint-config-jest": "^3.0.1",
     "@overlookmotel/eslint-config-react": "^5.0.0",
     "babel-eslint": "^10.0.3",
