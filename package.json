@@ -44,7 +44,7 @@
     "fs-extra": "^8.1.0",
     "jest": "^24.9.0",
     "jest-each-object": "^1.0.0",
-    "jsdom": "^15.2.1",
+    "jsdom": "^16.0.1",
     "prop-types": "^15.7.2",
     "react": "~16.9.0"
   },
