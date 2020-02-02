@@ -1,12 +1,10 @@
 test
 coverage
+
+.DS_Store
 .editorconfig
-.gitattributes
-.gitignore
 .eslintignore
 .eslintrc.js
-.npmignore
+.gitattributes
 .travis.yml
 jest.config.js
-npm-debug.log
-.DS_Store
