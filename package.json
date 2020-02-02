@@ -70,7 +70,7 @@
     "ci": "if [ $COVERAGE ]; then npm run coveralls; else npm test; fi"
   },
   "engines": {
-    "node": ">=8.3.0"
+    "node": ">=10"
   },
   "readmeFilename": "README.md",
   "license": "MIT"
