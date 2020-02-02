@@ -92,7 +92,8 @@ describe('lazy component', () => {
 							<span>Fallback</span>
 							<div>After Suspense</div>
 						</div>
-					`)
+					`),
+					hydrationWarning: true
 				});
 
 				itRendersThis('calls [ON_MOUNT] on promise with false when fallbackFast mode disabled', {
@@ -172,7 +173,8 @@ describe('lazy component', () => {
 							</div>
 							<div>After Suspense</div>
 						</div>
-					`)
+					`),
+					hydrationWarning: true
 				});
 
 				itRendersThis('calls [ON_MOUNT] on promises when fallbackFast mode disabled', {
@@ -276,7 +278,8 @@ describe('lazy component', () => {
 						<div>After inner Suspense</div>
 						<div>After outer Suspense</div>
 					</div>
-				`)
+				`),
+				hydrationWarning: true
 			});
 
 			itRendersThis('calls [ON_MOUNT] on promise with false when fallbackFast disabled', {
@@ -324,7 +327,8 @@ describe('lazy component', () => {
 						<span>Fallback outer</span>
 						<div>After outer Suspense</div>
 					</div>
-				`)
+				`),
+				hydrationWarning: true
 			});
 
 			itRendersThis('calls [ON_MOUNT] on lazy promise and fallback promise with false when fallbackFast disabled', {
@@ -374,7 +378,8 @@ describe('lazy component', () => {
 						<span>Fallback outer</span>
 						<div>After outer Suspense</div>
 					</div>
-				`)
+				`),
+				hydrationWarning: true
 			});
 
 			itRendersThis('calls [ON_MOUNT] on lazy promise with false when fallbackFast disabled', {
@@ -552,7 +557,8 @@ describe('lazy component', () => {
 					expect(Fallback1).not.toHaveBeenCalled();
 					expect(Fallback2).not.toHaveBeenCalled();
 					expect(Fallback3).not.toHaveBeenCalled();
-				}
+				},
+				hydrationWarning: true
 			});
 
 			itRendersThis('and lazy after Suspense', {
@@ -580,7 +586,8 @@ describe('lazy component', () => {
 					expect(Fallback1).not.toHaveBeenCalled();
 					expect(Fallback2).not.toHaveBeenCalled();
 					expect(Fallback3).not.toHaveBeenCalled();
-				}
+				},
+				hydrationWarning: true
 			});
 
 			itRenders('and nested lazy', {
@@ -616,7 +623,8 @@ describe('lazy component', () => {
 					expect(Fallback1).not.toHaveBeenCalled();
 					expect(Fallback2).not.toHaveBeenCalled();
 					expect(Fallback3).not.toHaveBeenCalled();
-				}
+				},
+				hydrationWarning: true
 			});
 		});
 
@@ -647,7 +655,8 @@ describe('lazy component', () => {
 							html: ({openTag}) => `<div${openTag}><span>Fallback outer</span></div>`,
 							test({Fallback}) {
 								expect(Fallback).toHaveBeenCalledTimes(1);
-							}
+							},
+							hydrationWarning: true
 						});
 
 						itRendersThis('calls [ON_MOUNT] on lazy promises with false', {
@@ -657,7 +666,8 @@ describe('lazy component', () => {
 								expect(Lazy).toBeMountedWith(false);
 								expect(Lazy2).toBeMountedWith(false);
 								expect(Lazy).toBeMountedBefore(Lazy2);
-							}
+							},
+							hydrationWarning: true
 						});
 					});
 
@@ -685,7 +695,8 @@ describe('lazy component', () => {
 							html: ({openTag}) => `<div${openTag}><span>Fallback outer</span></div>`,
 							test({Fallback}) {
 								expect(Fallback).toHaveBeenCalledTimes(1);
-							}
+							},
+							hydrationWarning: true
 						});
 
 						itRendersThis('calls [ON_MOUNT] on lazy promises with false', {
@@ -724,7 +735,8 @@ describe('lazy component', () => {
 							html: ({openTag}) => `<div${openTag}><span>Fallback outer</span></div>`,
 							test({Fallback}) {
 								expect(Fallback).toHaveBeenCalledTimes(1);
-							}
+							},
+							hydrationWarning: true
 						});
 
 						itRendersThis('calls [ON_MOUNT] on lazy promises with false', {
@@ -769,7 +781,8 @@ describe('lazy component', () => {
 							test({Fallback, Fallback2}) {
 								expect(Fallback).not.toHaveBeenCalled();
 								expect(Fallback2).toHaveBeenCalledTimes(1);
-							}
+							},
+							hydrationWarning: true
 						});
 
 						itRendersThis('calls [ON_MOUNT] on lazy promises with false', {
@@ -811,7 +824,8 @@ describe('lazy component', () => {
 							test({Fallback, Fallback2}) {
 								expect(Fallback).not.toHaveBeenCalled();
 								expect(Fallback2).toHaveBeenCalledTimes(1);
-							}
+							},
+							hydrationWarning: true
 						});
 
 						itRendersThis('calls [ON_MOUNT] on lazy promises with false', {
@@ -854,7 +868,8 @@ describe('lazy component', () => {
 							test({Fallback, Fallback2}) {
 								expect(Fallback).not.toHaveBeenCalled();
 								expect(Fallback2).toHaveBeenCalledTimes(1);
-							}
+							},
+							hydrationWarning: true
 						});
 
 						itRendersThis('calls [ON_MOUNT] on lazy promises with false', {
@@ -903,7 +918,8 @@ describe('lazy component', () => {
 							test({Fallback, Fallback2}) {
 								expect(Fallback).toHaveBeenCalledTimes(1);
 								expect(Fallback2).toHaveBeenCalledTimes(1);
-							}
+							},
+							hydrationWarning: true
 						});
 
 						itRendersThis('calls [ON_MOUNT] on lazy promises with false', {
@@ -951,7 +967,8 @@ describe('lazy component', () => {
 							test({Fallback, Fallback2}) {
 								expect(Fallback).toHaveBeenCalledTimes(1);
 								expect(Fallback2).toHaveBeenCalledTimes(1);
-							}
+							},
+							hydrationWarning: true
 						});
 
 						itRendersThis('calls [ON_MOUNT] on lazy promises with false', {
@@ -1000,7 +1017,8 @@ describe('lazy component', () => {
 							test({Fallback, Fallback2}) {
 								expect(Fallback).toHaveBeenCalledTimes(1);
 								expect(Fallback2).toHaveBeenCalledTimes(1);
-							}
+							},
+							hydrationWarning: true
 						});
 
 						itRendersThis('calls [ON_MOUNT] on lazy promises with false', {
@@ -1047,7 +1065,8 @@ describe('lazy component', () => {
 							html: ({openTag}) => `<div${openTag}><span>Fallback outer</span></div>`,
 							test({Fallback}) {
 								expect(Fallback).not.toHaveBeenCalled();
-							}
+							},
+							hydrationWarning: true
 						});
 
 						itRendersThis('does not call [ON_MOUNT] on lazy promises', {
@@ -1078,7 +1097,8 @@ describe('lazy component', () => {
 							html: ({openTag}) => `<div${openTag}><span>Fallback outer</span></div>`,
 							test({Fallback}) {
 								expect(Fallback).not.toHaveBeenCalled();
-							}
+							},
+							hydrationWarning: true
 						});
 
 						itRendersThis('does not call [ON_MOUNT] on lazy promises', {
@@ -1116,7 +1136,8 @@ describe('lazy component', () => {
 							html: ({openTag}) => `<div${openTag}><span>Fallback outer</span></div>`,
 							test({Fallback}) {
 								expect(Fallback).not.toHaveBeenCalled();
-							}
+							},
+							hydrationWarning: true
 						});
 
 						itRendersThis('does not call [ON_MOUNT] on lazy promises', {
@@ -1162,7 +1183,8 @@ describe('lazy component', () => {
 							test({Fallback, Fallback2}) {
 								expect(Fallback).not.toHaveBeenCalled();
 								expect(Fallback2).not.toHaveBeenCalled();
-							}
+							},
+							hydrationWarning: true
 						});
 
 						itRendersThis('does not call [ON_MOUNT] on lazy promises', {
@@ -1196,7 +1218,8 @@ describe('lazy component', () => {
 							test({Fallback, Fallback2}) {
 								expect(Fallback).not.toHaveBeenCalled();
 								expect(Fallback2).not.toHaveBeenCalled();
-							}
+							},
+							hydrationWarning: true
 						});
 
 						itRendersThis('does not call [ON_MOUNT] on lazy promises', {
@@ -1238,7 +1261,8 @@ describe('lazy component', () => {
 							test({Fallback, Fallback2}) {
 								expect(Fallback).not.toHaveBeenCalled();
 								expect(Fallback2).not.toHaveBeenCalled();
-							}
+							},
+							hydrationWarning: true
 						});
 
 						itRendersThis('does not call [ON_MOUNT] on lazy promises', {
@@ -1288,7 +1312,8 @@ describe('lazy component', () => {
 							test({Fallback, Fallback2}) {
 								expect(Fallback).not.toHaveBeenCalled();
 								expect(Fallback2).not.toHaveBeenCalled();
-							}
+							},
+							hydrationWarning: true
 						});
 
 						itRendersThis('does not call [ON_MOUNT] on lazy promises', {
@@ -1326,7 +1351,8 @@ describe('lazy component', () => {
 							test({Fallback, Fallback2}) {
 								expect(Fallback).not.toHaveBeenCalled();
 								expect(Fallback2).not.toHaveBeenCalled();
-							}
+							},
+							hydrationWarning: true
 						});
 
 						itRendersThis('does not call [ON_MOUNT] on lazy promises', {
@@ -1373,7 +1399,8 @@ describe('lazy component', () => {
 							test({Fallback, Fallback2}) {
 								expect(Fallback).not.toHaveBeenCalled();
 								expect(Fallback2).not.toHaveBeenCalled();
-							}
+							},
+							hydrationWarning: true
 						});
 
 						itRendersThis('does not call [ON_MOUNT] on lazy promises', {
@@ -1517,7 +1544,8 @@ describe('multiple lazy components', () => {
 					<span>Fallback</span>
 					<div>After Suspense</div>
 				</div>
-			`)
+			`),
+			hydrationWarning: true
 		});
 
 		const itRendersThis = itRenders.extend({
@@ -1555,7 +1583,8 @@ describe('multiple lazy components', () => {
 					expect(Lazy2).toHaveBeenCalled();
 					expect(Lazy3).toHaveBeenCalled();
 					expect(Lazy4).toHaveBeenCalled();
-				}
+				},
+				hydrationWarning: true
 			});
 
 			itRendersThis('calls [ON_MOUNT] with false on promises inside suspense', {
@@ -1592,7 +1621,8 @@ describe('multiple lazy components', () => {
 					expect(Lazy2).toHaveBeenCalled();
 					expect(Lazy3).not.toHaveBeenCalled();
 					expect(Lazy4).toHaveBeenCalled();
-				}
+				},
+				hydrationWarning: true
 			});
 
 			itRendersThis('does not call [ON_MOUNT] on promises inside suspense', {
@@ -1775,7 +1805,8 @@ describe('nested lazy components', () => {
 						<span>Fallback</span>
 						<div>After Suspense</div>
 					</div>
-				`)
+				`),
+				hydrationWarning: true
 			});
 
 			itRendersThis('calls [ON_MOUNT] with false on outer promise only when fallbackFast mode disabled', {
@@ -1835,7 +1866,8 @@ describe('nested lazy components', () => {
 						<span>Fallback</span>
 						<div>After Suspense</div>
 					</div>
-				`)
+				`),
+				hydrationWarning: true
 			});
 
 			itRendersThis('calls [ON_MOUNT] with false on outer promise only when fallbackFast mode disabled', {
@@ -1888,7 +1920,8 @@ describe('nested lazy components', () => {
 
 					expect(Lazy3).not.toBeAborted();
 				},
-				html: ({openTag}) => `<div${openTag}><span>Fallback</span></div>`
+				html: ({openTag}) => `<div${openTag}><span>Fallback</span></div>`,
+				hydrationWarning: true
 			});
 
 			itRenders('including inside nested lazy element', {
@@ -1919,7 +1952,8 @@ describe('nested lazy components', () => {
 					expect(Lazy1).not.toBeAborted();
 					expect(Lazy2).not.toBeAborted();
 				},
-				html: ({openTag}) => `<div${openTag}><span>Fallback</span></div>`
+				html: ({openTag}) => `<div${openTag}><span>Fallback</span></div>`,
+				hydrationWarning: true
 			});
 		});
 

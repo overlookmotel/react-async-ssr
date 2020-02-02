@@ -180,7 +180,7 @@ function itRendersExpectedHtml(props, options, htmlFn) {
 			const finalHtml = renderSync(contextFinal.element);
 
 			// Render in JSDOM client (`renderClient()` throws if HTML mismatch)
-			await renderClient(html, finalHtml, (ReactClient, loadCounter) => (
+			await renderClient(html, finalHtml, options.hydrationWarning, (ReactClient, loadCounter) => (
 				makeElement(props, options, {
 					React: ReactClient,
 					Suspense: ReactClient.Suspense,

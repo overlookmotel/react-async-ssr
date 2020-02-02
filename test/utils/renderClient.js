@@ -19,7 +19,10 @@ module.exports = renderClient;
 // Init vars to hold React + ReactDOM javascript file contents
 // They will be loaded when required
 let reactScript, reactDomScript;
-const envPostfix = process.env.NODE_ENV === 'production' ? 'production.min' : 'development';
+
+// Determine environment
+const isProd = process.env.NODE_ENV === 'production',
+	envPostfix = isProd ? 'production.min' : 'development';
 
 /**
  * LoadCounter class.
@@ -68,7 +71,7 @@ class LoadCounter {
  *   Is called with `(React, loadCounter)`.
  * @returns {undefined}
  */
-async function renderClient(html, finalHtml, makeElement) {
+async function renderClient(html, finalHtml, hydrationWarning, makeElement) {
 	// Load React + ReactDOM Javascript
 	if (!reactScript) {
 		reactScript = await readModuleFile(`react/umd/react.${envPostfix}.js`);
@@ -118,11 +121,20 @@ async function renderClient(html, finalHtml, makeElement) {
 
 	expectHtmlMatch(clientHtml, html, 'hydration');
 
-	// Output console errors
-	// Ignore console output as ReactDOM erroneously warns when it shouldn't
-	// TODO Try to fix this in ReactDOM!
-
-	// expect(output).toEqual([]);
+	// Fail if console output.
+	// Ignore hydration errors if `hydrationWarning` flag set and in dev mode.
+	if (!hydrationWarning || isProd || output.find(([type, msg]) => (
+		type !== 'error'
+		|| !(
+			msg.match(/^Warning: Text content did not match\. Server: "[^"]+" Client: "[^"]+"$/)
+			|| msg.match(/^Warning: Expected server HTML to contain a matching text node for "[^"]+" in <[a-z]+>\.$/)
+			|| msg.match(/^Warning: Did not expect server HTML to contain the text node "[^"]+" in <[a-z]+>\.$/)
+			|| msg.match(/^Warning: Expected server HTML to contain a matching <[a-z]+> in <[a-z]+>\.$/)
+			|| msg.match(/^Warning: Did not expect server HTML to contain a <[a-z]+> in <[a-z]+>\.$/)
+		)
+	))) {
+		expect(output).toEqual([]);
+	}
 
 	// Wait for all lazy components to load + check final HTML matches expected
 	await loadCounter.await();

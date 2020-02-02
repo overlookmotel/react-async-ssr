@@ -20,7 +20,8 @@ describe('suspense fallback spaces correctly', () => {
 	const itRendersWithLazy = itRenders.extend({
 		prep: ({lazy}) => ({
 			Lazy: lazy(() => <div>Lazy inner</div>, {noSsr: true})
-		})
+		}),
+		hydrationWarning: true
 	});
 
 	describe('with string inside fallback', () => {

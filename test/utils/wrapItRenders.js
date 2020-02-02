@@ -48,8 +48,9 @@ function extend(itRenders, template) {
 			}
 		}
 
-		// Add element function from template if not defined
+		// Add element function and hydration warning flag from template if not defined
 		if (!options.element) options.element = template.element;
+		if (options.hydrationWarning === undefined) options.hydrationWarning = template.hydrationWarning;
 
 		return itRendersSuper(testName, options);
 	}
