@@ -27,33 +27,33 @@ Also requires React 16.6.0 - 16.9.x. React 16.10.0+ is not supported at present.
 
 Before:
 
-```js
+```jsx
 const ReactDOMServer = require('react-dom/server');
 
 function render() {
-  const html = ReactDOMServer.renderToString(<App />);
+  const html = ReactDOMServer.renderToString( <App /> );
   return html;
 }
 ```
 
 After:
 
-```js
+```jsx
 const ReactDOMServer = require('react-async-ssr');
 
 async function render() {
-  const html = await ReactDOMServer.renderToStringAsync(<App />);
+  const html = await ReactDOMServer.renderToStringAsync( <App /> );
   return html;
 }
 ```
 
 ### Application code
 
-```js
+```jsx
 function App() {
   return (
     <div>
-      <Suspense fallback={<Spinner />}>
+      <Suspense fallback={ <Spinner /> }>
         <LazyComponent />
         <LazyComponent />
         <LazyData />
@@ -83,18 +83,18 @@ In its `render()` method, the component should throw a Promise which will resolv
 
 #### Basic example
 
-```js
+```jsx
 let data = null, promise;
 function LazyData() {
-  if (data) return <div>{data.foo}</div>;
+  if (data) return <div>{ data.foo }</div>;
 
   if (!promise) {
-    promise = new Promise(resolve => {
-      setTimeout(() => {
+    promise = new Promise( resolve => {
+      setTimeout( () => {
         data = {foo: 'bar'};
         resolve();
-      }, 1000);
-    });
+      }, 1000 );
+    } );
   }
 
   throw promise;
@@ -103,14 +103,14 @@ function LazyData() {
 function App() {
   return (
     <div>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={ <div>Loading...</div> }>
         <LazyData />
       </Suspense>
     </div>
   );
 }
 
-const html = await ReactDOMServer.renderToStringAsync(<App />);
+const html = await ReactDOMServer.renderToStringAsync( <App /> );
 
 // html === '<div>bar</div>'
 ```
@@ -119,8 +119,8 @@ const html = await ReactDOMServer.renderToStringAsync(<App />);
 
 An example using the experimental package [react-cache](https://www.npmjs.com/package/react-cache):
 
-```js
-const {createResource} = require('react-cache');
+```jsx
+const { createResource } = require('react-cache');
 
 const PokemonResource = createResource(
   id =>
@@ -136,7 +136,7 @@ function Pokemon(props) {
 function App() {
   return (
     <div>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={ <div>Loading...</div> }>
         <Pokemon id={1} />
         <Pokemon id={2} />
         <Pokemon id={3} />
@@ -145,7 +145,7 @@ function App() {
   );
 }
 
-const html = await ReactDOMServer.renderToStringAsync(<App />);
+const html = await ReactDOMServer.renderToStringAsync( <App /> );
 
 // html === `
 //   <div>
@@ -200,7 +200,7 @@ If promises thrown have an `[ON_MOUNT]()` method, they are called.
 `[ON_MOUNT]` is a symbol which can be imported from `react-async-ssr/symbols`.
 
 ```js
-const {ON_MOUNT} = require('react-async-ssr/symbols');
+const { ON_MOUNT } = require('react-async-ssr/symbols');
 ```
 
 `[ON_MOUNT]()` is called in the order components will be rendered on the client during hydration. This may not be the same order as the components are rendered on the server, if lazy components are nested within each other. In some cases, a component may render on the server, but not at all on the client during hydration, due to a Suspense fallback being triggered (see [below](#preventing-server-side-rendering-of-components)).
@@ -223,8 +223,8 @@ The component should throw a promise which has `[NO_SSR]` property set to `true`
 
 If the promise has this property, the component will not be rendered and the enclosing Suspense boundary's fallback will be triggered.
 
-```js
-const {NO_SSR} = require('react-async-ssr/symbols');
+```jsx
+const { NO_SSR } = require('react-async-ssr/symbols');
 
 function LazyNoSSR() {
   const promise = new Promise(() => {});
@@ -234,7 +234,7 @@ function LazyNoSSR() {
 
 function App() {
   return (
-    <React.Suspense fallback={<div>Loading...</div>}>
+    <React.Suspense fallback={ <div>Loading...</div> }>
       <LazyNoSSR/>
     </React.Suspense>
   );
@@ -261,10 +261,10 @@ However, this content will not be output as the Suspense fallback will be render
 
 As an optimization, you can cause the render to bail out of rendering all further content within the Suspense as soon as the fallback is triggered, by providing a `fallbackFast` option to `.renderToStringAsync()`.
 
-```js
+```jsx
 function App() {
   return (
-    <React.Suspense fallback={<div>Loading...</div>}>
+    <React.Suspense fallback={ <div>Loading...</div> }>
       <LazyNoSSR/> <!-- throws `[NO_SSR]` promise -->
       <LazySSR/> <!-- will not be rendered -->
     </React.Suspense>
@@ -286,7 +286,7 @@ In these cases, if the promise has an `[ABORT]` method, it will be called.
 `[ABORT]` is a symbol which can be imported from `react-async-ssr/symbols`.
 
 ```js
-const {ABORT} = require('react-async-ssr/symbols');
+const { ABORT } = require('react-async-ssr/symbols');
 
 function AbortableLazy() {
   const promise = new Promise(
