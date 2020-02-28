@@ -46,7 +46,7 @@
     "jest-each-object": "^1.0.0",
     "jsdom": "^15.2.1",
     "prop-types": "^15.7.2",
-    "react": "~16.9.0"
+    "react": "~16.13.0"
   },
   "keywords": [
     "react",
