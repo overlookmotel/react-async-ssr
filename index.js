@@ -5,4 +5,4 @@
 'use strict';
 
 // Re-export lib
-module.exports = require('./lib/');
+module.exports = require('./lib/index.js');
