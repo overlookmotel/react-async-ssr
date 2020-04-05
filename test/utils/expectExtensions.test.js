@@ -7,13 +7,13 @@
 
 // Modules
 const React = require('react'),
-	{ABORT, ON_MOUNT} = require('../../symbols');
+	{ABORT, ON_MOUNT} = require('../../symbols.js');
 
 // Imports
-const {lazy} = require('./lazy');
+const {lazy} = require('./lazy.js');
 
 // Init
-require('./index');
+require('./index.js');
 
 // Tests
 

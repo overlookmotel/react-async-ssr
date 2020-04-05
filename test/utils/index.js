@@ -10,7 +10,7 @@
 require('jest-each-object/register');
 
 // Add expect extensions
-const extensions = require('./expectExtensions');
+const extensions = require('./expectExtensions.js');
 
 expect.extend(extensions);
 

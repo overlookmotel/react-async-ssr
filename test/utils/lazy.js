@@ -8,10 +8,10 @@
 
 // Modules
 const React = require('react'),
-	{NO_SSR, ABORT, ON_MOUNT} = require('../../symbols');
+	{NO_SSR, ABORT, ON_MOUNT} = require('../../symbols.js');
 
 // Imports
-const {TEST_LAZY} = require('./symbols');
+const {TEST_LAZY} = require('./symbols.js');
 
 // Exports
 module.exports = {

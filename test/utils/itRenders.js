@@ -9,13 +9,13 @@
 // Modules
 const React = require('react'),
 	{renderToString, renderToStaticMarkup} = require('react-dom/server'),
-	{renderToStringAsync, renderToStaticMarkupAsync} = require('../../index');
+	{renderToStringAsync, renderToStaticMarkupAsync} = require('../../index.js');
 
 // Imports
-const {lazy, lazySync, lazyClient} = require('./lazy'),
-	{SuspenseSync, SuspendedSync} = require('./suspense'),
-	wrapItRenders = require('./wrapItRenders'),
-	renderClient = require('./renderClient');
+const {lazy, lazySync, lazyClient} = require('./lazy.js'),
+	{SuspenseSync, SuspendedSync} = require('./suspense.js'),
+	wrapItRenders = require('./wrapItRenders.js'),
+	renderClient = require('./renderClient.js');
 
 // Exports
 

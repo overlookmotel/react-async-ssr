@@ -7,4 +7,4 @@
 
 // Exports
 
-module.exports = require('./lib/symbols');
+module.exports = require('./lib/symbols.js');

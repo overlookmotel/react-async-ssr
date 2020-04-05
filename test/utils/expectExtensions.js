@@ -8,10 +8,10 @@
 'use strict';
 
 // Modules
-const {ABORT, ON_MOUNT} = require('../../symbols');
+const {ABORT, ON_MOUNT} = require('../../symbols.js');
 
 // Imports
-const {TEST_LAZY} = require('./symbols');
+const {TEST_LAZY} = require('./symbols.js');
 
 // Exports
 

@@ -11,10 +11,10 @@
 const React = require('react');
 
 // Imports
-const itRenders = require('./utils/itRenders');
+const itRenders = require('./utils/itRenders.js');
 
 // Init
-require('./utils');
+require('./utils/index.js');
 
 // Globals
 const spy = jest.fn;
