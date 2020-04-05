@@ -5,5 +5,6 @@
 
 'use strict';
 
-// Re-export symbols object
+// Exports
+
 module.exports = require('./lib/symbols');

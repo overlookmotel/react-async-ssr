@@ -1,4 +1,11 @@
+/* --------------------
+ * react-async-ssr module
+ * Jest config
+ * ------------------*/
+
 'use strict';
+
+// Exports
 
 module.exports = {
 	testEnvironment: 'node',

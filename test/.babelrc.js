@@ -1,4 +1,11 @@
+/* --------------------
+ * react-async-ssr module
+ * Babel tests config
+ * ------------------*/
+
 'use strict';
+
+// Exports
 
 module.exports = {
     presets: [

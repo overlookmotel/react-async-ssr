@@ -1,8 +1,10 @@
 /* --------------------
  * react-async-ssr module
+ * Entry point
  * ------------------*/
 
 'use strict';
 
-// Re-export lib
+// Exports
+
 module.exports = require('./lib/index.js');
