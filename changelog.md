@@ -1,5 +1,42 @@
 # Changelog
 
+## 0.7.0
+
+Breaking changes:
+
+* Drop support for Node v8
+
+Refactor:
+
+* Replace utils with packages
+* Import file extensions
+* Fix lint error
+
+No code:
+
+* NPM ignore `.DS_Store` files
+* Header code comments
+* Fix spacing
+
+Tests:
+
+* Check no client-side hydration warnings except where fallbacks triggered
+
+Dev:
+
+* Update dev dependencies
+* ESLint ignore coverage dir
+* ESLint not ignore dot files
+* Tab width 2 in `.editorconfig`
+* Remove `npm-debug.log` from `.gitignore`
+* Remove `sudo` from Travis CI config
+
+Docs:
+
+* Versioning policy
+* Reformat code examples
+* Update license year
+
 ## 0.6.0
 
 Breaking changes:
