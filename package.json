@@ -1,6 +1,6 @@
 {
   "name": "react-async-ssr",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Render React Suspense on server",
   "main": "index.js",
   "author": {

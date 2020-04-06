@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.7.1
+
+Docs:
+
+* Update docs
+
 ## 0.7.0
 
 Breaking changes:
