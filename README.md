@@ -105,11 +105,11 @@ The advantages of this change are:
 * No need for data dependencies to be "hoisted" to the page's root component
 * Therefore, components are less tightly coupled (the React way!)
 
-In the example above, the `<Pokemon>` component is completely independent. You can drop it in to any app, anywhere in the component tree, and it'll be able to load the data it needs, without any complex "wiring up".
+You can create components which load their own data and are completely independent. You can drop these components in to any `react-async-ssr`-enabled app, anywhere in the component tree, and they'll be able to load the data they needs, without any complex "wiring up".
 
 However, some mechanism is required to gather the data loaded on the server in order to send it to the client for hydration.
 
-There are many solutions, for example using a [Redux](https://redux.js.org/) store, or a [Context](https://reactjs.org/docs/context.html) Provider at the root of the app. This package does not make any assumptions about how the user wants to handle this, and no doubt solutions will emerge from the community. All that this package requires is that components follow React's convention that components wishing to do async loading throw promises.
+[react-lazy-ssr](https://www.npmjs.com/package/react-lazy-ssr) and [react-lazy-data](https://www.npmjs.com/package/react-lazy-data) both provide mechanisms for this. But you could use other methods. This package does not make any assumptions about how it's done - all it requires is that components follow React's convention that components wishing to do async loading throw promises, and provides some [hooks](#tracking-components-being-used) to enable tracking what's loaded on the server.
 
 ### Complicated cases
 
@@ -130,7 +130,7 @@ const { ON_MOUNT } = require('react-async-ssr/symbols');
 
 `[ON_MOUNT]()` is called in the order components will be rendered on the client during hydration. This may not be the same order as the components are rendered on the server, if lazy components are nested within each other. In some cases, a component may render on the server, but not at all on the client during hydration, due to a Suspense fallback being triggered (see [below](#preventing-server-side-rendering-of-components)).
 
-`[ON_MOUNT]()` is called with `true` if the element will be rendered on client, or `false` if it will not. `false` happens if the promise was thrown by a component which ends up being inside a Suspense boundary whose fallback is triggered, so the component is not rendered.
+`[ON_MOUNT]()` is called with `true` if the element is needed for initial render on the client, or `false` if it will not. `false` happens if the promise was thrown by a component which ends up being inside a Suspense boundary whose fallback is triggered, so the component is not rendered.
 
 Only components whose promise's `[ON_MOUNT]()` method has been called with `true` should have their imported file/data provided to client so they can be rehydrated synchronously. Those called with `false` should be allowed to load file/data asynchronously.
 
@@ -166,7 +166,7 @@ function App() {
 }
 ```
 
-When rendered on server, this will output `<div>Loading...</div>`. The content can then be loaded client side after hydration.
+When rendered on server, this will output `<div>Loading...</div>`. The content can then be loaded on client side after hydration.
 
 On client side, to ensure hydration completes correctly, the component must throw a promise which then resolves to the required component/data, and not render the content synchronously.
 
@@ -184,7 +184,7 @@ When a `[NO_SSR]` promise is thrown, default behavior is to continue rendering t
 
 However, this content will not be output as the Suspense fallback will be rendered and output instead.
 
-As an optimization, you can cause the render to bail out of rendering all further content within the Suspense as soon as the fallback is triggered, by providing a `fallbackFast` option to `.renderToStringAsync()`.
+As an optimization, you can cause the render to bail out of rendering all further content within the Suspense boundary as soon as the fallback is triggered, by providing a `fallbackFast` option to `.renderToStringAsync()`.
 
 ```jsx
 function App() {
@@ -236,7 +236,7 @@ Stream rendering (`.renderToNodeStream()`) is not yet supported by this package.
 
 Many other solutions achieve some form of server-side rendering by "double-rendering" the app.
 
-In the first render pass, all the promises for async-loaded data are collected. Once all the promises resolve, a 2nd render pass produces the actual HTML markup which is sent to the client. Obviously, it's resource-intensive to render twice. And if async components themselves make further async requests, 3rd or 4th or more render passes can be required.
+In the first render pass, all the promises for async-loaded data are collected. Once all the promises resolve, a 2nd render pass produces the actual HTML markup which is sent to the client. Obviously, it's resource-intensive to render twice. And if async components themselves make further async requests, 3rd or 4th render passes can be required.
 
 The `.renderToStringAsync()` method provided by this package renders in a single pass. The render is interrupted when awaiting an async resource and resumed once it has loaded.
 
