@@ -28,10 +28,10 @@ Also requires React 16.6.0 - 16.9.x. React 16.10.0+ is not supported at present.
 Before:
 
 ```jsx
-const ReactDOMServer = require('react-dom/server');
+const { renderToString } = require('react-dom/server');
 
 function render() {
-  const html = ReactDOMServer.renderToString( <App /> );
+  const html = renderToString( <App /> );
   return html;
 }
 ```
@@ -39,10 +39,10 @@ function render() {
 After:
 
 ```jsx
-const ReactDOMServer = require('react-async-ssr');
+const { renderToStringAsync } = require('react-async-ssr');
 
 async function render() {
-  const html = await ReactDOMServer.renderToStringAsync( <App /> );
+  const html = await renderToStringAsync( <App /> );
   return html;
 }
 ```
@@ -152,7 +152,7 @@ If the promise has this property, the component will not be rendered and the enc
 const { NO_SSR } = require('react-async-ssr/symbols');
 
 function LazyNoSSR() {
-  const promise = new Promise(() => {});
+  const promise = new Promise( () => {} );
   promise[NO_SSR] = true;
   throw promise;
 }
@@ -196,9 +196,9 @@ function App() {
   );
 }
 
-const html = await ReactDOMServer.renderToStringAsync(
+const html = await renderToStringAsync(
   <App />,
-  {fallbackFast: true}
+  { fallbackFast: true }
 );
 ```
 
