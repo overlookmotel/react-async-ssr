@@ -73,90 +73,15 @@ So I can just use `React.lazy()`, right?
 
 No! `React.lazy()` doesn't make sense to use on the server side. It doesn't have any ability to track the modules that have been lazy-loaded, so there's no way to then reload them on the client side, so that `.hydrate()` has all the code it needs.
 
-[@loadable/component](https://www.smooth-code.com/open-source/loadable-components/docs/api-loadable-component/#lazy) provides a `.lazy()` method which is equivalent to `React.lazy()` but suitable for server-side rendering. [This guide](https://www.smooth-code.com/open-source/loadable-components/docs/server-side-rendering/) explains how to use it for server-side rendering.
+[react-lazy-ssr](https://www.npmjs.com/package/react-lazy-ssr) is a drop-in replacement for `React.lazy()`, designed to work with `react-async-ssr`.
 
 ### Lazy data
 
-`.renderToStringAsync()` supports any component which fits within React's convention for suspendable components.
+[react-lazy-data](https://www.npmjs.com/package/react-lazy-data) is a ready-to-go simple solution for async data loading which is designed to work with `react-async-ssr`.
 
-In its `render()` method, the component should throw a Promise which will resolve when the data is loaded. When the promise resolves, the renderer will re-render the component and add it into the markup.
+If you're brave, you could also [roll your own](#rolling-your-own-lazy-data-solution) or adapt another existing data-loading package to work with `react-async-ssr`.
 
-#### Basic example
-
-```jsx
-let data = null, promise;
-function LazyData() {
-  if (data) return <div>{ data.foo }</div>;
-
-  if (!promise) {
-    promise = new Promise( resolve => {
-      setTimeout( () => {
-        data = {foo: 'bar'};
-        resolve();
-      }, 1000 );
-    } );
-  }
-
-  throw promise;
-}
-
-function App() {
-  return (
-    <div>
-      <Suspense fallback={ <div>Loading...</div> }>
-        <LazyData />
-      </Suspense>
-    </div>
-  );
-}
-
-const html = await ReactDOMServer.renderToStringAsync( <App /> );
-
-// html === '<div>bar</div>'
-```
-
-#### react-cache example
-
-An example using the experimental package [react-cache](https://www.npmjs.com/package/react-cache):
-
-```jsx
-const { createResource } = require('react-cache');
-
-const PokemonResource = createResource(
-  id =>
-    fetch(`https://pokeapi.co/api/v2/pokemon/${id}/`)
-      .then(res => res.json())
-);
-
-function Pokemon(props) {
-  const data = PokemonResource.read(props.id);
-  return <div>My name is {data.name}.</div>;
-}
-
-function App() {
-  return (
-    <div>
-      <Suspense fallback={ <div>Loading...</div> }>
-        <Pokemon id={1} />
-        <Pokemon id={2} />
-        <Pokemon id={3} />
-      </Suspense>
-    </div>
-  );
-}
-
-const html = await ReactDOMServer.renderToStringAsync( <App /> );
-
-// html === `
-//   <div>
-//     <div>My name is bulbasaur.</div>
-//     <div>My name is ivysaur.</div>
-//     <div>My name is venusaur.</div>
-//   </div>
-// `
-```
-
-The above example makes 3 async fetch requests, which are made in parallel. They are awaited, and the HTML markup rendered only once all the data is ready.
+If you have success, please [let me know](https://github.com/overlookmotel/react-async-ssr/issues/66).
 
 ### Hydrating the render on client side
 
@@ -314,6 +239,71 @@ Many other solutions achieve some form of server-side rendering by "double-rende
 In the first render pass, all the promises for async-loaded data are collected. Once all the promises resolve, a 2nd render pass produces the actual HTML markup which is sent to the client. Obviously, it's resource-intensive to render twice. And if async components themselves make further async requests, 3rd or 4th or more render passes can be required.
 
 The `.renderToStringAsync()` method provided by this package renders in a single pass. The render is interrupted when awaiting an async resource and resumed once it has loaded.
+
+### Rolling your own lazy data solution
+
+`.renderToStringAsync()` supports any component which fits within React's convention for suspendable components.
+
+In its `render()` method, the component should throw a Promise which will resolve when the data is loaded. When the promise resolves, the renderer will re-render the component and add it into the markup.
+
+Here's a basic example:
+
+```jsx
+import React, { createContext } from 'react';
+import { renderToStringAsync } from 'react-async-ssr';
+
+const PokemonDataContext = createContext();
+
+function Pokemon( { id } ) {
+	const store = useContext( PokemonDataContext );
+	let entry = store[id];
+	if ( !entry ) entry = store[id] = {};
+
+	const { data } = entry;
+	if ( data ) return <div>My name is: { data.name }</div>;
+
+  let { promise } = entry;
+	if ( !promise ) {
+		promise = fetch(`https://pokeapi.co/api/v2/pokemon/${id}`)
+			.then( res => res.json() )
+			.then( data => {
+				entry.data = data;
+				entry.promise = undefined;
+			} );
+		entry.promise = promise;
+  }
+
+  throw promise;
+}
+
+function App() {
+  return (
+		<div>
+		  <PokemonDataContext.Provider value={{}}>
+        <Suspense fallback={ <div>Loading...</div> }>
+          <Pokemon id={1} />
+          <Pokemon id={2} />
+          <Pokemon id={3} />
+			  </Suspense>
+			</PokemonDataContext.Provider>
+    </div>
+  );
+}
+
+const html = await renderToStringAsync( <App /> );
+
+// html === `
+//   <div>
+//     <div>My name is bulbasaur.</div>
+//     <div>My name is ivysaur.</div>
+//     <div>My name is venusaur.</div>
+//   </div>
+// `
+```
+
+The above example makes 3 async fetch requests, which are made in parallel. They are awaited, and the HTML markup rendered only once all the data is ready.
+
+A full solution is more complex than this, but the above shows the gist.
 
 ## Versioning
 
