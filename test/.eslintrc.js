@@ -17,6 +17,8 @@ module.exports = {
 	},
 	rules: {
 		'react/no-multi-comp': ['off'],
-		'react/jsx-filename-extension': ['error', {extensions: ['.jsx', '.test.js']}]
+		'react/jsx-filename-extension': ['error', {extensions: ['.jsx', '.test.js']}],
+		'import/no-unresolved': ['error', {ignore: ['^react-async-ssr$']}],
+		'node/no-missing-require': ['error', {allowModules: ['react-async-ssr']}]
 	}
 };

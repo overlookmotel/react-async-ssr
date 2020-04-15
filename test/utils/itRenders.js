@@ -9,7 +9,7 @@
 // Modules
 const React = require('react'),
 	{renderToString, renderToStaticMarkup} = require('react-dom/server'),
-	{renderToStringAsync, renderToStaticMarkupAsync} = require('../../index.js');
+	{renderToStringAsync, renderToStaticMarkupAsync} = require('react-async-ssr');
 
 // Imports
 const {lazy, lazySync, lazyClient} = require('./lazy.js'),

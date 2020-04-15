@@ -7,7 +7,7 @@
 
 // Modules
 const React = require('react'),
-	{ABORT, ON_MOUNT} = require('../../symbols.js');
+	{ABORT, ON_MOUNT} = require('react-async-ssr/symbols');
 
 // Imports
 const {lazy} = require('./lazy.js');
