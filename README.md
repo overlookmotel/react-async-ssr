@@ -255,22 +255,22 @@ import { renderToStringAsync } from 'react-async-ssr';
 const PokemonDataContext = createContext();
 
 function Pokemon( { id } ) {
-	const store = useContext( PokemonDataContext );
-	let entry = store[id];
-	if ( !entry ) entry = store[id] = {};
+  const store = useContext( PokemonDataContext );
+  let entry = store[id];
+  if ( !entry ) entry = store[id] = {};
 
-	const { data } = entry;
-	if ( data ) return <div>My name is: { data.name }</div>;
+  const { data } = entry;
+  if ( data ) return <div>My name is: { data.name }</div>;
 
   let { promise } = entry;
-	if ( !promise ) {
-		promise = fetch(`https://pokeapi.co/api/v2/pokemon/${id}`)
-			.then( res => res.json() )
-			.then( data => {
-				entry.data = data;
-				entry.promise = undefined;
-			} );
-		entry.promise = promise;
+  if ( !promise ) {
+    promise = fetch(`https://pokeapi.co/api/v2/pokemon/${id}`)
+      .then( res => res.json() )
+      .then( data => {
+        entry.data = data;
+        entry.promise = undefined;
+      } );
+    entry.promise = promise;
   }
 
   throw promise;
@@ -278,14 +278,14 @@ function Pokemon( { id } ) {
 
 function App() {
   return (
-		<div>
-		  <PokemonDataContext.Provider value={{}}>
+    <div>
+      <PokemonDataContext.Provider value={{}}>
         <Suspense fallback={ <div>Loading...</div> }>
           <Pokemon id={1} />
           <Pokemon id={2} />
           <Pokemon id={3} />
-			  </Suspense>
-			</PokemonDataContext.Provider>
+        </Suspense>
+      </PokemonDataContext.Provider>
     </div>
   );
 }
