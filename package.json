@@ -3,6 +3,10 @@
   "version": "0.7.1",
   "description": "Render React Suspense on server",
   "main": "index.js",
+  "files": [
+    "symbols.js",
+    "lib/**/*.js"
+  ],
   "author": {
     "name": "Overlook Motel"
   },
