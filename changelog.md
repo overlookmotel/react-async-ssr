@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.7.2
+
+No code:
+
+* Fix comment typo
+
+Tests:
+
+* Import module by name [refactor]
+
+Dev:
+
+* Update dev dependencies
+* Run tests on CI on Node v14
+* Replace `.npmignore` with `files` list in `package.json`
+* `.editorconfig` config
+* Simplify Jest config
+
+Docs:
+
+* Fix whitespace in README [fix]
+
 ## 0.7.1
 
 Docs:
